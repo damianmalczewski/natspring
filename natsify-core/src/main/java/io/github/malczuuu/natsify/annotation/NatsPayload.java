@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * Forces a parameter to be resolved from the message payload (body), even when the parameter type
- * would otherwise be recognized as headers (e.g., {@code Headers}).
+ * would otherwise be recognized as something else.
  */
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
