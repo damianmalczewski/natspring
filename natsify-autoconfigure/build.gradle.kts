@@ -1,0 +1,34 @@
+plugins {
+    id("internal.errorprone-convention")
+    id("internal.jacoco-convention")
+    id("internal.java-library-convention")
+    id("internal.publishing-convention")
+    alias(libs.plugins.nmcp)
+}
+
+dependencies {
+    // Main
+    api(libs.spring.boot.autoconfigure)
+    api(project(":natsify-core"))
+
+    compileOnly(libs.spring.boot.testcontainers)
+    compileOnly(libs.jackson.databind)
+    compileOnly(libs.micrometer.core)
+    compileOnly(libs.testcontainers.nats)
+
+    annotationProcessor(libs.spring.boot.configuration.processor)
+
+    // Test
+    testImplementation(libs.spring.boot.starter.test)
+
+    testRuntimeOnly(libs.junit.platform.launcher)
+
+    errorprone(libs.errorprone.core)
+    errorprone(libs.nullaway)
+}
+
+// see buildSrc/src/main/kotlin/internal.publishing-convention.gradle.kts
+internalPublishing {
+    displayName = "Natsify Auto-configure"
+    description = "Spring Boot Auto-configuration Module of Natsify Project"
+}
