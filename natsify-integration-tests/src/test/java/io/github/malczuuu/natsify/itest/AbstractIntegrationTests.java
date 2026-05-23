@@ -1,0 +1,28 @@
+/*
+ * Copyright 2026-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.malczuuu.natsify.itest;
+
+import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.testcontainers.junit.jupiter.Container;
+
+public abstract class AbstractIntegrationTests {
+
+  @Container @ServiceConnection
+  public static final NatsContainer natsContainer =
+      new NatsContainer("nats:2.14.0").withAuth("nats", "nats").withJetStream();
+}
