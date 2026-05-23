@@ -1,0 +1,83 @@
+/*
+ * Copyright 2026-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.malczuuu.natsify.instrument.micrometer;
+
+import io.github.malczuuu.natsify.instrument.NatsErrorObserver;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.binder.MeterBinder;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
+/**
+ * {@link NatsErrorObserver} that records connection-level errors as Micrometer counters: {@code
+ * nats.connection.errors}, {@code nats.connection.exceptions}, {@code
+ * nats.connection.slow.consumer.detected}, and {@code nats.connection.message.discarded}.
+ *
+ * <p>Register as a Spring bean; {@link #bindTo(MeterRegistry)} will be called automatically.
+ */
+public class MicrometerNatsErrorObserver implements NatsErrorObserver, MeterBinder {
+
+  private MeterRegistry meterRegistry;
+
+  /**
+   * Creates an instance using a temporary {@link SimpleMeterRegistry} until {@link #bindTo} is
+   * called.
+   */
+  public MicrometerNatsErrorObserver() {
+    meterRegistry = new SimpleMeterRegistry();
+  }
+
+  /**
+   * Called when the NATS server sends an error string.
+   *
+   * @param error the error text
+   */
+  @Override
+  public void onError(String error) {
+    Tags tags = Tags.of("error", error);
+    meterRegistry.counter("nats.connection.errors", tags).increment();
+  }
+
+  /**
+   * Called when the client encounters an exception during processing.
+   *
+   * @param exception the exception
+   */
+  @Override
+  public void onException(Exception exception) {
+    Tags tags = Tags.of("exception", exception.getClass().getSimpleName());
+    meterRegistry.counter("nats.connection.exceptions", tags).increment();
+  }
+
+  /** Called when a slow consumer is detected on the connection. */
+  @Override
+  public void onSlowConsumerDetected() {
+    meterRegistry.counter("nats.connection.slow.consumer.detected").increment();
+  }
+
+  /** Called when a message is discarded due to a full consumer queue. */
+  @Override
+  public void onMessageDiscarded() {
+    meterRegistry.counter("nats.connection.message.discarded").increment();
+  }
+
+  /** Replaces the temporary registry with the application-wide {@code registry}. */
+  @Override
+  public void bindTo(MeterRegistry registry) {
+    meterRegistry = registry;
+  }
+}
