@@ -1,0 +1,29 @@
+import org.jetbrains.gradle.ext.Gradle
+import org.jetbrains.gradle.ext.JUnit
+import org.jetbrains.gradle.ext.runConfigurations
+import org.jetbrains.gradle.ext.settings
+
+plugins {
+    id("org.jetbrains.gradle.plugin.idea-ext")
+}
+
+idea {
+    project {
+        settings {
+            runConfigurations {
+                create<Gradle>("Gradle Clean [natsify]") {
+                    taskNames = listOf("clean")
+                    projectPath = rootProject.rootDir.absolutePath
+                }
+                create<Gradle>("Gradle Build [natsify]") {
+                    taskNames = listOf("spotlessApply build")
+                    projectPath = rootProject.rootDir.absolutePath
+                }
+                create<Gradle>("Gradle Format Code [natsify]") {
+                    taskNames = listOf("spotlessApply")
+                    projectPath = rootProject.rootDir.absolutePath
+                }
+            }
+        }
+    }
+}

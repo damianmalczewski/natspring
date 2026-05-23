@@ -1,0 +1,34 @@
+name: Gradle Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "release-*"
+    paths:
+      - ".github/workflows/gradle-build.yml"
+      - "buildSrc/**"
+      - "gradle/**"
+      - "**/src/**"
+      - "**/*.gradle.kts"
+      - "gradle.properties"
+      - "gradlew"
+      - "gradlew.bat"
+  pull_request:
+    branches:
+      - "main"
+      - "release-*"
+  schedule:
+    - cron: "0 3 * * 0"  # Weekly on Sundays at 3 AM UTC
+
+jobs:
+  build:
+    name: Build (Java ${{ matrix.java }})
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [17, 21, 25]
+    uses: problem4j/problem4j-workflows/.github/workflows/gradle-build.yml@main
+    with:
+      java-version: ${{ matrix.java }}

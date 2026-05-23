@@ -1,0 +1,23 @@
+name: Dependency Submission
+
+# workflow limited to only files related to Gradle dependencies
+on:
+  push:
+    branches:
+      - "main"
+      - "release-*"
+    paths:
+      - ".github/workflows/gradle-dependency-submission.yml"
+      - "buildSrc/**"
+      - "gradle/**"
+      - "**/*.gradle.kts"
+      - "gradle.properties"
+      - "gradlew"
+      - "gradlew.bat"
+
+jobs:
+  dependency-submission:
+    name: Dependency Submission
+    permissions:
+      contents: write
+    uses: problem4j/problem4j-workflows/.github/workflows/gradle-dependency-submission.yml@main
