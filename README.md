@@ -1,4 +1,4 @@
-# Spring Boot integration for NATS
+# Natsify Project
 
 Spring Boot auto-configuration for [NATS](https://nats.io), providing annotation-driven message listeners for both core
 NATS and JetStream.

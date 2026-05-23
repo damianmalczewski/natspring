@@ -1,4 +1,4 @@
-# `natsify` - Agent Instructions
+# Natsify Project - Agent Instructions
 
 Spring Boot auto-configuration for NATS. Provides annotation-driven message listeners (`@NatsListener`,
 `@JetStreamListener`) and a publishing API (`NatsOperations`) with optional Micrometer instrumentation.
