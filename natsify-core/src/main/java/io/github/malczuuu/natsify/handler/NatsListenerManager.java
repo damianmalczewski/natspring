@@ -40,10 +40,12 @@ public class NatsListenerManager implements ListenerManager {
 
   @Override
   public synchronized void initialize(Connection connection) throws Exception {
-    for (NatsListenerHandle handle : natsListenerRegistry.getHandles()) {
+    for (NatsListenerDetails listener : natsListenerRegistry.getListeners()) {
       NatsListenerHandler handler =
           new SubscriptionHandler(
-              connection, handle, new NatsListenerInvocation(handle, argumentResolver, observer));
+              connection,
+              listener,
+              new NatsListenerInvocation(listener, argumentResolver, observer));
       handlers.add(handler);
       handler.start();
     }

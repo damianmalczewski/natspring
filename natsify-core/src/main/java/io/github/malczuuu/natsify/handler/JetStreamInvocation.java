@@ -28,55 +28,55 @@ final class JetStreamInvocation implements Consumer<Message> {
 
   private static final Logger log = LoggerFactory.getLogger(JetStreamInvocation.class);
 
-  private final JetStreamListenerHandle handle;
+  private final JetStreamListenerDetails listener;
   private final MessageArgumentResolver argumentResolver;
   private final JetStreamListenerObserver observer;
 
   JetStreamInvocation(
-      JetStreamListenerHandle handle,
+      JetStreamListenerDetails listener,
       MessageArgumentResolver argumentResolver,
       JetStreamListenerObserver observer) {
-    this.handle = handle;
+    this.listener = listener;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
   }
 
   @Override
   public void accept(Message msg) {
-    observer.onReceived(handle.getSubject(), handle.getStream());
+    observer.onReceived(listener.getSubject(), listener.getStream());
     long start = System.nanoTime();
     try {
       doAccept(msg);
     } finally {
-      observer.onProcessed(handle.getSubject(), handle.getStream(), System.nanoTime() - start);
+      observer.onProcessed(listener.getSubject(), listener.getStream(), System.nanoTime() - start);
     }
   }
 
   private void doAccept(Message msg) {
     Object[] args;
     try {
-      args = argumentResolver.resolveArguments(handle.getMethod().getParameters(), msg);
+      args = argumentResolver.resolveArguments(listener.getMethod().getParameters(), msg);
     } catch (Exception e) {
       log.error(
           "Unable to resolve arguments for NATS JetStream handler {}, terminating message",
-          handle.getMethod(),
+          listener.getMethod(),
           e);
       msg.term();
-      observer.onTerminated(handle.getSubject(), handle.getStream(), e);
+      observer.onTerminated(listener.getSubject(), listener.getStream(), e);
       return;
     }
 
     try {
-      handle.getMethod().invoke(handle.getBean(), args);
-      if (handle.getAckMode() == AckMode.AUTO) {
+      listener.getMethod().invoke(listener.getBean(), args);
+      if (listener.getAckMode() == AckMode.AUTO) {
         msg.ack();
-        observer.onAcked(handle.getSubject(), handle.getStream());
+        observer.onAcked(listener.getSubject(), listener.getStream());
       }
     } catch (InvocationTargetException | IllegalAccessException e) {
-      log.error("Failed to invoke handler for NATS JetStream listener {}", handle.getMethod(), e);
-      if (handle.getAckMode() == AckMode.AUTO) {
+      log.error("Failed to invoke handler for NATS JetStream listener {}", listener.getMethod(), e);
+      if (listener.getAckMode() == AckMode.AUTO) {
         msg.nak();
-        observer.onNacked(handle.getSubject(), handle.getStream());
+        observer.onNacked(listener.getSubject(), listener.getStream());
       }
     }
   }

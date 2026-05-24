@@ -36,7 +36,7 @@ final class JetStreamPushHandler implements JetStreamHandler {
 
   private final Connection connection;
   private final JetStream stream;
-  private final JetStreamListenerHandle handle;
+  private final JetStreamListenerDetails listener;
   private final ConsumerConfiguration configuration;
   private final Consumer<Message> messageConsumer;
 
@@ -47,12 +47,12 @@ final class JetStreamPushHandler implements JetStreamHandler {
   JetStreamPushHandler(
       Connection connection,
       JetStream stream,
-      JetStreamListenerHandle handle,
+      JetStreamListenerDetails listener,
       ConsumerConfiguration configuration,
       Consumer<Message> messageConsumer) {
     this.connection = connection;
     this.stream = stream;
-    this.handle = handle;
+    this.listener = listener;
     this.configuration = configuration;
     this.messageConsumer = messageConsumer;
   }
@@ -68,30 +68,30 @@ final class JetStreamPushHandler implements JetStreamHandler {
 
     PushSubscribeOptions.Builder builder =
         PushSubscribeOptions.builder().configuration(configuration);
-    if (!handle.getStream().isEmpty()) {
-      builder.stream(handle.getStream());
+    if (!listener.getStream().isEmpty()) {
+      builder.stream(listener.getStream());
     }
     PushSubscribeOptions options = builder.build();
     dispatcher = connection.createDispatcher();
     running = true;
-    if (handle.getQueue().isEmpty()) {
+    if (listener.getQueue().isEmpty()) {
       subscription =
           stream.subscribe(
-              handle.getSubject(), dispatcher, messageConsumer::accept, false, options);
-      log.info("Subscribed push JetStream listener to subject {}", handle.getSubject());
+              listener.getSubject(), dispatcher, messageConsumer::accept, false, options);
+      log.info("Subscribed push JetStream listener to subject {}", listener.getSubject());
     } else {
       subscription =
           stream.subscribe(
-              handle.getSubject(),
-              handle.getQueue(),
+              listener.getSubject(),
+              listener.getQueue(),
               dispatcher,
               messageConsumer::accept,
               false,
               options);
       log.info(
           "Subscribed push JetStream listener to subject {}, queue {}",
-          handle.getSubject(),
-          handle.getQueue());
+          listener.getSubject(),
+          listener.getQueue());
     }
   }
 

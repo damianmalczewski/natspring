@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aop.support.AopUtils;
 
-public final class JetStreamListenerHandle {
+public final class JetStreamListenerDetails {
 
   private final Object bean;
   private final Method method;
@@ -35,7 +35,7 @@ public final class JetStreamListenerHandle {
   private final AckMode ackMode;
   private final DeliverPolicyType deliverPolicy;
 
-  private JetStreamListenerHandle(
+  private JetStreamListenerDetails(
       Object bean,
       Method method,
       String subject,
@@ -168,7 +168,7 @@ public final class JetStreamListenerHandle {
       return this;
     }
 
-    public JetStreamListenerHandle build() {
+    public JetStreamListenerDetails build() {
       if (bean == null) throw new IllegalStateException("bean is required");
       if (method == null) throw new IllegalStateException("method is required");
       if (subject == null) throw new IllegalStateException("subject is required");
@@ -178,7 +178,7 @@ public final class JetStreamListenerHandle {
       if (consumerType == null) throw new IllegalStateException("consumerType is required");
       if (ackMode == null) throw new IllegalStateException("ackMode is required");
       if (deliverPolicy == null) throw new IllegalStateException("deliverPolicy is required");
-      return new JetStreamListenerHandle(
+      return new JetStreamListenerDetails(
           bean, method, subject, stream, durable, queue, consumerType, ackMode, deliverPolicy);
     }
   }

@@ -46,17 +46,17 @@ public class JetStreamListenerManager implements ListenerManager {
 
   @Override
   public synchronized void initialize(Connection connection) throws Exception {
-    if (registry.getHandles().isEmpty()) {
+    if (registry.getListeners().isEmpty()) {
       return;
     }
     JetStream stream = connection.jetStream();
-    for (JetStreamListenerHandle handle : registry.getHandles()) {
-      ConsumerConfiguration configuration = buildConsumerConfiguration(handle);
+    for (JetStreamListenerDetails listener : registry.getListeners()) {
+      ConsumerConfiguration configuration = buildConsumerConfiguration(listener);
       JetStreamHandler handler;
-      if (handle.getConsumerType() == ConsumerType.PUSH) {
-        handler = createPushHandler(connection, handle, stream, configuration);
+      if (listener.getConsumerType() == ConsumerType.PUSH) {
+        handler = createPushHandler(connection, listener, stream, configuration);
       } else {
-        handler = createPullHandler(handle, stream, configuration);
+        handler = createPullHandler(listener, stream, configuration);
       }
       handlers.add(handler);
       handler.start();
@@ -70,30 +70,33 @@ public class JetStreamListenerManager implements ListenerManager {
 
   private JetStreamPushHandler createPushHandler(
       Connection connection,
-      JetStreamListenerHandle handle,
+      JetStreamListenerDetails listener,
       JetStream stream,
       ConsumerConfiguration configuration) {
     return new JetStreamPushHandler(
         connection,
         stream,
-        handle,
+        listener,
         configuration,
-        new JetStreamInvocation(handle, argumentResolver, observer));
+        new JetStreamInvocation(listener, argumentResolver, observer));
   }
 
   private JetStreamPullHandler createPullHandler(
-      JetStreamListenerHandle handle, JetStream stream, ConsumerConfiguration configuration) {
+      JetStreamListenerDetails listener, JetStream stream, ConsumerConfiguration configuration) {
     return new JetStreamPullHandler(
-        stream, handle, configuration, new JetStreamInvocation(handle, argumentResolver, observer));
+        stream,
+        listener,
+        configuration,
+        new JetStreamInvocation(listener, argumentResolver, observer));
   }
 
-  private ConsumerConfiguration buildConsumerConfiguration(JetStreamListenerHandle handle) {
+  private ConsumerConfiguration buildConsumerConfiguration(JetStreamListenerDetails listener) {
     ConsumerConfiguration.Builder builder =
         ConsumerConfiguration.builder()
-            .deliverPolicy(toDeliverPolicy(handle.getDeliverPolicy()))
+            .deliverPolicy(toDeliverPolicy(listener.getDeliverPolicy()))
             .ackPolicy(AckPolicy.Explicit);
-    if (!handle.getDurable().isEmpty()) {
-      builder.durable(handle.getDurable());
+    if (!listener.getDurable().isEmpty()) {
+      builder.durable(listener.getDurable());
     }
     return builder.build();
   }

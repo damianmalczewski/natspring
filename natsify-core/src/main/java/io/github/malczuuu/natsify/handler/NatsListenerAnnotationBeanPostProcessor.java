@@ -66,16 +66,16 @@ public class NatsListenerAnnotationBeanPostProcessor
       String subject = resolve(annotation.subject());
       String queue = resolve(annotation.queue());
 
-      NatsListenerHandle handle =
-          NatsListenerHandle.builder()
+      NatsListenerDetails listener =
+          NatsListenerDetails.builder()
               .withBean(bean)
               .withMethod(method)
               .withSubject(subject)
               .withQueue(queue)
               .build();
 
-      natsListenerRegistry.register(handle);
-      log.info("Registered @NatsListener with handle {}", handle);
+      natsListenerRegistry.register(listener);
+      log.info("Registered @NatsListener to {}", listener);
     }
 
     return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);

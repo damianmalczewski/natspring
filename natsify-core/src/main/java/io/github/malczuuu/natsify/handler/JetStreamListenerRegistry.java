@@ -22,16 +22,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class JetStreamListenerRegistry {
 
-  private final List<JetStreamListenerHandle> handles = new CopyOnWriteArrayList<>();
+  private final List<JetStreamListenerDetails> listeners = new CopyOnWriteArrayList<>();
 
   public JetStreamListenerRegistry() {}
 
-  public void register(JetStreamListenerHandle handle) {
-    handle.getMethod().setAccessible(true);
-    handles.add(handle);
+  public void register(JetStreamListenerDetails listener) {
+    listener.getMethod().setAccessible(true);
+    listeners.add(listener);
   }
 
-  public List<JetStreamListenerHandle> getHandles() {
-    return Collections.unmodifiableList(handles);
+  public List<JetStreamListenerDetails> getListeners() {
+    return Collections.unmodifiableList(listeners);
   }
 }

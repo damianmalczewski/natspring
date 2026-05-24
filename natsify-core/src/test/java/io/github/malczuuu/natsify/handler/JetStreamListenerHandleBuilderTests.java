@@ -38,8 +38,8 @@ class JetStreamListenerHandleBuilderTests {
     }
   }
 
-  private JetStreamListenerHandle.Builder fullBuilder() {
-    return JetStreamListenerHandle.builder()
+  private JetStreamListenerDetails.Builder fullBuilder() {
+    return JetStreamListenerDetails.builder()
         .withBean(BEAN)
         .withMethod(METHOD)
         .withSubject("orders.>")
@@ -53,17 +53,17 @@ class JetStreamListenerHandleBuilderTests {
 
   @Test
   void givenAllFields_whenBuild_thenHandleCreatedWithCorrectValues() {
-    JetStreamListenerHandle handle = fullBuilder().build();
+    JetStreamListenerDetails listener = fullBuilder().build();
 
-    assertThat(handle.getBean()).isSameAs(BEAN);
-    assertThat(handle.getMethod()).isSameAs(METHOD);
-    assertThat(handle.getSubject()).isEqualTo("orders.>");
-    assertThat(handle.getStream()).isEqualTo("ORDERS");
-    assertThat(handle.getDurable()).isEqualTo("order-processor");
-    assertThat(handle.getQueue()).isEqualTo("");
-    assertThat(handle.getConsumerType()).isEqualTo(ConsumerType.PUSH);
-    assertThat(handle.getAckMode()).isEqualTo(AckMode.AUTO);
-    assertThat(handle.getDeliverPolicy()).isEqualTo(DeliverPolicyType.ALL);
+    assertThat(listener.getBean()).isSameAs(BEAN);
+    assertThat(listener.getMethod()).isSameAs(METHOD);
+    assertThat(listener.getSubject()).isEqualTo("orders.>");
+    assertThat(listener.getStream()).isEqualTo("ORDERS");
+    assertThat(listener.getDurable()).isEqualTo("order-processor");
+    assertThat(listener.getQueue()).isEqualTo("");
+    assertThat(listener.getConsumerType()).isEqualTo(ConsumerType.PUSH);
+    assertThat(listener.getAckMode()).isEqualTo(AckMode.AUTO);
+    assertThat(listener.getDeliverPolicy()).isEqualTo(DeliverPolicyType.ALL);
   }
 
   @Test

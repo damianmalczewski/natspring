@@ -35,7 +35,7 @@ final class JetStreamPullHandler implements JetStreamHandler {
   private static final Logger log = LoggerFactory.getLogger(JetStreamPullHandler.class);
 
   private final JetStream stream;
-  private final JetStreamListenerHandle handle;
+  private final JetStreamListenerDetails listener;
   private final ConsumerConfiguration configuration;
   private final Consumer<Message> messageConsumer;
 
@@ -45,11 +45,11 @@ final class JetStreamPullHandler implements JetStreamHandler {
 
   JetStreamPullHandler(
       JetStream stream,
-      JetStreamListenerHandle handle,
+      JetStreamListenerDetails listener,
       ConsumerConfiguration configuration,
       Consumer<Message> messageConsumer) {
     this.stream = stream;
-    this.handle = handle;
+    this.listener = listener;
     this.configuration = configuration;
     this.messageConsumer = messageConsumer;
   }
@@ -65,15 +65,15 @@ final class JetStreamPullHandler implements JetStreamHandler {
 
     PullSubscribeOptions.Builder builder =
         PullSubscribeOptions.builder().configuration(configuration);
-    if (!handle.getStream().isEmpty()) {
-      builder.stream(handle.getStream());
+    if (!listener.getStream().isEmpty()) {
+      builder.stream(listener.getStream());
     }
-    subscription = stream.subscribe(handle.getSubject(), builder.build());
+    subscription = stream.subscribe(listener.getSubject(), builder.build());
     running = true;
-    listenerThread = new Thread(this::runPollPool, "nats-pull-" + handle.getSubject());
+    listenerThread = new Thread(this::runPollPool, "nats-pull-" + listener.getSubject());
     listenerThread.setDaemon(true);
     listenerThread.start();
-    log.info("Subscribed pull JetStream listener to subject {}", handle.getSubject());
+    log.info("Subscribed pull JetStream listener to subject {}", listener.getSubject());
   }
 
   @Override
@@ -113,7 +113,7 @@ final class JetStreamPullHandler implements JetStreamHandler {
         if (!running || Thread.currentThread().isInterrupted()) {
           return;
         }
-        log.error("Error polling JetStream messages for subject {}", handle.getSubject(), e);
+        log.error("Error polling JetStream messages for subject {}", listener.getSubject(), e);
       }
     }
   }

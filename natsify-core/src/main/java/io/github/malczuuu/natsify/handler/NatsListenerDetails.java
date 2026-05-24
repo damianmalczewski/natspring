@@ -20,14 +20,14 @@ import java.lang.reflect.Method;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aop.support.AopUtils;
 
-public final class NatsListenerHandle {
+public final class NatsListenerDetails {
 
   private final Object bean;
   private final Method method;
   private final String subject;
   private final String queue;
 
-  private NatsListenerHandle(Object bean, Method method, String subject, String queue) {
+  private NatsListenerDetails(Object bean, Method method, String subject, String queue) {
     this.bean = bean;
     this.method = method;
     this.subject = subject;
@@ -91,12 +91,12 @@ public final class NatsListenerHandle {
       return this;
     }
 
-    public NatsListenerHandle build() {
+    public NatsListenerDetails build() {
       if (bean == null) throw new IllegalStateException("bean is required");
       if (method == null) throw new IllegalStateException("method is required");
       if (subject == null) throw new IllegalStateException("subject is required");
       if (queue == null) throw new IllegalStateException("queue is required");
-      return new NatsListenerHandle(bean, method, subject, queue);
+      return new NatsListenerDetails(bean, method, subject, queue);
     }
   }
 }

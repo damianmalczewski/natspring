@@ -22,16 +22,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NatsListenerRegistry {
 
-  private final List<NatsListenerHandle> handles = new CopyOnWriteArrayList<>();
+  private final List<NatsListenerDetails> listeners = new CopyOnWriteArrayList<>();
 
   public NatsListenerRegistry() {}
 
-  public void register(NatsListenerHandle handle) {
-    handle.getMethod().setAccessible(true);
-    handles.add(handle);
+  public void register(NatsListenerDetails listener) {
+    listener.getMethod().setAccessible(true);
+    listeners.add(listener);
   }
 
-  public List<NatsListenerHandle> getHandles() {
-    return Collections.unmodifiableList(handles);
+  public List<NatsListenerDetails> getListeners() {
+    return Collections.unmodifiableList(listeners);
   }
 }

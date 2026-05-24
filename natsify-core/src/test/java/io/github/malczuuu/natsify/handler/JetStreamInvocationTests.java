@@ -51,7 +51,7 @@ class JetStreamInvocationTests {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
     new JetStreamInvocation(
-            handle("handle", AckMode.AUTO), argumentResolver, JetStreamListenerObserver.noop())
+            listener("handle", AckMode.AUTO), argumentResolver, JetStreamListenerObserver.noop())
         .accept(message);
 
     verify(message).ack();
@@ -64,7 +64,7 @@ class JetStreamInvocationTests {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
     new JetStreamInvocation(
-            handle("handle", AckMode.MANUAL), argumentResolver, JetStreamListenerObserver.noop())
+            listener("handle", AckMode.MANUAL), argumentResolver, JetStreamListenerObserver.noop())
         .accept(message);
 
     verify(message, never()).ack();
@@ -76,7 +76,7 @@ class JetStreamInvocationTests {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
     new JetStreamInvocation(
-            handle("handleThrowing", AckMode.AUTO),
+            listener("handleThrowing", AckMode.AUTO),
             argumentResolver,
             JetStreamListenerObserver.noop())
         .accept(message);
@@ -90,7 +90,7 @@ class JetStreamInvocationTests {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
     new JetStreamInvocation(
-            handle("handleThrowing", AckMode.MANUAL),
+            listener("handleThrowing", AckMode.MANUAL),
             argumentResolver,
             JetStreamListenerObserver.noop())
         .accept(message);
@@ -105,7 +105,7 @@ class JetStreamInvocationTests {
         .thenThrow(new RuntimeException("bad payload"));
 
     new JetStreamInvocation(
-            handle("handle", AckMode.AUTO), argumentResolver, JetStreamListenerObserver.noop())
+            listener("handle", AckMode.AUTO), argumentResolver, JetStreamListenerObserver.noop())
         .accept(message);
 
     verify(message).term();
@@ -113,11 +113,11 @@ class JetStreamInvocationTests {
     assertThat(listener.called).isFalse();
   }
 
-  private JetStreamListenerHandle handle(String methodName, AckMode ackMode) {
+  private JetStreamListenerDetails listener(String methodName, AckMode ackMode) {
     try {
       Method method = Listener.class.getDeclaredMethod(methodName);
       method.setAccessible(true);
-      return JetStreamListenerHandle.builder()
+      return JetStreamListenerDetails.builder()
           .withBean(listener)
           .withMethod(method)
           .withSubject("test-subject")

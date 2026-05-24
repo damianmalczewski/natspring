@@ -125,15 +125,15 @@ class NatsListenerInvocationTests {
     verify(observer).onProcessed(eq("test-subject"), eq("my-queue"), anyLong());
   }
 
-  private NatsListenerHandle handle(String methodName) {
+  private NatsListenerDetails handle(String methodName) {
     return handleWithQueue(methodName, "");
   }
 
-  private NatsListenerHandle handleWithQueue(String methodName, String queue) {
+  private NatsListenerDetails handleWithQueue(String methodName, String queue) {
     try {
       Method method = Listener.class.getDeclaredMethod(methodName);
       method.setAccessible(true);
-      return NatsListenerHandle.builder()
+      return NatsListenerDetails.builder()
           .withBean(listener)
           .withMethod(method)
           .withSubject("test-subject")

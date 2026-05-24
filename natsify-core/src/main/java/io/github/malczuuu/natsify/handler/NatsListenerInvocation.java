@@ -27,49 +27,49 @@ final class NatsListenerInvocation implements Consumer<Message> {
 
   private static final Logger log = LoggerFactory.getLogger(NatsListenerInvocation.class);
 
-  private final NatsListenerHandle handle;
+  private final NatsListenerDetails listener;
   private final MessageArgumentResolver argumentResolver;
   private final NatsListenerObserver observer;
 
   NatsListenerInvocation(
-      NatsListenerHandle handle,
+      NatsListenerDetails listener,
       MessageArgumentResolver argumentResolver,
       NatsListenerObserver observer) {
-    this.handle = handle;
+    this.listener = listener;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
   }
 
   @Override
   public void accept(Message msg) {
-    observer.onReceived(handle.getSubject(), handle.getQueue());
+    observer.onReceived(listener.getSubject(), listener.getQueue());
     long start = System.nanoTime();
     try {
       doAccept(msg);
     } finally {
-      observer.onProcessed(handle.getSubject(), handle.getQueue(), System.nanoTime() - start);
+      observer.onProcessed(listener.getSubject(), listener.getQueue(), System.nanoTime() - start);
     }
   }
 
   private void doAccept(Message msg) {
     Object[] args;
     try {
-      args = argumentResolver.resolveArguments(handle.getMethod().getParameters(), msg);
+      args = argumentResolver.resolveArguments(listener.getMethod().getParameters(), msg);
     } catch (Exception e) {
       log.error(
           "Unable to resolve arguments for NATS listener {}, dropping message",
-          handle.getMethod(),
+          listener.getMethod(),
           e);
-      observer.onFailed(handle.getSubject(), handle.getQueue());
+      observer.onFailed(listener.getSubject(), listener.getQueue());
       return;
     }
 
     try {
-      handle.getMethod().invoke(handle.getBean(), args);
-      observer.onSucceeded(handle.getSubject(), handle.getQueue());
+      listener.getMethod().invoke(listener.getBean(), args);
+      observer.onSucceeded(listener.getSubject(), listener.getQueue());
     } catch (InvocationTargetException | IllegalAccessException e) {
-      log.error("Failed to invoke handler for NATS listener {}", handle.getMethod(), e);
-      observer.onFailed(handle.getSubject(), handle.getQueue());
+      log.error("Failed to invoke handler for NATS listener {}", listener.getMethod(), e);
+      observer.onFailed(listener.getSubject(), listener.getQueue());
     }
   }
 }

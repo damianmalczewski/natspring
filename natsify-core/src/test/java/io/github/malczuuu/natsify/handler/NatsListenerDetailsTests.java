@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 
-class NatsListenerHandleBuilderTests {
+class NatsListenerDetailsTests {
 
   private static final Object BEAN = new Object();
   private static final Method METHOD;
@@ -37,25 +37,25 @@ class NatsListenerHandleBuilderTests {
 
   @Test
   void givenAllFields_whenBuild_thenHandleCreatedWithCorrectValues() {
-    NatsListenerHandle handle =
-        NatsListenerHandle.builder()
+    NatsListenerDetails listener =
+        NatsListenerDetails.builder()
             .withBean(BEAN)
             .withMethod(METHOD)
             .withSubject("orders.placed")
             .withQueue("processors")
             .build();
 
-    assertThat(handle.getBean()).isSameAs(BEAN);
-    assertThat(handle.getMethod()).isSameAs(METHOD);
-    assertThat(handle.getSubject()).isEqualTo("orders.placed");
-    assertThat(handle.getQueue()).isEqualTo("processors");
+    assertThat(listener.getBean()).isSameAs(BEAN);
+    assertThat(listener.getMethod()).isSameAs(METHOD);
+    assertThat(listener.getSubject()).isEqualTo("orders.placed");
+    assertThat(listener.getQueue()).isEqualTo("processors");
   }
 
   @Test
   void givenMissingBean_whenBuild_thenThrowsIllegalStateException() {
     assertThatThrownBy(
             () ->
-                NatsListenerHandle.builder()
+                NatsListenerDetails.builder()
                     .withMethod(METHOD)
                     .withSubject("orders.placed")
                     .withQueue("processors")
@@ -68,7 +68,7 @@ class NatsListenerHandleBuilderTests {
   void givenMissingMethod_whenBuild_thenThrowsIllegalStateException() {
     assertThatThrownBy(
             () ->
-                NatsListenerHandle.builder()
+                NatsListenerDetails.builder()
                     .withBean(BEAN)
                     .withSubject("orders.placed")
                     .withQueue("processors")
@@ -81,7 +81,7 @@ class NatsListenerHandleBuilderTests {
   void givenMissingSubject_whenBuild_thenThrowsIllegalStateException() {
     assertThatThrownBy(
             () ->
-                NatsListenerHandle.builder()
+                NatsListenerDetails.builder()
                     .withBean(BEAN)
                     .withMethod(METHOD)
                     .withQueue("processors")
@@ -94,7 +94,7 @@ class NatsListenerHandleBuilderTests {
   void givenMissingQueue_whenBuild_thenThrowsIllegalStateException() {
     assertThatThrownBy(
             () ->
-                NatsListenerHandle.builder()
+                NatsListenerDetails.builder()
                     .withBean(BEAN)
                     .withMethod(METHOD)
                     .withSubject("orders.placed")

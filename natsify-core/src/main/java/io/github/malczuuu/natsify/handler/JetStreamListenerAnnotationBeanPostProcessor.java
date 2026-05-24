@@ -67,8 +67,8 @@ public class JetStreamListenerAnnotationBeanPostProcessor
       String durable = resolve(annotation.durable());
       String queue = resolve(annotation.queue());
 
-      JetStreamListenerHandle handle =
-          JetStreamListenerHandle.builder()
+      JetStreamListenerDetails listener =
+          JetStreamListenerDetails.builder()
               .withBean(bean)
               .withMethod(method)
               .withSubject(subject)
@@ -80,8 +80,8 @@ public class JetStreamListenerAnnotationBeanPostProcessor
               .withDeliverPolicy(annotation.deliverPolicy())
               .build();
 
-      jetStreamListenerRegistry.register(handle);
-      log.info("Registered @JetStreamListener with handle {}", handle);
+      jetStreamListenerRegistry.register(listener);
+      log.info("Registered @JetStreamListener to {}", listener);
     }
 
     return bean;

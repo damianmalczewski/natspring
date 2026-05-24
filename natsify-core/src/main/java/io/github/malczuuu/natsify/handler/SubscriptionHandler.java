@@ -29,16 +29,16 @@ final class SubscriptionHandler implements NatsListenerHandler {
   private static final Logger log = LoggerFactory.getLogger(SubscriptionHandler.class);
 
   private final Connection connection;
-  private final NatsListenerHandle handle;
+  private final NatsListenerDetails listener;
   private final Consumer<Message> messageConsumer;
 
   private boolean running = false;
   private @Nullable Dispatcher dispatcher = null;
 
   SubscriptionHandler(
-      Connection connection, NatsListenerHandle handle, Consumer<Message> messageConsumer) {
+      Connection connection, NatsListenerDetails listener, Consumer<Message> messageConsumer) {
     this.connection = connection;
-    this.handle = handle;
+    this.listener = listener;
     this.messageConsumer = messageConsumer;
   }
 
@@ -52,12 +52,13 @@ final class SubscriptionHandler implements NatsListenerHandler {
     }
     dispatcher = connection.createDispatcher(messageConsumer::accept);
     running = true;
-    if (handle.getQueue().isEmpty()) {
-      dispatcher.subscribe(handle.getSubject());
-      log.info("Subscribed to NATS subject {}", handle.getSubject());
+    if (listener.getQueue().isEmpty()) {
+      dispatcher.subscribe(listener.getSubject());
+      log.info("Subscribed to NATS subject {}", listener.getSubject());
     } else {
-      dispatcher.subscribe(handle.getSubject(), handle.getQueue());
-      log.info("Subscribed to NATS subject {}, queue {}", handle.getSubject(), handle.getQueue());
+      dispatcher.subscribe(listener.getSubject(), listener.getQueue());
+      log.info(
+          "Subscribed to NATS subject {}, queue {}", listener.getSubject(), listener.getQueue());
     }
   }
 
@@ -72,7 +73,7 @@ final class SubscriptionHandler implements NatsListenerHandler {
 
     Dispatcher dispatcher = this.dispatcher;
     if (dispatcher != null) {
-      dispatcher.unsubscribe(handle.getSubject());
+      dispatcher.unsubscribe(listener.getSubject());
       connection.closeDispatcher(dispatcher);
       this.dispatcher = null;
     }
