@@ -220,8 +220,8 @@ Add `natsify-starter-test` to your test dependencies:
 ### Testcontainers
 
 There is no official Testcontainers module for NATS. The community-maintained
-[`io.github.amadeusitgroup.testcontainers:nats`](https://github.com/AmadeusITGroup/testcontainers-nats) library provides
-`NatsContainer` and integrates with Spring Boot's `@ServiceConnection` for zero-config wiring:
+[`io.github.amadeusitgroup.testcontainers:nats`][nats-testcontainers-java] library provides a `NatsContainer`. Current
+library integrates it with Spring Boot's `@ServiceConnection` for zero-config wiring.
 
 ```xml
 <dependency>
@@ -247,3 +247,5 @@ class MyIntegrationTests {
 ```
 
 `@ServiceConnection` auto-configures `natsify.server` from the running container - no manual property overrides needed.
+
+[nats-testcontainers-java]: https://github.com/AmadeusITGroup/nats-testcontainers-java
