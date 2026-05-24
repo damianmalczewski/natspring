@@ -16,11 +16,15 @@
 
 package io.github.malczuuu.natsify.connection;
 
+import io.github.malczuuu.natsify.core.NatsIntegrationException;
+import io.github.malczuuu.natsify.core.StreamConfigureException;
 import io.nats.client.Connection;
+import io.nats.client.JetStreamApiException;
 import io.nats.client.JetStreamManagement;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import io.nats.client.api.StreamConfiguration;
+import io.nats.client.api.StreamInfo;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +36,9 @@ import org.slf4j.LoggerFactory;
 public final class JetStreamConfigurer implements JetStreamManager {
 
   private static final Logger log = LoggerFactory.getLogger(JetStreamConfigurer.class);
+
+  private static final int NOT_FOUND_CODE = 404;
+  private static final int STREAM_NOT_FOUND_ERROR = 10059;
 
   private final boolean enabled;
   private final Options options;
@@ -69,6 +76,8 @@ public final class JetStreamConfigurer implements JetStreamManager {
    */
   @Override
   public void start() {
+    running = true;
+
     if (!enabled) {
       log.info("Auto-creation of NATS JetStream streams is disabled, skipping");
       return;
@@ -83,17 +92,35 @@ public final class JetStreamConfigurer implements JetStreamManager {
       JetStreamManagement management = conn.jetStreamManagement();
       for (StreamConfiguration stream : streamConfigurations) {
         try {
+          StreamInfo info = management.getStreamInfo(stream.getName());
+
+          if (info != null) {
+            log.info("JetStream stream {} already exists, skipping", stream.getName());
+            continue;
+          }
+        } catch (JetStreamApiException e) {
+          if (!isStreamNotFoundError(e)) {
+            throw wrapJetStreamApiException(e);
+          }
+        }
+
+        try {
           management.addStream(stream);
           log.info("Created JetStream stream {}", stream.getName());
         } catch (Exception e) {
-          management.updateStream(stream);
-          log.info("Updated JetStream stream {}", stream.getName());
+          log.error("Failed to create JetStream stream {}", stream.getName(), e);
+          throw e;
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Failed to manage JetStream streams", e);
+      if (e instanceof NatsIntegrationException ex) {
+        throw ex;
+      }
+      if (e instanceof JetStreamApiException ex) {
+        throw wrapJetStreamApiException(ex);
+      }
+      throw new StreamConfigureException("Failed to configure JetStream streams", e);
     }
-    running = true;
   }
 
   /** Marks this manager as stopped. */
@@ -110,5 +137,20 @@ public final class JetStreamConfigurer implements JetStreamManager {
   @Override
   public boolean isRunning() {
     return running;
+  }
+
+  private boolean isStreamNotFoundError(JetStreamApiException e) {
+    return e.getErrorCode() == NOT_FOUND_CODE && e.getApiErrorCode() == STREAM_NOT_FOUND_ERROR;
+  }
+
+  private StreamConfigureException wrapJetStreamApiException(JetStreamApiException ex) {
+    return new StreamConfigureException(
+        "Unable to configure JetStream due to errorCode="
+            + ex.getErrorCode()
+            + ", errorDescription"
+            + ex.getErrorDescription()
+            + ", apiErrorCode="
+            + ex.getApiErrorCode(),
+        ex);
   }
 }

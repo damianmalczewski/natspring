@@ -16,6 +16,9 @@
 
 package io.github.malczuuu.natsify.connection;
 
+import io.github.malczuuu.natsify.core.ConnectionException;
+import io.github.malczuuu.natsify.core.ListenerConfigureException;
+import io.github.malczuuu.natsify.core.NatsIntegrationException;
 import io.github.malczuuu.natsify.handler.ListenerManager;
 import io.github.malczuuu.natsify.instrument.NatsConnectionObserver;
 import io.github.malczuuu.natsify.instrument.NatsErrorObserver;
@@ -89,7 +92,7 @@ public final class ConnectionConfigurer
             log.info("Establishing NATS connection at {}", options.getServers());
             this.connection = Nats.connect(options);
           } catch (Exception e) {
-            throw new RuntimeException("Failed to establish NATS connection", e);
+            throw new ConnectionException("Failed to establish NATS connection", e);
           }
         }
       }
@@ -109,7 +112,10 @@ public final class ConnectionConfigurer
         listenerManager.initialize(connection);
       }
     } catch (Exception e) {
-      throw new RuntimeException("Failed to set up annotation-based NATS listeners", e);
+      if (e instanceof NatsIntegrationException ex) {
+        throw ex;
+      }
+      throw new ListenerConfigureException("Failed to set up annotation-based NATS listeners", e);
     }
   }
 
@@ -131,9 +137,13 @@ public final class ConnectionConfigurer
       if (connection != null) {
         connection.close();
       }
-      this.connection = null;
     } catch (Exception e) {
-      throw new RuntimeException("Failed to close NATS connection", e);
+      if (e instanceof NatsIntegrationException ex) {
+        throw ex;
+      }
+      throw new ListenerConfigureException("Failed to close NATS connection", e);
+    } finally {
+      this.connection = null;
     }
   }
 
