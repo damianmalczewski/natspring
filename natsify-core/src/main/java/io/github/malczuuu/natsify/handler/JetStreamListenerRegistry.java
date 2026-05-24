@@ -16,22 +16,11 @@
 
 package io.github.malczuuu.natsify.handler;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-public class JetStreamListenerRegistry {
+public interface JetStreamListenerRegistry {
 
-  private final List<JetStreamListenerDetails> listeners = new CopyOnWriteArrayList<>();
+  void register(JetStreamListenerDetails listener);
 
-  public JetStreamListenerRegistry() {}
-
-  public void register(JetStreamListenerDetails listener) {
-    listener.getMethod().setAccessible(true);
-    listeners.add(listener);
-  }
-
-  public List<JetStreamListenerDetails> getListeners() {
-    return Collections.unmodifiableList(listeners);
-  }
+  List<JetStreamListenerDetails> getListeners();
 }

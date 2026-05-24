@@ -16,11 +16,24 @@
 
 package io.github.malczuuu.natsify.handler;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public interface NatsListenerRegistry {
+public final class SimpleNatsListenerRegistry implements NatsListenerRegistry {
 
-  void register(NatsListenerDetails listener);
+  private final List<NatsListenerDetails> listeners = new CopyOnWriteArrayList<>();
 
-  List<NatsListenerDetails> getListeners();
+  public SimpleNatsListenerRegistry() {}
+
+  @Override
+  public void register(NatsListenerDetails listener) {
+    listener.getMethod().setAccessible(true);
+    listeners.add(listener);
+  }
+
+  @Override
+  public List<NatsListenerDetails> getListeners() {
+    return Collections.unmodifiableList(listeners);
+  }
 }

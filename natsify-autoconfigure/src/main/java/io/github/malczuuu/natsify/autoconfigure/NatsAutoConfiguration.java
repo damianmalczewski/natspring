@@ -27,6 +27,8 @@ import io.github.malczuuu.natsify.handler.JetStreamListenerAnnotationBeanPostPro
 import io.github.malczuuu.natsify.handler.JetStreamListenerRegistry;
 import io.github.malczuuu.natsify.handler.NatsListenerAnnotationBeanPostProcessor;
 import io.github.malczuuu.natsify.handler.NatsListenerRegistry;
+import io.github.malczuuu.natsify.handler.SimpleJetStreamListenerRegistry;
+import io.github.malczuuu.natsify.handler.SimpleNatsListenerRegistry;
 import io.github.malczuuu.natsify.instrument.JetStreamListenerObserver;
 import io.github.malczuuu.natsify.instrument.NatsConnectionObserver;
 import io.github.malczuuu.natsify.instrument.NatsErrorObserver;
@@ -115,15 +117,15 @@ public final class NatsAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean(NatsListenerRegistry.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NatsListenerRegistry natsListenerRegistry() {
-    return new NatsListenerRegistry();
+  static SimpleNatsListenerRegistry simpleNatsListenerRegistry() {
+    return new SimpleNatsListenerRegistry();
   }
 
   @Bean
   @ConditionalOnMissingBean(JetStreamListenerRegistry.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static JetStreamListenerRegistry jetStreamListenerRegistry() {
-    return new JetStreamListenerRegistry();
+  static SimpleJetStreamListenerRegistry simpleJetStreamListenerRegistry() {
+    return new SimpleJetStreamListenerRegistry();
   }
 
   @Bean
