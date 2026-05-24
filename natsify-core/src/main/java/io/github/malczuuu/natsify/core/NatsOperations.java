@@ -17,6 +17,7 @@
 package io.github.malczuuu.natsify.core;
 
 import io.nats.client.Message;
+import io.nats.client.impl.Headers;
 
 /** Contract for publishing messages to NATS subjects. */
 public interface NatsOperations {
@@ -52,4 +53,32 @@ public interface NatsOperations {
    * @param <T> the object type
    */
   <T> void publish(String subject, T bodyAsObject);
+
+  /**
+   * Publishes raw bytes to the given subject with custom headers.
+   *
+   * @param subject the NATS subject
+   * @param headers the message headers
+   * @param body the message body
+   */
+  void publish(String subject, Headers headers, byte[] body);
+
+  /**
+   * Publishes a string to the given subject with custom headers, encoded as UTF-8.
+   *
+   * @param subject the NATS subject
+   * @param headers the message headers
+   * @param bodyAsString the message body
+   */
+  void publish(String subject, Headers headers, String bodyAsString);
+
+  /**
+   * Publishes an object to the given subject with custom headers, serialized to JSON.
+   *
+   * @param subject the NATS subject
+   * @param headers the message headers
+   * @param bodyAsObject the object to serialize and publish
+   * @param <T> the object type
+   */
+  <T> void publish(String subject, Headers headers, T bodyAsObject);
 }

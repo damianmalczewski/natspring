@@ -199,4 +199,44 @@ class NatsListenerTests extends AbstractIntegrationTests {
     assertThat(received).isNotNull();
     assertThat(received.getFirst("X-Type")).isEqualTo("by-type-value");
   }
+
+  @Test
+  void givenHeaderParamSubject_whenPublishWithBytesAndHeaders_thenHandlerReceivesHeaderValue()
+      throws Exception {
+    Headers headers = new Headers();
+    headers.add("X-Key", "bytes-header-value");
+
+    natsOperations.publish("combo.header", headers, new byte[0]);
+
+    String received = handler.headerValues.poll(5, TimeUnit.SECONDS);
+    assertThat(received).isEqualTo("bytes-header-value");
+  }
+
+  @Test
+  void givenHeadersParamSubject_whenPublishWithStringAndHeaders_thenHandlerReceivesHeaders()
+      throws Exception {
+    Headers headers = new Headers();
+    headers.add("X-Foo", "string-foo");
+    headers.add("X-Bar", "string-bar");
+
+    natsOperations.publish("combo.headers", headers, "");
+
+    Headers received = handler.headersValues.poll(5, TimeUnit.SECONDS);
+    assertThat(received).isNotNull();
+    assertThat(received.getFirst("X-Foo")).isEqualTo("string-foo");
+    assertThat(received.getFirst("X-Bar")).isEqualTo("string-bar");
+  }
+
+  @Test
+  void givenHeadersByTypeSubject_whenPublishWithObjectAndHeaders_thenHandlerReceivesHeaders()
+      throws Exception {
+    Headers headers = new Headers();
+    headers.add("X-Type", "object-header-value");
+
+    natsOperations.publish("combo.headers-by-type", headers, new SampleMessage("obj", 1));
+
+    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    assertThat(received).isNotNull();
+    assertThat(received.getFirst("X-Type")).isEqualTo("object-header-value");
+  }
 }

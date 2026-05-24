@@ -18,6 +18,7 @@ package io.github.malczuuu.natsify.core;
 
 import io.github.malczuuu.natsify.connection.ConnectionManager;
 import io.nats.client.Message;
+import io.nats.client.impl.Headers;
 import java.nio.charset.StandardCharsets;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -28,6 +29,8 @@ public class NatsTemplate implements NatsOperations {
   private final JsonMapper jsonMapper;
 
   /**
+   * Creates a new {@link NatsTemplate} with the given connection and JSON mapper.
+   *
    * @param connectionManager provides the active NATS connection
    * @param jsonMapper used for JSON serialization in {@link #publish(String, Object)}
    */
@@ -80,5 +83,46 @@ public class NatsTemplate implements NatsOperations {
   @Override
   public <T> void publish(String subject, T bodyAsObject) {
     connectionManager.getConnection().publish(subject, jsonMapper.writeValueAsBytes(bodyAsObject));
+  }
+
+  /**
+   * Publishes raw bytes to the given subject with custom headers.
+   *
+   * @param subject the NATS subject
+   * @param headers the message headers
+   * @param body the message body
+   */
+  @Override
+  public void publish(String subject, Headers headers, byte[] body) {
+    connectionManager.getConnection().publish(subject, headers, body);
+  }
+
+  /**
+   * Publishes a string to the given subject with custom headers, encoded as UTF-8.
+   *
+   * @param subject the NATS subject
+   * @param headers the message headers
+   * @param bodyAsString the message body
+   */
+  @Override
+  public void publish(String subject, Headers headers, String bodyAsString) {
+    connectionManager
+        .getConnection()
+        .publish(subject, headers, bodyAsString.getBytes(StandardCharsets.UTF_8));
+  }
+
+  /**
+   * Publishes an object to the given subject with custom headers, serialized to JSON.
+   *
+   * @param subject the NATS subject
+   * @param headers the message headers
+   * @param bodyAsObject the object to serialize and publish
+   * @param <T> the object type
+   */
+  @Override
+  public <T> void publish(String subject, Headers headers, T bodyAsObject) {
+    connectionManager
+        .getConnection()
+        .publish(subject, headers, jsonMapper.writeValueAsBytes(bodyAsObject));
   }
 }

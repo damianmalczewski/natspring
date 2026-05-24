@@ -132,4 +132,43 @@ class JetStreamListenerTests extends AbstractIntegrationTests {
     assertThat(received).isNotNull();
     assertThat(received.getFirst("X-Type")).isEqualTo("by-type-value");
   }
+
+  @Test
+  void givenHeadersByTypeSubject_whenPublishWithBytesAndHeaders_thenHandlerReceivesHeaders()
+      throws Exception {
+    Headers headers = new Headers();
+    headers.add("X-Type", "bytes-header-value");
+
+    natsOperations.publish("js.headers-by-type", headers, new byte[0]);
+
+    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    assertThat(received).isNotNull();
+    assertThat(received.getFirst("X-Type")).isEqualTo("bytes-header-value");
+  }
+
+  @Test
+  void givenHeadersByTypeSubject_whenPublishWithStringAndHeaders_thenHandlerReceivesHeaders()
+      throws Exception {
+    Headers headers = new Headers();
+    headers.add("X-Type", "string-header-value");
+
+    natsOperations.publish("js.headers-by-type", headers, "");
+
+    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    assertThat(received).isNotNull();
+    assertThat(received.getFirst("X-Type")).isEqualTo("string-header-value");
+  }
+
+  @Test
+  void givenHeadersByTypeSubject_whenPublishWithObjectAndHeaders_thenHandlerReceivesHeaders()
+      throws Exception {
+    Headers headers = new Headers();
+    headers.add("X-Type", "object-header-value");
+
+    natsOperations.publish("js.headers-by-type", headers, new SampleMessage("obj", 1));
+
+    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    assertThat(received).isNotNull();
+    assertThat(received.getFirst("X-Type")).isEqualTo("object-header-value");
+  }
 }
