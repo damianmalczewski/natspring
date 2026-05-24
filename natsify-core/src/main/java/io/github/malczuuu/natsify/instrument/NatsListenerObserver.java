@@ -19,7 +19,11 @@ package io.github.malczuuu.natsify.instrument;
 /** Observes core NATS listener invocation events. */
 public interface NatsListenerObserver {
 
-  /** Returns a no-op implementation that discards all events. */
+  /**
+   * Returns a no-op implementation that discards all events.
+   *
+   * @return a no-op {@link NatsListenerObserver}
+   */
   static NatsListenerObserver noop() {
     return NoopObserver.INSTANCE;
   }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/** Annotation-driven NATS and JetStream message listener registration and dispatch. */
 @NullMarked
 package io.github.malczuuu.natsify.handler;
 

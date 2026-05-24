@@ -21,7 +21,11 @@ import io.nats.client.ConnectionListener;
 /** Observes NATS connection lifecycle events. */
 public interface NatsConnectionObserver {
 
-  /** Returns a no-op implementation that discards all events. */
+  /**
+   * Returns a no-op implementation that discards all events.
+   *
+   * @return a no-op {@link NatsConnectionObserver}
+   */
   static NatsConnectionObserver noop() {
     return NoopObserver.INSTANCE;
   }

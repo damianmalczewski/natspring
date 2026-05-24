@@ -19,7 +19,11 @@ package io.github.malczuuu.natsify.instrument;
 /** Observes NATS connection-level errors. */
 public interface NatsErrorObserver {
 
-  /** Returns a no-op implementation that discards all events. */
+  /**
+   * Returns a no-op implementation that discards all events.
+   *
+   * @return a no-op {@link NatsErrorObserver}
+   */
   static NatsErrorObserver noop() {
     return NoopObserver.INSTANCE;
   }

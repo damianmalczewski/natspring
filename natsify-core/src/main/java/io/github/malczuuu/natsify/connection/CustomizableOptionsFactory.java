@@ -28,6 +28,7 @@ public final class CustomizableOptionsFactory implements ConnectionOptionsFactor
 
   private final List<ConnectionOptionsBuilderCustomizer> customizers = new ArrayList<>();
 
+  /** Creates a new {@code CustomizableOptionsFactory} with no registered customizers. */
   public CustomizableOptionsFactory() {}
 
   /**

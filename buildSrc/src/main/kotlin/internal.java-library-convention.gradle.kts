@@ -5,7 +5,7 @@ plugins {
 
 java {
     withSourcesJar()
-    // withJavadocJar()
+    withJavadocJar()
 }
 
 // buildSrc/src/main/kotlin/internal.common-convention.gradle.kts - "printVersion" task definition

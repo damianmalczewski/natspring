@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * NATS connection management - options building, lifecycle, and JetStream stream initialization.
+ */
 @NullMarked
 package io.github.malczuuu.natsify.connection;
 

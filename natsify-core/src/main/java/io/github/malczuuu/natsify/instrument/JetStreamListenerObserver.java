@@ -21,7 +21,11 @@ import org.jspecify.annotations.Nullable;
 /** Observes JetStream listener invocation and ack events. */
 public interface JetStreamListenerObserver {
 
-  /** Returns a no-op implementation that discards all events. */
+  /**
+   * Returns a no-op implementation that discards all events.
+   *
+   * @return a no-op {@link JetStreamListenerObserver}
+   */
   static JetStreamListenerObserver noop() {
     return NoopObserver.INSTANCE;
   }
