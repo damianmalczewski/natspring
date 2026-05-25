@@ -83,7 +83,6 @@ final class JetStreamPullHandler implements JetStreamHandler {
           "Attempted to call stop() on not running {}", JetStreamPullHandler.class.getSimpleName());
       return;
     }
-
     running = false;
 
     Thread listenerThread = this.listenerThread;
