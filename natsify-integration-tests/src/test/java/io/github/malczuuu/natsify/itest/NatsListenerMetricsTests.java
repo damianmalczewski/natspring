@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = IntegrationTestApplication.class)
+@SpringBootTest(classes = Entrypoint.class)
 class NatsListenerMetricsTests extends AbstractIntegrationTests {
 
   @Autowired private MeterRegistry meterRegistry;
