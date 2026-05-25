@@ -20,6 +20,7 @@ import io.github.malczuuu.natsify.annotation.AckMode;
 import io.github.malczuuu.natsify.instrument.JetStreamListenerObserver;
 import io.nats.client.Message;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,17 +59,7 @@ final class JetStreamInvocation implements Consumer<Message> {
     try {
       args = argumentResolver.resolveArguments(listener.getMethod().getParameters(), msg);
     } catch (Exception e) {
-      log.error(
-          "Unable to resolve arguments for NATS JetStream handler {}.{}, terminating message, subject={}, stream={}, streamSequence={}, consumerSequence={}, deliveredCount={}, timestamp={}",
-          AopUtils.getTargetClass(listener.getBean()).getSimpleName(),
-          listener.getMethod().getName(),
-          msg.getSubject(),
-          msg.metaData() != null ? msg.metaData().getStream() : null,
-          msg.metaData() != null ? msg.metaData().streamSequence() : null,
-          msg.metaData() != null ? msg.metaData().consumerSequence() : null,
-          msg.metaData() != null ? msg.metaData().deliveredCount() : null,
-          msg.metaData() != null ? msg.metaData().timestamp().toInstant() : null,
-          e);
+      logMessageException(msg, e);
       msg.term();
       observer.onTerminated(listener.getSubject(), listener.getStream(), e);
       return;
@@ -87,5 +78,33 @@ final class JetStreamInvocation implements Consumer<Message> {
         observer.onNacked(listener.getSubject(), listener.getStream());
       }
     }
+  }
+
+  private void logMessageException(Message msg, Exception e) {
+    String stream = null;
+    Long streamSequence = null;
+    Long consumerSequence = null;
+    Long deliveredCount = null;
+    Instant timestamp = null;
+
+    if (msg.metaData() != null) {
+      stream = msg.metaData().getStream();
+      streamSequence = msg.metaData().streamSequence();
+      consumerSequence = msg.metaData().consumerSequence();
+      deliveredCount = msg.metaData().deliveredCount();
+      timestamp = msg.metaData().timestamp().toInstant();
+    }
+
+    log.error(
+        "Unable to resolve arguments for NATS JetStream handler {}.{}, terminating message, subject={}, stream={}, streamSequence={}, consumerSequence={}, deliveredCount={}, timestamp={}",
+        AopUtils.getTargetClass(listener.getBean()).getSimpleName(),
+        listener.getMethod().getName(),
+        msg.getSubject(),
+        stream,
+        streamSequence,
+        consumerSequence,
+        deliveredCount,
+        timestamp,
+        e);
   }
 }
