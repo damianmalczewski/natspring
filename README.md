@@ -39,18 +39,33 @@ Requires Spring Boot 4.x.
 
 ## Configuration
 
-| Property                        | Default                 | Description                                                                                   |
-|---------------------------------|-------------------------|-----------------------------------------------------------------------------------------------|
-| `natsify.enabled`               | `true`                  | Whether NATS auto-configuration is enabled.                                                   |
-| `natsify.server`                | `nats://localhost:4222` | NATS server URL.                                                                              |
-| `natsify.username`              | _(none)_                | Username for NATS authentication. Omit if the server requires no credentials.                 |
-| `natsify.password`              | _(none)_                | Password for NATS authentication. Omit if the server requires no credentials.                 |
-| `natsify.connection-name`       | _(none)_                | Optional name for the NATS connection. Used as the client thread name.                        |
-| `natsify.connection-timeout`    | `2s`                    | Maximum time to wait when establishing a connection.                                          |
-| `natsify.socket-write-timeout`  | `1m`                    | Maximum time to wait for a socket write to complete.                                          |
-| `natsify.auto-stream-creation`  | `false`                 | Whether declared `StreamConfiguration` beans are used to create or update streams on startup. |
-| `natsify.pull-fetch-batch-size` | `200`                   | Number of messages fetched per poll cycle for JetStream pull consumers.                       |
-| `natsify.pull-fetch-timeout`    | `200ms`                 | Maximum time to wait for messages in each fetch call for JetStream pull consumers.            |
+> [!IMPORTANT]
+> Default values of properties that directly configure `io.nats.client.Options` are taken from static defaults in the
+> NATS Java client.
+
+| Property                           | Default                 | Description                                                                                                         |
+|------------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `natsify.enabled`                  | `true`                  | Whether NATS auto-configuration is enabled.                                                                         |
+| `natsify.server`                   | `nats://localhost:4222` | NATS server URL. Maps to `server(String)`.                                                                          |
+| `natsify.username`                 | _(none)_                | Username for NATS authentication. Combined with `password` into `userInfo(String, char[])`.                         |
+| `natsify.password`                 | _(none)_                | Password for NATS authentication. Combined with `username` into `userInfo(String, char[])`.                         |
+| `natsify.connection-name`          | _(none)_                | Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`.            |
+| `natsify.connection-timeout`       | `2s`                    | Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`.                         |
+| `natsify.socket-write-timeout`     | `1m`                    | Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`.                        |
+| `natsify.max-reconnects`           | `60`                    | Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`.                    |
+| `natsify.reconnect-wait`           | `2s`                    | Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`.                                         |
+| `natsify.reconnect-jitter`         | `100ms`                 | Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`.               |
+| `natsify.reconnect-jitter-tls`     | `1s`                    | Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`.                |
+| `natsify.reconnect-buffer-size`    | `8388608`               | Size in bytes of the buffer used to hold messages while reconnecting (8 MB). Maps to `reconnectBufferSize(long)`.   |
+| `natsify.ping-interval`            | `2m`                    | Interval between client-side pings to the server. Maps to `pingInterval(Duration)`.                                 |
+| `natsify.max-pings-out`            | `2`                     | Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`. |
+| `natsify.request-cleanup-interval` | `5s`                    | Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`.      |
+| `natsify.inbox-prefix`             | _(none)_                | Prefix for auto-generated inbox subjects (must end with `.`); defaults to `_INBOX.`. Maps to `inboxPrefix(String)`. |
+| `natsify.no-echo`                  | `false`                 | Suppress echoing published messages back to the sending connection. Maps to `noEcho()`.                             |
+| `natsify.no-randomize`             | `false`                 | Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`.                         |
+| `natsify.auto-stream-creation`     | `false`                 | Whether declared `StreamConfiguration` beans are used to create or update streams on startup.                       |
+| `natsify.pull-fetch-batch-size`    | `200`                   | Number of messages fetched per poll cycle for JetStream pull consumers.                                             |
+| `natsify.pull-fetch-timeout`       | `200ms`                 | Maximum time to wait for messages in each fetch call for JetStream pull consumers.                                  |
 
 ## Listener annotations
 

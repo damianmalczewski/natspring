@@ -86,10 +86,28 @@ public final class NatsAutoConfiguration {
             it = it.userInfo(connectionDetails.getUsername(), connectionDetails.getPassword());
           }
 
+          if (properties.isNoEcho()) {
+            it = it.noEcho();
+          }
+          if (properties.isNoRandomize()) {
+            it = it.noRandomize();
+          }
+          if (properties.getInboxPrefix() != null) {
+            it = it.inboxPrefix(properties.getInboxPrefix());
+          }
+
           return it.server(connectionDetails.getServer())
               .connectionName(connectionName)
               .connectionTimeout(properties.getConnectionTimeout())
-              .socketWriteTimeout(properties.getSocketWriteTimeout());
+              .socketWriteTimeout(properties.getSocketWriteTimeout())
+              .maxReconnects(properties.getMaxReconnects())
+              .reconnectWait(properties.getReconnectWait())
+              .reconnectJitter(properties.getReconnectJitter())
+              .reconnectJitterTls(properties.getReconnectJitterTls())
+              .reconnectBufferSize(properties.getReconnectBufferSize())
+              .pingInterval(properties.getPingInterval())
+              .maxPingsOut(properties.getMaxPingsOut())
+              .requestCleanupInterval(properties.getRequestCleanupInterval());
         });
     customizers.forEach(connectionOptionsFactory::registerBuilderCustomizer);
     return connectionOptionsFactory;
