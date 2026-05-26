@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Container;
 class AutoConfigureTests {
 
   @Container @ServiceConnection
-  public static final NatsContainer nats = new NatsContainer("nats:2.14.0");
+  public static final NatsContainer nats = new NatsContainer("nats:2.14.1");
 
   @Test
   void contextLoads() {}

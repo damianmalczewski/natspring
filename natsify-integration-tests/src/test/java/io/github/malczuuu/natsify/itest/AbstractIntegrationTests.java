@@ -24,5 +24,5 @@ public abstract class AbstractIntegrationTests {
 
   @Container @ServiceConnection
   public static final NatsContainer nats =
-      new NatsContainer("nats:2.14.0").withAuth("nats", "nats").withJetStream();
+      new NatsContainer("nats:2.14.1").withAuth("nats", "nats").withJetStream();
 }
