@@ -54,7 +54,7 @@ class NatsListenerInvocationTests {
   void whenHandlerSucceeds_thenCallsOnSucceeded() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(handle("handle"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
         .accept(message);
 
     verify(observer).onSucceeded("test-subject", "");
@@ -66,7 +66,7 @@ class NatsListenerInvocationTests {
   void whenHandlerSucceeds_thenCallsOnReceivedAndOnProcessed() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(handle("handle"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
         .accept(message);
 
     verify(observer).onReceived("test-subject", "");
@@ -77,7 +77,7 @@ class NatsListenerInvocationTests {
   void whenHandlerThrows_thenCallsOnFailed() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(handle("handleThrowing"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handleThrowing"))
         .accept(message);
 
     verify(observer).onFailed("test-subject", "");
@@ -88,7 +88,7 @@ class NatsListenerInvocationTests {
   void whenHandlerThrows_thenOnProcessedStillFires() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(handle("handleThrowing"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handleThrowing"))
         .accept(message);
 
     verify(observer).onReceived("test-subject", "");
@@ -100,7 +100,7 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any()))
         .thenThrow(new RuntimeException("bad payload"));
 
-    new NatsListenerInvocation(handle("handle"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
         .accept(message);
 
     verify(observer).onFailed("test-subject", "");
@@ -113,7 +113,7 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any()))
         .thenThrow(new RuntimeException("bad payload"));
 
-    new NatsListenerInvocation(handle("handle"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
         .accept(message);
 
     verify(observer).onReceived("test-subject", "");
@@ -125,7 +125,7 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
     new NatsListenerInvocation(
-            handleWithQueue("handle", "my-queue"), argumentResolver, observer, connection)
+            connection, argumentResolver, observer, handleWithQueue("handle", "my-queue"))
         .accept(message);
 
     verify(observer).onReceived("test-subject", "my-queue");
@@ -138,10 +138,10 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
     new NatsListenerInvocation(
-            handleWithDeadLetter("handleThrowing", "test-subject.dlq"),
+            connection,
             argumentResolver,
             observer,
-            connection)
+            handleWithDeadLetter("handleThrowing", "test-subject.dlq"))
         .accept(message);
 
     verify(connection).publish(any(Message.class));
@@ -154,10 +154,10 @@ class NatsListenerInvocationTests {
         .thenThrow(new RuntimeException("bad payload"));
 
     new NatsListenerInvocation(
-            handleWithDeadLetter("handle", "test-subject.dlq"),
+            connection,
             argumentResolver,
             observer,
-            connection)
+            handleWithDeadLetter("handle", "test-subject.dlq"))
         .accept(message);
 
     verify(connection).publish(any(Message.class));
@@ -165,10 +165,18 @@ class NatsListenerInvocationTests {
   }
 
   @Test
+  void givenInvocation_whenToStringCalled_thenReturnsClassNameWithBeanAndMethod() {
+    NatsListenerInvocation invocation =
+        new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"));
+
+    assertThat(invocation.toString()).isEqualTo("NatsListenerInvocation[Listener.handle]");
+  }
+
+  @Test
   void givenNoDeadLetterSubject_whenHandlerThrows_thenDoesNotPublish() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(handle("handleThrowing"), argumentResolver, observer, connection)
+    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handleThrowing"))
         .accept(message);
 
     verify(connection, never()).publish(any(Message.class));

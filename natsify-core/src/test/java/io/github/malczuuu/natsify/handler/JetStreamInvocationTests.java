@@ -104,6 +104,13 @@ class JetStreamInvocationTests {
   }
 
   @Test
+  void givenInvocation_whenToStringCalled_thenReturnsClassNameWithBeanAndMethod() {
+    JetStreamInvocation invocation = invocation(listener("handle", AckMode.AUTO));
+
+    assertThat(invocation.toString()).isEqualTo("JetStreamInvocation[Listener.handle]");
+  }
+
+  @Test
   void givenDlqConfigured_whenHandlerThrowsOnLastDelivery_thenTermsAndPublishesToDlq() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
     NatsJetStreamMetaData meta = Mockito.mock(NatsJetStreamMetaData.class);
@@ -152,7 +159,7 @@ class JetStreamInvocationTests {
 
   private JetStreamInvocation invocation(
       JetStreamListenerDetails details, JetStreamListenerObserver observer) {
-    return new JetStreamInvocation(details, argumentResolver, observer, connection);
+    return new JetStreamInvocation(connection, argumentResolver, observer, details);
   }
 
   private JetStreamListenerDetails listener(String methodName, AckMode ackMode) {

@@ -19,11 +19,9 @@ package io.github.malczuuu.natsify.autoconfigure;
 import io.github.malczuuu.natsify.connection.ConnectionManager;
 import io.github.malczuuu.natsify.instrument.JetStreamListenerObserver;
 import io.github.malczuuu.natsify.instrument.NatsConnectionObserver;
-import io.github.malczuuu.natsify.instrument.NatsErrorObserver;
 import io.github.malczuuu.natsify.instrument.NatsListenerObserver;
 import io.github.malczuuu.natsify.instrument.micrometer.MicrometerJetStreamListenerObserver;
 import io.github.malczuuu.natsify.instrument.micrometer.MicrometerNatsConnectionObserver;
-import io.github.malczuuu.natsify.instrument.micrometer.MicrometerNatsErrorObserver;
 import io.github.malczuuu.natsify.instrument.micrometer.MicrometerNatsListenerObserver;
 import io.github.malczuuu.natsify.instrument.micrometer.MicrometerNatsStatisticsObserver;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -66,12 +64,6 @@ public final class NatsMetricsAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(NatsErrorObserver.class)
-    MicrometerNatsErrorObserver natsErrorObserver() {
-      return new MicrometerNatsErrorObserver();
-    }
-
-    @Bean
     @ConditionalOnMissingBean(NatsListenerObserver.class)
     MicrometerNatsListenerObserver natsListenerObserver() {
       return new MicrometerNatsListenerObserver();
@@ -98,12 +90,6 @@ public final class NatsMetricsAutoConfiguration {
     @ConditionalOnMissingBean(NatsConnectionObserver.class)
     NatsConnectionObserver natsConnectionObserver() {
       return NatsConnectionObserver.noop();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(NatsErrorObserver.class)
-    NatsErrorObserver natsErrorObserver() {
-      return NatsErrorObserver.noop();
     }
 
     @Bean

@@ -20,28 +20,29 @@ import io.github.malczuuu.natsify.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Manages NATS Core subscription handlers for registered {@link NatsListenerDetails listeners}. */
 public class NatsListenerManager implements ListenerManager {
 
-  private final NatsListenerRegistry natsListenerRegistry;
+  private final NatsListenerRegistry registry;
   private final MessageArgumentResolver argumentResolver;
   private final NatsListenerObserver observer;
 
-  private final List<NatsListenerHandler> handlers = new ArrayList<>();
+  private final List<NatsListenerHandler> handlers = new CopyOnWriteArrayList<>();
 
   /**
    * Creates a new {@code NatsListenerManager}.
    *
-   * @param natsListenerRegistry registry of listener details to initialize
+   * @param registry registry of listener details to initialize
    * @param argumentResolver resolver used to map message data to handler method arguments
    * @param observer observer notified on listener invocations
    */
   public NatsListenerManager(
-      NatsListenerRegistry natsListenerRegistry,
+      NatsListenerRegistry registry,
       MessageArgumentResolver argumentResolver,
       NatsListenerObserver observer) {
-    this.natsListenerRegistry = natsListenerRegistry;
+    this.registry = registry;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
   }
@@ -54,13 +55,13 @@ public class NatsListenerManager implements ListenerManager {
    * @throws Exception if any handler fails to start
    */
   @Override
-  public synchronized void initialize(Connection connection) throws Exception {
-    for (NatsListenerDetails listener : natsListenerRegistry.getListeners()) {
+  public synchronized void start(Connection connection) throws Exception {
+    for (NatsListenerDetails listener : registry.getListeners()) {
       NatsListenerHandler handler =
           new SubscriptionHandler(
               connection,
               listener,
-              new NatsListenerInvocation(listener, argumentResolver, observer, connection));
+              new NatsListenerInvocation(connection, argumentResolver, observer, listener));
       handlers.add(handler);
       handler.start();
     }

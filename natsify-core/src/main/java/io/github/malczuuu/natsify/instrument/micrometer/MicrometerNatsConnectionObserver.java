@@ -54,6 +54,40 @@ public class MicrometerNatsConnectionObserver implements NatsConnectionObserver,
     meterRegistry.counter("nats.connection.events", tags).increment();
   }
 
+  /**
+   * Called when the NATS server sends an error string.
+   *
+   * @param error the error text
+   */
+  @Override
+  public void onError(String error) {
+    Tags tags = Tags.of("error", error);
+    meterRegistry.counter("nats.connection.errors", tags).increment();
+  }
+
+  /**
+   * Called when the client encounters an exception during processing.
+   *
+   * @param exception the exception
+   */
+  @Override
+  public void onException(Exception exception) {
+    Tags tags = Tags.of("exception", exception.getClass().getSimpleName());
+    meterRegistry.counter("nats.connection.exceptions", tags).increment();
+  }
+
+  /** Called when a slow consumer is detected on the connection. */
+  @Override
+  public void onSlowConsumerDetected() {
+    meterRegistry.counter("nats.connection.slow.consumer.detected").increment();
+  }
+
+  /** Called when a message is discarded due to a full consumer queue. */
+  @Override
+  public void onMessageDiscarded() {
+    meterRegistry.counter("nats.connection.message.discarded").increment();
+  }
+
   /** Replaces the temporary registry with the application-wide {@code registry}. */
   @Override
   public void bindTo(MeterRegistry registry) {

@@ -37,20 +37,20 @@ final class JetStreamInvocation implements Consumer<Message> {
 
   private static final Logger log = LoggerFactory.getLogger(JetStreamInvocation.class);
 
-  private final JetStreamListenerDetails listener;
-  private final MessageArgumentResolver argumentResolver;
-  private final JetStreamListenerObserver observer;
   private final Connection connection;
+  private final JetStreamListenerDetails listener;
+  private final MessageArgumentResolver messageArgumentResolver;
+  private final JetStreamListenerObserver observer;
 
   JetStreamInvocation(
-      JetStreamListenerDetails listener,
+      Connection connection,
       MessageArgumentResolver argumentResolver,
       JetStreamListenerObserver observer,
-      Connection connection) {
-    this.listener = listener;
-    this.argumentResolver = argumentResolver;
-    this.observer = observer;
+      JetStreamListenerDetails listener) {
     this.connection = connection;
+    this.messageArgumentResolver = argumentResolver;
+    this.observer = observer;
+    this.listener = listener;
   }
 
   @Override
@@ -69,7 +69,7 @@ final class JetStreamInvocation implements Consumer<Message> {
   private void doAccept(Message msg) {
     Object[] args;
     try {
-      args = argumentResolver.resolveArguments(listener.getMethod().getParameters(), msg);
+      args = messageArgumentResolver.resolveArguments(listener.getMethod().getParameters(), msg);
     } catch (Exception e) {
       logResolutionException(msg, e);
       if (!listener.getDeadLetterSubject().isEmpty()) {
@@ -147,5 +147,14 @@ final class JetStreamInvocation implements Consumer<Message> {
         deliveredCount,
         timestamp,
         e);
+  }
+
+  @Override
+  public String toString() {
+    return "JetStreamInvocation["
+        + AopUtils.getTargetClass(listener.getBean()).getSimpleName()
+        + "."
+        + listener.getMethod().getName()
+        + "]";
   }
 }

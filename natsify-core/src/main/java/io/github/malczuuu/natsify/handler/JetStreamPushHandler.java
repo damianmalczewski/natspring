@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 
 final class JetStreamPushHandler implements JetStreamHandler {
 
@@ -99,7 +100,7 @@ final class JetStreamPushHandler implements JetStreamHandler {
   public synchronized void stop() {
     if (!running) {
       throw new ListenerConfigureException(
-          "Attempted to call stop() on already stopped "
+          "Attempted to call stop() on a not-running "
               + JetStreamPushHandler.class.getSimpleName());
     }
     running = false;
@@ -114,5 +115,14 @@ final class JetStreamPushHandler implements JetStreamHandler {
       connection.closeDispatcher(dispatcher);
       this.dispatcher = null;
     }
+  }
+
+  @Override
+  public String toString() {
+    return "JetStreamPushHandler["
+        + AopUtils.getTargetClass(listener.getBean()).getSimpleName()
+        + "."
+        + listener.getMethod().getName()
+        + "]";
   }
 }

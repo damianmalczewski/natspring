@@ -25,7 +25,7 @@ public interface NatsListenerObserver {
    * @return a no-op {@link NatsListenerObserver}
    */
   static NatsListenerObserver noop() {
-    return NoopObserver.INSTANCE;
+    return new NatsListenerObserver() {};
   }
 
   /**
@@ -34,7 +34,7 @@ public interface NatsListenerObserver {
    * @param subject the NATS subject
    * @param queue the queue group name, or empty string if not in a queue group
    */
-  void onReceived(String subject, String queue);
+  default void onReceived(String subject, String queue) {}
 
   /**
    * Called when the handler returns without throwing.
@@ -42,7 +42,7 @@ public interface NatsListenerObserver {
    * @param subject the NATS subject
    * @param queue the queue group name, or empty string if not in a queue group
    */
-  void onSucceeded(String subject, String queue);
+  default void onSucceeded(String subject, String queue) {}
 
   /**
    * Called when the handler throws an exception.
@@ -50,7 +50,7 @@ public interface NatsListenerObserver {
    * @param subject the NATS subject
    * @param queue the queue group name, or empty string if not in a queue group
    */
-  void onFailed(String subject, String queue);
+  default void onFailed(String subject, String queue) {}
 
   /**
    * Called when a message is dead-lettered after a failure.
@@ -58,7 +58,7 @@ public interface NatsListenerObserver {
    * @param subject the NATS subject
    * @param queue the queue group name, or empty string if not in a queue group
    */
-  void onDeadLettered(String subject, String queue);
+  default void onDeadLettered(String subject, String queue) {}
 
   /**
    * Called after every invocation (success or failure) with the total processing duration.
@@ -67,5 +67,5 @@ public interface NatsListenerObserver {
    * @param queue the queue group name, or empty string if not in a queue group
    * @param durationNanos elapsed time in nanoseconds from message receipt to handler completion
    */
-  void onProcessed(String subject, String queue, long durationNanos);
+  default void onProcessed(String subject, String queue, long durationNanos) {}
 }

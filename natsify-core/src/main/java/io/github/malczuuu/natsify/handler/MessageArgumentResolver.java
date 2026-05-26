@@ -26,18 +26,18 @@ public interface MessageArgumentResolver {
   /**
    * Resolves all parameters for a listener method from the given message.
    *
-   * @param params the method parameters to resolve
-   * @param msg the received message
+   * @param parameters the method parameters to resolve
+   * @param message the received message
    * @return array of resolved arguments, or {@code null}
    */
-  Object @Nullable [] resolveArguments(Parameter[] params, Message msg);
+  Object @Nullable [] resolveArguments(Parameter[] parameters, Message message);
 
   /**
    * Resolves a single method parameter from the given message.
    *
-   * @param param the method parameter to resolve
-   * @param msg the received message
+   * @param parameter the method parameter to resolve
+   * @param message the received message
    * @return the resolved argument, or {@code null}
    */
-  @Nullable Object resolveArgument(Parameter param, Message msg);
+  @Nullable Object resolveArgument(Parameter parameter, Message message);
 }

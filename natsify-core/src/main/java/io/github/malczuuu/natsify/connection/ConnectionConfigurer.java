@@ -21,7 +21,6 @@ import io.github.malczuuu.natsify.core.ListenerConfigureException;
 import io.github.malczuuu.natsify.core.NatsIntegrationException;
 import io.github.malczuuu.natsify.handler.ListenerManager;
 import io.github.malczuuu.natsify.instrument.NatsConnectionObserver;
-import io.github.malczuuu.natsify.instrument.NatsErrorObserver;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.client.Consumer;
@@ -53,9 +52,8 @@ public final class ConnectionConfigurer
   private static final Logger log = LoggerFactory.getLogger(ConnectionConfigurer.class);
 
   private final Options options;
-  private final List<? extends ListenerManager> listenerManagers;
-  private final NatsConnectionObserver natsConnectionObserver;
-  private final NatsErrorObserver natsErrorObserver;
+  private final List<ListenerManager> listenerManagers;
+  private final NatsConnectionObserver connectionObserver;
 
   private volatile boolean running = false;
   private volatile @Nullable Connection connection = null;
@@ -65,18 +63,15 @@ public final class ConnectionConfigurer
    *
    * @param options NATS connection options
    * @param listenerManagers managers responsible for setting up annotation-based listeners
-   * @param natsConnectionObserver observer for connection lifecycle events
-   * @param natsErrorObserver observer for errors and exceptions
+   * @param connectionObserver observer for connection lifecycle events
    */
   public ConnectionConfigurer(
       Options options,
-      List<? extends ListenerManager> listenerManagers,
-      NatsConnectionObserver natsConnectionObserver,
-      NatsErrorObserver natsErrorObserver) {
+      List<ListenerManager> listenerManagers,
+      NatsConnectionObserver connectionObserver) {
     this.options = options;
     this.listenerManagers = List.copyOf(listenerManagers);
-    this.natsConnectionObserver = natsConnectionObserver;
-    this.natsErrorObserver = natsErrorObserver;
+    this.connectionObserver = connectionObserver;
   }
 
   /**
@@ -110,7 +105,7 @@ public final class ConnectionConfigurer
         log.info(
             "Setting up annotation-based NATS listeners with {}",
             AopUtils.getTargetClass(listenerManager).getSimpleName());
-        listenerManager.initialize(connection);
+        listenerManager.start(connection);
       }
     } catch (Exception e) {
       if (e instanceof NatsIntegrationException ex) {
@@ -125,7 +120,7 @@ public final class ConnectionConfigurer
   @Override
   public synchronized void stop() {
     running = false;
-    List<? extends ListenerManager> listenerManagers = new ArrayList<>(this.listenerManagers);
+    List<ListenerManager> listenerManagers = new ArrayList<>(this.listenerManagers);
     Collections.reverse(listenerManagers);
     for (ListenerManager listenerManager : listenerManagers) {
       log.info(
@@ -186,7 +181,7 @@ public final class ConnectionConfigurer
   @Override
   public void connectionEvent(Connection conn, Events type, Long time, String uriDetails) {
     log.info("Noticing NATS connection event; type={}", type);
-    natsConnectionObserver.onConnectionEvent(type);
+    connectionObserver.onConnectionEvent(type);
   }
 
   /**
@@ -198,7 +193,7 @@ public final class ConnectionConfigurer
   @Override
   public void errorOccurred(Connection conn, String error) {
     log.error("An error occurred in NATS; error={}", error);
-    natsErrorObserver.onError(error);
+    connectionObserver.onError(error);
   }
 
   /**
@@ -216,7 +211,7 @@ public final class ConnectionConfigurer
       return;
     }
     log.error("An exception occurred in NATS dispatch thread", exp);
-    natsErrorObserver.onException(exp);
+    connectionObserver.onException(exp);
   }
 
   /**
@@ -228,7 +223,7 @@ public final class ConnectionConfigurer
   @Override
   public void slowConsumerDetected(Connection conn, Consumer consumer) {
     log.warn("Detected NATS slow consumer");
-    natsErrorObserver.onSlowConsumerDetected();
+    connectionObserver.onSlowConsumerDetected();
   }
 
   /**
@@ -243,7 +238,7 @@ public final class ConnectionConfigurer
         "Message discarded on NATS subject; subject={}, metadata={}",
         msg.getSubject(),
         msg.metaData());
-    natsErrorObserver.onMessageDiscarded();
+    connectionObserver.onMessageDiscarded();
   }
 
   private boolean shouldSkipLoggingException(Connection conn, Exception exp) {

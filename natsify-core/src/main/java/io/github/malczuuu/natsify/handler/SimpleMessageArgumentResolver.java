@@ -55,15 +55,15 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
   /**
    * Resolves all parameters for a listener method from the given message.
    *
-   * @param params the method parameters to resolve
-   * @param msg the received message
+   * @param parameters the method parameters to resolve
+   * @param message the received message
    * @return array of resolved arguments, or {@code null}
    */
   @Override
-  public Object @Nullable [] resolveArguments(Parameter[] params, Message msg) {
-    List<@Nullable Object> args = new ArrayList<>(params.length);
-    for (Parameter param : params) {
-      args.add(resolveArgument(param, msg));
+  public Object @Nullable [] resolveArguments(Parameter[] parameters, Message message) {
+    List<@Nullable Object> args = new ArrayList<>(parameters.length);
+    for (Parameter param : parameters) {
+      args.add(resolveArgument(param, message));
     }
     return args.toArray();
   }
@@ -71,52 +71,52 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
   /**
    * Resolves a single method parameter from the given message.
    *
-   * @param param the method parameter to resolve
-   * @param msg the received message
+   * @param parameter the method parameter to resolve
+   * @param message the received message
    * @return the resolved argument, or {@code null}
    */
   @Override
-  public @Nullable Object resolveArgument(Parameter param, Message msg) {
-    if (Message.class.isAssignableFrom(param.getType())) {
-      return msg;
+  public @Nullable Object resolveArgument(Parameter parameter, Message message) {
+    if (Message.class.isAssignableFrom(parameter.getType())) {
+      return message;
     }
-    NatsHeader natsHeader = param.getAnnotation(NatsHeader.class);
+    NatsHeader natsHeader = parameter.getAnnotation(NatsHeader.class);
     if (natsHeader != null) {
       String name = natsHeader.value().isEmpty() ? natsHeader.name() : natsHeader.value();
-      Headers msgHeaders = msg.getHeaders();
+      Headers msgHeaders = message.getHeaders();
       if (msgHeaders == null) {
         return null;
       }
-      if (List.class.isAssignableFrom(param.getType())) {
+      if (List.class.isAssignableFrom(parameter.getType())) {
         return msgHeaders.get(name);
       }
-      if (param.getType() == String[].class) {
+      if (parameter.getType() == String[].class) {
         List<String> values = msgHeaders.get(name);
         return values != null ? values.toArray(new String[0]) : null;
       }
       return msgHeaders.getFirst(name);
     }
-    if (param.isAnnotationPresent(NatsSubject.class)) {
-      return msg.getSubject();
+    if (parameter.isAnnotationPresent(NatsSubject.class)) {
+      return message.getSubject();
     }
-    if (param.isAnnotationPresent(NatsHeaders.class)
-        || (!param.isAnnotationPresent(NatsPayload.class)
-            && Headers.class.isAssignableFrom(param.getType()))) {
-      return msg.getHeaders() != null ? msg.getHeaders() : new Headers(null, false);
+    if (parameter.isAnnotationPresent(NatsHeaders.class)
+        || (!parameter.isAnnotationPresent(NatsPayload.class)
+            && Headers.class.isAssignableFrom(parameter.getType()))) {
+      return message.getHeaders() != null ? message.getHeaders() : new Headers(null, false);
     }
-    if (!param.isAnnotationPresent(NatsPayload.class)
-        && NatsJetStreamMetaData.class.isAssignableFrom(param.getType())) {
-      return msg.metaData();
+    if (!parameter.isAnnotationPresent(NatsPayload.class)
+        && NatsJetStreamMetaData.class.isAssignableFrom(parameter.getType())) {
+      return message.metaData();
     }
-    byte[] data = msg.getData();
-    if (param.getType() == byte[].class) {
+    byte[] data = message.getData();
+    if (parameter.getType() == byte[].class) {
       return data;
     }
-    if (param.getType() == String.class) {
+    if (parameter.getType() == String.class) {
       return data != null ? new String(data, StandardCharsets.UTF_8) : null;
     }
     return data != null
-        ? jsonMapper.readValue(data, jsonMapper.constructType(param.getParameterizedType()))
+        ? jsonMapper.readValue(data, jsonMapper.constructType(parameter.getParameterizedType()))
         : null;
   }
 }

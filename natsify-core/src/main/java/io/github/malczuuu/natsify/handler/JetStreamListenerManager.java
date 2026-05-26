@@ -27,6 +27,7 @@ import io.nats.client.api.DeliverPolicy;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages JetStream consumer handlers for registered {@link JetStreamListenerDetails listeners}.
@@ -36,10 +37,11 @@ public class JetStreamListenerManager implements ListenerManager {
   private final JetStreamListenerRegistry registry;
   private final MessageArgumentResolver argumentResolver;
   private final JetStreamListenerObserver observer;
+
   private final int pullFetchBatchSize;
   private final Duration pullFetchTimeout;
 
-  private final List<JetStreamHandler> handlers = new ArrayList<>();
+  private final List<JetStreamHandler> handlers = new CopyOnWriteArrayList<>();
 
   /**
    * Creates a new {@code JetStreamListenerManager}.
@@ -72,7 +74,7 @@ public class JetStreamListenerManager implements ListenerManager {
    * @throws Exception if any handler fails to start
    */
   @Override
-  public synchronized void initialize(Connection connection) throws Exception {
+  public synchronized void start(Connection connection) throws Exception {
     if (registry.getListeners().isEmpty()) {
       return;
     }
@@ -135,7 +137,7 @@ public class JetStreamListenerManager implements ListenerManager {
         stream,
         listener,
         configuration,
-        new JetStreamInvocation(listener, argumentResolver, observer, connection));
+        new JetStreamInvocation(connection, argumentResolver, observer, listener));
   }
 
   private JetStreamPullHandler createPullHandler(
@@ -147,7 +149,7 @@ public class JetStreamListenerManager implements ListenerManager {
         stream,
         listener,
         configuration,
-        new JetStreamInvocation(listener, argumentResolver, observer, connection),
+        new JetStreamInvocation(connection, argumentResolver, observer, listener),
         pullFetchBatchSize,
         pullFetchTimeout);
   }

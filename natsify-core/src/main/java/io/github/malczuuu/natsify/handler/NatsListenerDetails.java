@@ -96,7 +96,7 @@ public final class NatsListenerDetails {
    */
   @Override
   public String toString() {
-    return ("[bean=" + AopUtils.getTargetClass(bean).getSimpleName())
+    return ("NatsListenerDetails[bean=" + AopUtils.getTargetClass(bean).getSimpleName())
         + (", method=" + method.getName())
         + (", subject=" + subject)
         + (", queue=" + queue + "]");

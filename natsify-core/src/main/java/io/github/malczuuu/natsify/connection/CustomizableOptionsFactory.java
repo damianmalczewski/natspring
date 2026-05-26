@@ -17,8 +17,8 @@
 package io.github.malczuuu.natsify.connection;
 
 import io.nats.client.Options;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * {@link ConnectionOptionsFactory} that builds {@link Options} by applying a list of {@link
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public final class CustomizableOptionsFactory implements ConnectionOptionsFactory {
 
-  private final List<ConnectionOptionsBuilderCustomizer> customizers = new ArrayList<>();
+  private final List<ConnectionOptionsBuilderCustomizer> customizers = new CopyOnWriteArrayList<>();
 
   /** Creates a new {@code CustomizableOptionsFactory} with no registered customizers. */
   public CustomizableOptionsFactory() {}

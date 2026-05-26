@@ -40,17 +40,17 @@ public class NatsListenerAnnotationBeanPostProcessor
   private static final Logger log =
       LoggerFactory.getLogger(NatsListenerAnnotationBeanPostProcessor.class);
 
-  private final NatsListenerRegistry natsListenerRegistry;
+  private final NatsListenerRegistry registry;
 
   private StringValueResolver valueResolver = value -> value;
 
   /**
    * Creates a new {@code NatsListenerAnnotationBeanPostProcessor}.
    *
-   * @param natsListenerRegistry registry to register discovered listeners with
+   * @param registry registry to register discovered listeners with
    */
-  public NatsListenerAnnotationBeanPostProcessor(NatsListenerRegistry natsListenerRegistry) {
-    this.natsListenerRegistry = natsListenerRegistry;
+  public NatsListenerAnnotationBeanPostProcessor(NatsListenerRegistry registry) {
+    this.registry = registry;
   }
 
   /**
@@ -99,7 +99,7 @@ public class NatsListenerAnnotationBeanPostProcessor
               .withDeadLetterSubject(deadLetterSubject)
               .build();
 
-      natsListenerRegistry.register(listener);
+      registry.register(listener);
       log.info("Registered @NatsListener to {}", listener);
     }
 

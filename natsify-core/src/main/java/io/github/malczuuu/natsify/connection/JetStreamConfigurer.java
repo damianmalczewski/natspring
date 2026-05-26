@@ -49,12 +49,12 @@ public final class JetStreamConfigurer implements JetStreamManager {
   /**
    * Creates a new {@link JetStreamConfigurer}.
    *
-   * @param enabled whether stream auto-creation is enabled
    * @param options NATS connection options used for the management connection
+   * @param enabled whether stream auto-creation is enabled
    * @param streamConfigurations stream configurations to create or update on startup
    */
   public JetStreamConfigurer(
-      boolean enabled, Options options, List<StreamConfiguration> streamConfigurations) {
+      Options options, boolean enabled, List<StreamConfiguration> streamConfigurations) {
     this.enabled = enabled;
     this.options = options;
     this.streamConfigurations = streamConfigurations;

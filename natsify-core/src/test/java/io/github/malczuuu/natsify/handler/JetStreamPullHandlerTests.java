@@ -16,6 +16,7 @@
 
 package io.github.malczuuu.natsify.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.malczuuu.natsify.annotation.AckMode;
@@ -78,13 +79,18 @@ class JetStreamPullHandlerTests {
 
     assertThatThrownBy(handler::start)
         .isInstanceOf(ListenerConfigureException.class)
-        .hasMessageContaining("already");
+        .hasMessageContaining("on already started");
   }
 
   @Test
   void givenNotStarted_whenStopCalled_thenThrowsListenerConfigureException() {
     assertThatThrownBy(handler::stop)
         .isInstanceOf(ListenerConfigureException.class)
-        .hasMessageContaining("already stopped");
+        .hasMessageContaining("on a not-running");
+  }
+
+  @Test
+  void givenHandler_whenToStringCalled_thenReturnsClassNameWithBeanAndMethod() {
+    assertThat(handler.toString()).isEqualTo("JetStreamPullHandler[Object.toString]");
   }
 }

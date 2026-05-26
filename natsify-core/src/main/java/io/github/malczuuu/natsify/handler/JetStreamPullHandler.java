@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 
 final class JetStreamPullHandler implements JetStreamHandler {
 
@@ -39,6 +40,7 @@ final class JetStreamPullHandler implements JetStreamHandler {
   private final JetStreamListenerDetails listener;
   private final ConsumerConfiguration configuration;
   private final Consumer<Message> messageConsumer;
+
   private final int fetchBatchSize;
   private final Duration fetchTimeout;
 
@@ -75,7 +77,9 @@ final class JetStreamPullHandler implements JetStreamHandler {
       builder.stream(listener.getStream());
     }
     subscription = stream.subscribe(listener.getSubject(), builder.build());
-    listenerThread = new Thread(this::runPollPool, "nats-pull-" + listener.getSubject());
+
+    Thread listenerThread = new Thread(this::runPollPool, "nats-pull-" + listener.getSubject());
+    this.listenerThread = listenerThread;
     listenerThread.setDaemon(true);
     running = true;
     listenerThread.start();
@@ -87,7 +91,7 @@ final class JetStreamPullHandler implements JetStreamHandler {
   public synchronized void stop() {
     if (!running) {
       throw new ListenerConfigureException(
-          "Attempted to call stop() on already stopped "
+          "Attempted to call stop() on a not-running "
               + JetStreamPullHandler.class.getSimpleName());
     }
     running = false;
@@ -122,5 +126,14 @@ final class JetStreamPullHandler implements JetStreamHandler {
         log.error("Error polling JetStream messages for subject {}", listener.getSubject(), e);
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "JetStreamPullHandler["
+        + AopUtils.getTargetClass(listener.getBean()).getSimpleName()
+        + "."
+        + listener.getMethod().getName()
+        + "]";
   }
 }

@@ -27,6 +27,8 @@ import org.jspecify.annotations.Nullable;
 
 final class DeadLetterSupport {
 
+  private static final int DETAIL_MAX_LENGTH = 200;
+
   /**
    * Builds a base set of dead-letter headers from the original message. Copies all original headers
    * and adds {@code X-Dead-Letter-Subject}, {@code X-Dead-Letter-Reason}, and {@code
@@ -53,7 +55,7 @@ final class DeadLetterSupport {
 
       String reason =
           (root != null ? root.getClass().getSimpleName() : cause.getClass().getSimpleName())
-              + (message != null ? ": " + truncate(message, 200) : "");
+              + (message != null ? ": " + truncate(message) : "");
 
       headers.add("X-Dead-Letter-Reason", reason);
       headers.add("X-Dead-Letter-Exception", exceptionName);
@@ -74,8 +76,10 @@ final class DeadLetterSupport {
     connection.publish(message);
   }
 
-  static String truncate(String value, int maxLength) {
-    return value.length() <= maxLength ? value : value.substring(0, maxLength) + "...";
+  private static String truncate(String value) {
+    return value.length() <= DETAIL_MAX_LENGTH
+        ? value
+        : value.substring(0, DETAIL_MAX_LENGTH) + "...";
   }
 
   private DeadLetterSupport() {}

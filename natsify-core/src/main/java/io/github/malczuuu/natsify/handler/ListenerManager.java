@@ -27,7 +27,7 @@ public interface ListenerManager {
    * @param connection the active NATS connection
    * @throws Exception if any handler fails to start
    */
-  void initialize(Connection connection) throws Exception;
+  void start(Connection connection) throws Exception;
 
   /** Stops all active handlers. */
   void stop();

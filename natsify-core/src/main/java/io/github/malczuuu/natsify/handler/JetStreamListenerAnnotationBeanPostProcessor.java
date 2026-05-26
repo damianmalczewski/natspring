@@ -39,18 +39,17 @@ public class JetStreamListenerAnnotationBeanPostProcessor
   private static final Logger log =
       LoggerFactory.getLogger(JetStreamListenerAnnotationBeanPostProcessor.class);
 
-  private final JetStreamListenerRegistry jetStreamListenerRegistry;
+  private final JetStreamListenerRegistry registry;
 
   private StringValueResolver valueResolver = value -> value;
 
   /**
    * Creates a new {@code JetStreamListenerAnnotationBeanPostProcessor}.
    *
-   * @param jetStreamListenerRegistry registry to register discovered listeners with
+   * @param registry registry to register discovered listeners with
    */
-  public JetStreamListenerAnnotationBeanPostProcessor(
-      JetStreamListenerRegistry jetStreamListenerRegistry) {
-    this.jetStreamListenerRegistry = jetStreamListenerRegistry;
+  public JetStreamListenerAnnotationBeanPostProcessor(JetStreamListenerRegistry registry) {
+    this.registry = registry;
   }
 
   /**
@@ -105,7 +104,7 @@ public class JetStreamListenerAnnotationBeanPostProcessor
               .withMaxDeliveries(annotation.maxDeliveries())
               .build();
 
-      jetStreamListenerRegistry.register(listener);
+      registry.register(listener);
       log.info("Registered @JetStreamListener to {}", listener);
     }
 

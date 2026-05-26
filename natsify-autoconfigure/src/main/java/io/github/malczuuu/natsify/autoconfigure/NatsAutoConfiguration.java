@@ -37,7 +37,6 @@ import io.github.malczuuu.natsify.handler.SimpleMessageArgumentResolver;
 import io.github.malczuuu.natsify.handler.SimpleNatsListenerRegistry;
 import io.github.malczuuu.natsify.instrument.JetStreamListenerObserver;
 import io.github.malczuuu.natsify.instrument.NatsConnectionObserver;
-import io.github.malczuuu.natsify.instrument.NatsErrorObserver;
 import io.github.malczuuu.natsify.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.api.StreamConfiguration;
@@ -123,7 +122,6 @@ public final class NatsAutoConfiguration {
       NatsListenerObserver natsListenerObserver,
       JetStreamListenerObserver jetStreamListenerObserver,
       NatsConnectionObserver natsConnectionObserver,
-      NatsErrorObserver natsErrorObserver,
       JsonMapper jsonMapper) {
     MessageArgumentResolver argumentResolver = new SimpleMessageArgumentResolver(jsonMapper);
     return new ConnectionConfigurer(
@@ -136,8 +134,7 @@ public final class NatsAutoConfiguration {
                 jetStreamListenerObserver,
                 properties.getPullFetchBatchSize(),
                 properties.getPullFetchTimeout())),
-        natsConnectionObserver,
-        natsErrorObserver);
+        natsConnectionObserver);
   }
 
   @Bean
@@ -153,8 +150,8 @@ public final class NatsAutoConfiguration {
       ConnectionOptionsFactory connectionOptionsFactory,
       List<StreamConfiguration> streamConfigurations) {
     return new JetStreamConfigurer(
-        properties.isAutoStreamCreation(),
         connectionOptionsFactory.getOptions(),
+        properties.isAutoStreamCreation(),
         streamConfigurations);
   }
 

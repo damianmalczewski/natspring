@@ -178,7 +178,7 @@ public final class JetStreamListenerDetails {
    */
   @Override
   public String toString() {
-    return ("[bean=" + AopUtils.getTargetClass(bean).getSimpleName())
+    return ("JetStreamListenerDetails[bean=" + AopUtils.getTargetClass(bean).getSimpleName())
         + (", method=" + method.getName())
         + (", subject=" + subject)
         + (", stream=" + stream)

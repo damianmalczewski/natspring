@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 
 final class SubscriptionHandler implements NatsListenerHandler {
 
@@ -47,7 +48,7 @@ final class SubscriptionHandler implements NatsListenerHandler {
   public synchronized void start() {
     if (running) {
       throw new ListenerConfigureException(
-          "Attempted to call start() on already running "
+          "Attempted to call start() on already started "
               + SubscriptionHandler.class.getSimpleName());
     }
 
@@ -67,8 +68,7 @@ final class SubscriptionHandler implements NatsListenerHandler {
   public synchronized void stop() {
     if (!running) {
       throw new ListenerConfigureException(
-          "Attempted to call stop() on already stopped "
-              + SubscriptionHandler.class.getSimpleName());
+          "Attempted to call stop() on a not-running " + SubscriptionHandler.class.getSimpleName());
     }
     running = false;
 
@@ -78,5 +78,14 @@ final class SubscriptionHandler implements NatsListenerHandler {
       connection.closeDispatcher(dispatcher);
       this.dispatcher = null;
     }
+  }
+
+  @Override
+  public String toString() {
+    return "SubscriptionHandler["
+        + AopUtils.getTargetClass(listener.getBean()).getSimpleName()
+        + "."
+        + listener.getMethod().getName()
+        + "]";
   }
 }

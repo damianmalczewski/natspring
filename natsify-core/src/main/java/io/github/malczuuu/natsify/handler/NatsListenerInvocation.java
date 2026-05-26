@@ -33,20 +33,20 @@ final class NatsListenerInvocation implements Consumer<Message> {
 
   private static final Logger log = LoggerFactory.getLogger(NatsListenerInvocation.class);
 
-  private final NatsListenerDetails listener;
+  private final Connection connection;
   private final MessageArgumentResolver argumentResolver;
   private final NatsListenerObserver observer;
-  private final Connection connection;
+  private final NatsListenerDetails listener;
 
   NatsListenerInvocation(
-      NatsListenerDetails listener,
+      Connection connection,
       MessageArgumentResolver argumentResolver,
       NatsListenerObserver observer,
-      Connection connection) {
-    this.listener = listener;
+      NatsListenerDetails listener) {
+    this.connection = connection;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
-    this.connection = connection;
+    this.listener = listener;
   }
 
   @Override
@@ -100,5 +100,14 @@ final class NatsListenerInvocation implements Consumer<Message> {
           listener.getDeadLetterSubject(),
           e);
     }
+  }
+
+  @Override
+  public String toString() {
+    return "NatsListenerInvocation["
+        + AopUtils.getTargetClass(listener.getBean()).getSimpleName()
+        + "."
+        + listener.getMethod().getName()
+        + "]";
   }
 }

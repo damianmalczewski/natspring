@@ -27,7 +27,7 @@ public interface JetStreamListenerObserver {
    * @return a no-op {@link JetStreamListenerObserver}
    */
   static JetStreamListenerObserver noop() {
-    return NoopObserver.INSTANCE;
+    return new JetStreamListenerObserver() {};
   }
 
   /**
@@ -36,7 +36,7 @@ public interface JetStreamListenerObserver {
    * @param subject the message subject
    * @param stream the JetStream stream name
    */
-  void onReceived(String subject, String stream);
+  default void onReceived(String subject, String stream) {}
 
   /**
    * Called when the handler returns successfully and the message is acked.
@@ -44,7 +44,7 @@ public interface JetStreamListenerObserver {
    * @param subject the message subject
    * @param stream the JetStream stream name
    */
-  void onAcked(String subject, String stream);
+  default void onAcked(String subject, String stream) {}
 
   /**
    * Called when the handler throws and the message is nacked.
@@ -52,7 +52,7 @@ public interface JetStreamListenerObserver {
    * @param subject the message subject
    * @param stream the JetStream stream name
    */
-  void onNacked(String subject, String stream);
+  default void onNacked(String subject, String stream) {}
 
   /**
    * Called when the message is terminated (e.g. deserialization failure).
@@ -61,7 +61,7 @@ public interface JetStreamListenerObserver {
    * @param stream the JetStream stream name
    * @param e the exception that caused termination, or {@code null} if not exception-driven
    */
-  void onTerminated(String subject, String stream, @Nullable Exception e);
+  default void onTerminated(String subject, String stream, @Nullable Exception e) {}
 
   /**
    * Called when a message is dead-lettered after exhausting delivery attempts.
@@ -69,7 +69,7 @@ public interface JetStreamListenerObserver {
    * @param subject the message subject
    * @param stream the JetStream stream name
    */
-  void onDeadLettered(String subject, String stream);
+  default void onDeadLettered(String subject, String stream) {}
 
   /**
    * Called after every invocation with the total processing duration.
@@ -78,5 +78,5 @@ public interface JetStreamListenerObserver {
    * @param stream the JetStream stream name
    * @param durationNanos elapsed time in nanoseconds from message receipt to handler completion
    */
-  void onProcessed(String subject, String stream, long durationNanos);
+  default void onProcessed(String subject, String stream, long durationNanos) {}
 }
