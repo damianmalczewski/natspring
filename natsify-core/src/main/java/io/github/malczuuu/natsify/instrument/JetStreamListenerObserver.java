@@ -18,13 +18,18 @@ package io.github.malczuuu.natsify.instrument;
 
 import org.jspecify.annotations.Nullable;
 
-/** Observes JetStream listener invocation and ack events. */
+/**
+ * Observes JetStream listener invocation and ack events.
+ *
+ * @since 0.1.0
+ */
 public interface JetStreamListenerObserver {
 
   /**
    * Returns a no-op implementation that discards all events.
    *
    * @return a no-op {@link JetStreamListenerObserver}
+   * @since 0.1.0
    */
   static JetStreamListenerObserver noop() {
     return new JetStreamListenerObserver() {};
@@ -35,6 +40,7 @@ public interface JetStreamListenerObserver {
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   default void onReceived(String subject, String stream) {}
 
@@ -43,6 +49,7 @@ public interface JetStreamListenerObserver {
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   default void onAcked(String subject, String stream) {}
 
@@ -51,6 +58,7 @@ public interface JetStreamListenerObserver {
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   default void onNacked(String subject, String stream) {}
 
@@ -60,6 +68,7 @@ public interface JetStreamListenerObserver {
    * @param subject the message subject
    * @param stream the JetStream stream name
    * @param e the exception that caused termination, or {@code null} if not exception-driven
+   * @since 0.1.0
    */
   default void onTerminated(String subject, String stream, @Nullable Exception e) {}
 
@@ -68,6 +77,7 @@ public interface JetStreamListenerObserver {
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   default void onDeadLettered(String subject, String stream) {}
 
@@ -77,6 +87,7 @@ public interface JetStreamListenerObserver {
    * @param subject the message subject
    * @param stream the JetStream stream name
    * @param durationNanos elapsed time in nanoseconds from message receipt to handler completion
+   * @since 0.1.0
    */
   default void onProcessed(String subject, String stream, long durationNanos) {}
 }

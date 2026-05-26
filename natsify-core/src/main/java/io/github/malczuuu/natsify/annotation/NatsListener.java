@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 /**
  * Marks a method as a NATS core (non-JetStream) message listener. Messages are delivered with no
  * persistence and no acknowledgment.
+ *
+ * @since 0.1.0
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,6 +37,7 @@ public @interface NatsListener {
    * NATS subject to subscribe to. Supports property placeholders (e.g., {@code ${my.subject}}).
    *
    * @return the subject
+   * @since 0.1.0
    */
   String subject() default "";
 
@@ -43,6 +46,7 @@ public @interface NatsListener {
    * placeholders (e.g., {@code ${my.queue}}).
    *
    * @return the queue group name
+   * @since 0.1.0
    */
   String queue() default "";
 
@@ -63,6 +67,7 @@ public @interface NatsListener {
    * message is silently dropped.
    *
    * @return the dead-letter subject
+   * @since 0.1.0
    */
   String deadLetterSubject() default "";
 }

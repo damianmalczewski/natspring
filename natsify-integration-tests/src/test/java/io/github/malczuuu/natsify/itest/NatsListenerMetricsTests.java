@@ -81,14 +81,19 @@ class NatsListenerMetricsTests extends AbstractIntegrationTests {
     natsOperations.publish("combo.string", "metrics-success-test");
     assertThat(handler.stringPayloads.poll(5, TimeUnit.SECONDS)).isNotNull();
 
-    Counter counter =
-        meterRegistry
-            .find("nats.listener.messages.success")
-            .tag("subject", "combo.string")
-            .tag("queue", "")
-            .counter();
-    assertThat(counter).isNotNull();
-    assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
+    await()
+        .atMost(5, TimeUnit.SECONDS)
+        .untilAsserted(
+            () -> {
+              Counter counter =
+                  meterRegistry
+                      .find("nats.listener.messages.success")
+                      .tag("subject", "combo.string")
+                      .tag("queue", "")
+                      .counter();
+              assertThat(counter).isNotNull();
+              assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
+            });
   }
 
   @Test

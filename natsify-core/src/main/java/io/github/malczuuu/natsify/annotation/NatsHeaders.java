@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 /**
  * Binds a method parameter to all NATS message headers. Parameter type must be {@code
  * io.nats.client.impl.Headers}.
+ *
+ * @since 0.1.0
  */
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

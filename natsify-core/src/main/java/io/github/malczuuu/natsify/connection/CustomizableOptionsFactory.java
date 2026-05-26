@@ -23,18 +23,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * {@link ConnectionOptionsFactory} that builds {@link Options} by applying a list of {@link
  * ConnectionOptionsBuilderCustomizer} instances in registration order.
+ *
+ * @since 0.1.0
  */
 public final class CustomizableOptionsFactory implements ConnectionOptionsFactory {
 
   private final List<ConnectionOptionsBuilderCustomizer> customizers = new CopyOnWriteArrayList<>();
 
-  /** Creates a new {@code CustomizableOptionsFactory} with no registered customizers. */
+  /**
+   * Creates a new {@code CustomizableOptionsFactory} with no registered customizers.
+   *
+   * @since 0.1.0
+   */
   public CustomizableOptionsFactory() {}
 
   /**
    * Registers a customizer to be applied when building connection options.
    *
    * @param customizer the customizer to register
+   * @since 0.1.0
    */
   public void registerBuilderCustomizer(ConnectionOptionsBuilderCustomizer customizer) {
     customizers.add(customizer);
@@ -45,6 +52,7 @@ public final class CustomizableOptionsFactory implements ConnectionOptionsFactor
    * order.
    *
    * @return the built {@link Options}
+   * @since 0.1.0
    */
   @Override
   public Options getOptions() {

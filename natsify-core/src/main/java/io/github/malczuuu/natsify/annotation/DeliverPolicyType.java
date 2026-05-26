@@ -16,15 +16,31 @@
 
 package io.github.malczuuu.natsify.annotation;
 
-/** Starting point for message delivery when a consumer is created. */
+/**
+ * Starting point for message delivery when a consumer is created.
+ *
+ * @since 0.1.0
+ */
 public enum DeliverPolicyType {
 
-  /** All messages retained in the stream are delivered. */
+  /**
+   * All messages retained in the stream are delivered.
+   *
+   * @since 0.1.0
+   */
   ALL,
 
-  /** Only messages published after consumer creation are delivered. */
+  /**
+   * Only messages published after consumer creation are delivered.
+   *
+   * @since 0.1.0
+   */
   NEW,
 
-  /** Only the most recent message at consumer creation time is delivered. */
+  /**
+   * Only the most recent message at consumer creation time is delivered.
+   *
+   * @since 0.1.0
+   */
   LAST
 }

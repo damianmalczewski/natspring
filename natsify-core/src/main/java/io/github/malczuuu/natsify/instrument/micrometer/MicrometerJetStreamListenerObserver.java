@@ -33,6 +33,8 @@ import org.jspecify.annotations.Nullable;
  * nats.jetstream.messages.duration} timer - all tagged with {@code subject} and {@code stream}.
  *
  * <p>Register as a Spring bean; {@link #bindTo(MeterRegistry)} will be called automatically.
+ *
+ * @since 0.1.0
  */
 public class MicrometerJetStreamListenerObserver implements JetStreamListenerObserver, MeterBinder {
 
@@ -41,6 +43,8 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
   /**
    * Creates an instance using a temporary {@link SimpleMeterRegistry} until {@link #bindTo} is
    * called.
+   *
+   * @since 0.1.0
    */
   public MicrometerJetStreamListenerObserver() {
     this.meterRegistry = new SimpleMeterRegistry();
@@ -51,6 +55,7 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   @Override
   public void onReceived(String subject, String stream) {
@@ -63,6 +68,7 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   @Override
   public void onAcked(String subject, String stream) {
@@ -75,6 +81,7 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   @Override
   public void onNacked(String subject, String stream) {
@@ -88,6 +95,7 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
    * @param subject the message subject
    * @param stream the JetStream stream name
    * @param e the exception that caused termination, or {@code null} if not exception-driven
+   * @since 0.1.0
    */
   @Override
   public void onTerminated(String subject, String stream, @Nullable Exception e) {
@@ -104,6 +112,7 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
    *
    * @param subject the message subject
    * @param stream the JetStream stream name
+   * @since 0.1.0
    */
   @Override
   public void onDeadLettered(String subject, String stream) {
@@ -117,6 +126,7 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
    * @param subject the message subject
    * @param stream the JetStream stream name
    * @param durationNanos elapsed time in nanoseconds from message receipt to handler completion
+   * @since 0.1.0
    */
   @Override
   public void onProcessed(String subject, String stream, long durationNanos) {
@@ -126,7 +136,12 @@ public class MicrometerJetStreamListenerObserver implements JetStreamListenerObs
         .record(durationNanos, TimeUnit.NANOSECONDS);
   }
 
-  /** Replaces the temporary registry with the application-wide {@code registry}. */
+  /**
+   * Replaces the temporary registry with the application-wide {@code registry}.
+   *
+   * @param registry the application-wide MeterRegistry to bind to
+   * @since 0.1.0
+   */
   @Override
   public void bindTo(MeterRegistry registry) {
     meterRegistry = registry;

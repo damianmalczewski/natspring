@@ -30,6 +30,8 @@ import java.util.Locale;
  * with the event name on each connection state change.
  *
  * <p>Register as a Spring bean; {@link #bindTo(MeterRegistry)} will be called automatically.
+ *
+ * @since 0.1.0
  */
 public class MicrometerNatsConnectionObserver implements NatsConnectionObserver, MeterBinder {
 
@@ -38,6 +40,8 @@ public class MicrometerNatsConnectionObserver implements NatsConnectionObserver,
   /**
    * Creates an instance using a temporary {@link SimpleMeterRegistry} until {@link #bindTo} is
    * called.
+   *
+   * @since 0.1.0
    */
   public MicrometerNatsConnectionObserver() {
     meterRegistry = new SimpleMeterRegistry();
@@ -47,6 +51,7 @@ public class MicrometerNatsConnectionObserver implements NatsConnectionObserver,
    * Called when the connection state changes.
    *
    * @param event the connection event
+   * @since 0.1.0
    */
   @Override
   public void onConnectionEvent(ConnectionListener.Events event) {
@@ -58,6 +63,7 @@ public class MicrometerNatsConnectionObserver implements NatsConnectionObserver,
    * Called when the NATS server sends an error string.
    *
    * @param error the error text
+   * @since 0.1.0
    */
   @Override
   public void onError(String error) {
@@ -69,6 +75,7 @@ public class MicrometerNatsConnectionObserver implements NatsConnectionObserver,
    * Called when the client encounters an exception during processing.
    *
    * @param exception the exception
+   * @since 0.1.0
    */
   @Override
   public void onException(Exception exception) {
@@ -76,19 +83,32 @@ public class MicrometerNatsConnectionObserver implements NatsConnectionObserver,
     meterRegistry.counter("nats.connection.exceptions", tags).increment();
   }
 
-  /** Called when a slow consumer is detected on the connection. */
+  /**
+   * Called when a slow consumer is detected on the connection.
+   *
+   * @since 0.1.0
+   */
   @Override
   public void onSlowConsumerDetected() {
     meterRegistry.counter("nats.connection.slow.consumer.detected").increment();
   }
 
-  /** Called when a message is discarded due to a full consumer queue. */
+  /**
+   * Called when a message is discarded due to a full consumer queue.
+   *
+   * @since 0.1.0
+   */
   @Override
   public void onMessageDiscarded() {
     meterRegistry.counter("nats.connection.message.discarded").increment();
   }
 
-  /** Replaces the temporary registry with the application-wide {@code registry}. */
+  /**
+   * Replaces the temporary registry with the application-wide {@code registry}.
+   *
+   * @param registry the application-wide MeterRegistry to bind to
+   * @since 0.1.0
+   */
   @Override
   public void bindTo(MeterRegistry registry) {
     meterRegistry = registry;

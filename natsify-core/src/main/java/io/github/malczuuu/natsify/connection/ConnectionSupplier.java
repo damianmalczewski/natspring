@@ -18,7 +18,11 @@ package io.github.malczuuu.natsify.connection;
 
 import io.nats.client.Connection;
 
-/** Provides access to the active NATS {@link Connection}. */
+/**
+ * Provides access to the active NATS {@link Connection}.
+ *
+ * @since 0.1.0
+ */
 @FunctionalInterface
 public interface ConnectionSupplier {
 
@@ -26,6 +30,7 @@ public interface ConnectionSupplier {
    * Returns the active NATS connection, establishing one if not yet connected.
    *
    * @return the active {@link Connection}
+   * @since 0.1.0
    */
   Connection getConnection();
 }

@@ -38,6 +38,8 @@ import tools.jackson.databind.json.JsonMapper;
  * NatsHeaders @NatsHeaders}), individual header values via {@link NatsHeader @NatsHeader}, the
  * message subject via {@link NatsSubject @NatsSubject}, {@link NatsJetStreamMetaData}, {@code
  * byte[]}, {@link String}, and arbitrary JSON-deserializable types.
+ *
+ * @since 0.1.0
  */
 public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
 
@@ -47,6 +49,7 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
    * Creates a new {@code SimpleMessageArgumentResolver}.
    *
    * @param jsonMapper Jackson mapper used for JSON deserialization of payload parameters
+   * @since 0.1.0
    */
   public SimpleMessageArgumentResolver(JsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
@@ -58,6 +61,7 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
    * @param parameters the method parameters to resolve
    * @param message the received message
    * @return array of resolved arguments, or {@code null}
+   * @since 0.1.0
    */
   @Override
   public Object @Nullable [] resolveArguments(Parameter[] parameters, Message message) {
@@ -74,6 +78,7 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
    * @param parameter the method parameter to resolve
    * @param message the received message
    * @return the resolved argument, or {@code null}
+   * @since 0.1.0
    */
   @Override
   public @Nullable Object resolveArgument(Parameter parameter, Message message) {

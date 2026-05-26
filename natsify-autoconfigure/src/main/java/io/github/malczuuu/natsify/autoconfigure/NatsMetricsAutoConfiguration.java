@@ -40,6 +40,8 @@ import org.springframework.core.annotation.Order;
  * <p>When Micrometer ({@code io.micrometer.core.instrument.MeterRegistry}) is on the classpath,
  * registers Micrometer-backed observer beans. Otherwise, falls back to no-op implementations. Any
  * observer bean declared in the application context takes precedence over these defaults.
+ *
+ * @since 0.1.0
  */
 @AutoConfiguration
 @ConditionalOnBooleanProperty(name = "natsify.enabled", matchIfMissing = true)

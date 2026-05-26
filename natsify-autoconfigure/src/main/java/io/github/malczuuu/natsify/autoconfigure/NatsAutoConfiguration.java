@@ -53,7 +53,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Spring Boot auto-configuration for core NATS infrastructure. */
+/**
+ * Spring Boot auto-configuration for core NATS infrastructure.
+ *
+ * @since 0.1.0
+ */
 @AutoConfiguration
 @ConditionalOnBooleanProperty(name = "natsify.enabled", matchIfMissing = true)
 @ConditionalOnClass(Connection.class)

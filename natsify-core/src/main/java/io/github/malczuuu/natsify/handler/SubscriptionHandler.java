@@ -34,8 +34,8 @@ final class SubscriptionHandler implements NatsListenerHandler {
   private final NatsListenerDetails listener;
   private final Consumer<Message> messageConsumer;
 
-  private boolean running = false;
-  private @Nullable Dispatcher dispatcher = null;
+  private volatile boolean running = false;
+  private volatile @Nullable Dispatcher dispatcher = null;
 
   SubscriptionHandler(
       Connection connection, NatsListenerDetails listener, Consumer<Message> messageConsumer) {
@@ -52,7 +52,8 @@ final class SubscriptionHandler implements NatsListenerHandler {
               + SubscriptionHandler.class.getSimpleName());
     }
 
-    dispatcher = connection.createDispatcher(messageConsumer::accept);
+    Dispatcher dispatcher = connection.createDispatcher(messageConsumer::accept);
+    this.dispatcher = dispatcher;
     if (listener.getQueue().isEmpty()) {
       dispatcher.subscribe(listener.getSubject());
       log.info("Subscribed to NATS subject {}", listener.getSubject());

@@ -20,318 +20,384 @@ import io.nats.client.Options;
 import java.time.Duration;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
-/** Configuration properties for Natsify Project, bound under the {@code natsify} prefix. */
+/**
+ * Configuration properties for Natsify Project, bound under the {@code natsify} prefix.
+ *
+ * @since 0.1.0
+ */
 @ConfigurationProperties(prefix = "natsify")
 public class NatsProperties {
 
-  /** Whether NATS auto-configuration is enabled. Default: {@code true}. */
-  private final boolean enabled;
+  /** Whether NATS auto-configuration is enabled. */
+  private boolean enabled = true;
 
-  /** NATS server URL. Default: {@code nats://localhost:4222}. */
-  private final String server;
+  /** NATS server URL. */
+  private String server = "nats://localhost:4222";
 
   /** Username for NATS authentication. Omit if the server requires no credentials. */
-  private final @Nullable String username;
+  private @Nullable String username = null;
 
   /** Password for NATS authentication. Omit if the server requires no credentials. */
-  private final @Nullable String password;
+  private @Nullable String password = null;
 
   /** Optional name for the NATS connection. Used as the thread name in the client. */
-  private final @Nullable String connectionName;
+  private @Nullable String connectionName = null;
 
-  /**
-   * Maximum time to wait when establishing a connection. Uses the client default if {@code null}.
-   */
-  private final Duration connectionTimeout;
+  /** Maximum time to wait when establishing a connection. Uses the client default if not set. */
+  private Duration connectionTimeout = Options.DEFAULT_CONNECTION_TIMEOUT;
 
-  /**
-   * Maximum time to wait for a socket write to complete. Uses the client default if {@code null}.
-   */
-  private final Duration socketWriteTimeout;
+  /** Maximum time to wait for a socket write to complete. Uses the client default if not set. */
+  private Duration socketWriteTimeout = Options.DEFAULT_SOCKET_WRITE_TIMEOUT;
 
-  /**
-   * Maximum number of reconnect attempts before giving up. {@code -1} means unlimited. Default:
-   * {@code 60}.
-   */
-  private final int maxReconnects;
+  /** Maximum number of reconnect attempts before giving up. {@code -1} means unlimited. */
+  private int maxReconnects = Options.DEFAULT_MAX_RECONNECT;
 
-  /** Time to wait between reconnect attempts. Default: {@code 2s}. */
-  private final Duration reconnectWait;
+  /** Time to wait between reconnect attempts. */
+  private Duration reconnectWait = Options.DEFAULT_RECONNECT_WAIT;
 
-  /**
-   * Random jitter added to {@code reconnectWait} for non-TLS connections. Default: {@code 100ms}.
-   */
-  private final Duration reconnectJitter;
+  /** Random jitter added to {@code reconnectWait} for non-TLS connections. */
+  private Duration reconnectJitter = Options.DEFAULT_RECONNECT_JITTER;
 
-  /** Random jitter added to {@code reconnectWait} for TLS connections. Default: {@code 1s}. */
-  private final Duration reconnectJitterTls;
+  /** Random jitter added to {@code reconnectWait} for TLS connections. */
+  private Duration reconnectJitterTls = Options.DEFAULT_RECONNECT_JITTER_TLS;
 
-  /**
-   * Size of the buffer (in bytes) used to hold published messages while reconnecting. Default:
-   * {@code 8388608} (8 MB).
-   */
-  private final long reconnectBufferSize;
+  /** Size of the buffer (in bytes) used to hold published messages while reconnecting. */
+  private long reconnectBufferSize = Options.DEFAULT_RECONNECT_BUF_SIZE;
 
-  /** Interval between client-side pings to the server. Default: {@code 2m}. */
-  private final Duration pingInterval;
+  /** Interval between client-side pings to the server. */
+  private Duration pingInterval = Options.DEFAULT_PING_INTERVAL;
 
   /**
    * Maximum number of pings that may be outstanding without a response before the connection is
-   * considered stale. Default: {@code 2}.
+   * considered stale.
    */
-  private final int maxPingsOut;
+  private int maxPingsOut = Options.DEFAULT_MAX_PINGS_OUT;
 
-  /** Interval at which the client scans for timed-out pending requests. Default: {@code 5s}. */
-  private final Duration requestCleanupInterval;
+  /** Interval at which the client scans for timed-out pending requests. */
+  private Duration requestCleanupInterval = Options.DEFAULT_REQUEST_CLEANUP_INTERVAL;
 
-  /**
-   * Prefix used for auto-generated inbox subjects. Must end with {@code .}. Default: {@code
-   * _INBOX.}.
-   */
-  private final @Nullable String inboxPrefix;
+  /** Prefix used for auto-generated inbox subjects. Must end with {@code .}. */
+  private @Nullable String inboxPrefix = Options.DEFAULT_INBOX_PREFIX;
 
   /**
    * Whether the server should suppress echoing messages back to the connection that published them.
-   * Default: {@code false}.
    */
-  private final boolean noEcho;
+  private boolean noEcho = false;
 
-  /**
-   * Whether to disable randomization of the server list on connect and reconnect. Default: {@code
-   * false}.
-   */
-  private final boolean noRandomize;
+  /** Whether to disable randomization of the server list on connect and reconnect. */
+  private boolean noRandomize = false;
 
   /**
    * Whether declared {@code StreamConfiguration} beans are used to create or update JetStream
-   * streams on startup. Default: {@code false}.
+   * streams on startup.
    */
-  private final boolean autoStreamCreation;
+  private boolean autoStreamCreation = false;
 
-  /**
-   * Number of messages fetched per poll cycle for JetStream pull consumers. Default: {@code 200}.
-   */
-  private final int pullFetchBatchSize;
+  /** Number of messages fetched per poll cycle for JetStream pull consumers. */
+  private int pullFetchBatchSize = 200;
 
-  /**
-   * Maximum time to wait for messages in each fetch call for JetStream pull consumers. Default:
-   * {@code 200ms}.
-   */
-  private final Duration pullFetchTimeout;
-
-  /**
-   * Creates a new {@code NatsProperties} instance. Intended for use by the Spring Boot
-   * configuration binding mechanism; prefer injecting the bound bean over constructing directly.
-   *
-   * @param enabled whether auto-configuration is enabled
-   * @param server the NATS server URL
-   * @param username optional username for authentication
-   * @param password optional password for authentication
-   * @param connectionName optional name for the connection, used as thread name
-   * @param connectionTimeout optional maximum time to wait when establishing a connection
-   * @param socketWriteTimeout optional maximum time to wait for a socket write to complete
-   * @param maxReconnects maximum number of reconnect attempts; {@code -1} for unlimited
-   * @param reconnectWait time to wait between reconnect attempts
-   * @param reconnectJitter random jitter added to reconnect wait for non-TLS connections
-   * @param reconnectJitterTls random jitter added to reconnect wait for TLS connections
-   * @param reconnectBufferSize size in bytes of the buffer used during reconnect
-   * @param pingInterval interval between client-side pings to the server
-   * @param maxPingsOut maximum outstanding pings before the connection is considered stale
-   * @param requestCleanupInterval interval for scanning timed-out pending requests
-   * @param inboxPrefix prefix for auto-generated inbox subjects; must end with {@code .}
-   * @param noEcho whether the server should suppress echoing back published messages
-   * @param noRandomize whether to disable server list randomization
-   * @param autoStreamCreation whether JetStream streams should be created or updated on startup
-   * @param pullFetchBatchSize number of messages to fetch per poll cycle for pull consumers
-   * @param pullFetchTimeout maximum time to wait for messages in each fetch call for pull consumers
-   */
-  public NatsProperties(
-      @DefaultValue("true") boolean enabled,
-      @DefaultValue("nats://localhost:4222") String server,
-      @Nullable String username,
-      @Nullable String password,
-      @Nullable String connectionName,
-      @Nullable Duration connectionTimeout,
-      @Nullable Duration socketWriteTimeout,
-      @DefaultValue("60") int maxReconnects,
-      @Nullable Duration reconnectWait,
-      @Nullable Duration reconnectJitter,
-      @Nullable Duration reconnectJitterTls,
-      @DefaultValue("8388608") long reconnectBufferSize,
-      @Nullable Duration pingInterval,
-      @DefaultValue("2") int maxPingsOut,
-      @Nullable Duration requestCleanupInterval,
-      @Nullable String inboxPrefix,
-      @DefaultValue("false") boolean noEcho,
-      @DefaultValue("false") boolean noRandomize,
-      @DefaultValue("false") boolean autoStreamCreation,
-      @DefaultValue("200") int pullFetchBatchSize,
-      @DefaultValue("200ms") Duration pullFetchTimeout) {
-    this.enabled = enabled;
-    this.server = server;
-    this.username = username;
-    this.password = password;
-    this.connectionName = connectionName;
-    this.connectionTimeout =
-        connectionTimeout != null ? connectionTimeout : Options.DEFAULT_CONNECTION_TIMEOUT;
-    this.socketWriteTimeout =
-        socketWriteTimeout != null ? socketWriteTimeout : Options.DEFAULT_SOCKET_WRITE_TIMEOUT;
-    this.maxReconnects = maxReconnects;
-    this.reconnectWait = reconnectWait != null ? reconnectWait : Options.DEFAULT_RECONNECT_WAIT;
-    this.reconnectJitter =
-        reconnectJitter != null ? reconnectJitter : Options.DEFAULT_RECONNECT_JITTER;
-    this.reconnectJitterTls =
-        reconnectJitterTls != null ? reconnectJitterTls : Options.DEFAULT_RECONNECT_JITTER_TLS;
-    this.reconnectBufferSize = reconnectBufferSize;
-    this.pingInterval = pingInterval != null ? pingInterval : Options.DEFAULT_PING_INTERVAL;
-    this.maxPingsOut = maxPingsOut;
-    this.requestCleanupInterval =
-        requestCleanupInterval != null
-            ? requestCleanupInterval
-            : Options.DEFAULT_REQUEST_CLEANUP_INTERVAL;
-    this.inboxPrefix = inboxPrefix;
-    this.noEcho = noEcho;
-    this.noRandomize = noRandomize;
-    this.autoStreamCreation = autoStreamCreation;
-    this.pullFetchBatchSize = pullFetchBatchSize;
-    this.pullFetchTimeout = pullFetchTimeout;
-  }
+  /** Maximum time to wait for messages in each fetch call for JetStream pull consumers. */
+  private Duration pullFetchTimeout = Duration.ofMillis(200);
 
   /**
    * Returns whether NATS auto-configuration is enabled.
    *
    * @return whether NATS auto-configuration is enabled
+   * @since 0.1.0
    */
   public boolean isEnabled() {
     return enabled;
   }
 
   /**
+   * Sets whether NATS auto-configuration is enabled.
+   *
+   * @param enabled whether auto-configuration is enabled
+   * @since 0.1.0
+   */
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  /**
    * Returns the NATS server URL.
    *
    * @return the NATS server URL
+   * @since 0.1.0
    */
   public String getServer() {
     return server;
   }
 
   /**
+   * Sets the NATS server URL.
+   *
+   * @param server the NATS server URL
+   * @since 0.1.0
+   */
+  public void setServer(String server) {
+    this.server = server;
+  }
+
+  /**
    * Returns the username for authentication, or {@code null}.
    *
    * @return the username for authentication, or {@code null}
+   * @since 0.1.0
    */
   public @Nullable String getUsername() {
     return username;
   }
 
   /**
+   * Sets the username for authentication.
+   *
+   * @param username the username, or {@code null} to disable
+   * @since 0.1.0
+   */
+  public void setUsername(@Nullable String username) {
+    this.username = username;
+  }
+
+  /**
    * Returns the password for authentication, or {@code null}.
    *
    * @return the password for authentication, or {@code null}
+   * @since 0.1.0
    */
   public @Nullable String getPassword() {
     return password;
   }
 
   /**
+   * Sets the password for authentication.
+   *
+   * @param password the password, or {@code null} to disable
+   * @since 0.1.0
+   */
+  public void setPassword(@Nullable String password) {
+    this.password = password;
+  }
+
+  /**
    * Returns the name of the connection, or {@code null} if not specified. Used in thread name.
    *
    * @return the name of the connection, or {@code null}
+   * @since 0.1.0
    */
   public @Nullable String getConnectionName() {
     return connectionName;
   }
 
   /**
+   * Sets the name of the NATS connection.
+   *
+   * @param connectionName the connection name, or {@code null} for no name
+   * @since 0.1.0
+   */
+  public void setConnectionName(@Nullable String connectionName) {
+    this.connectionName = connectionName;
+  }
+
+  /**
    * Returns the maximum time to wait when establishing a connection.
    *
    * @return the connection timeout
+   * @since 0.1.0
    */
   public Duration getConnectionTimeout() {
     return connectionTimeout;
   }
 
   /**
+   * Sets the maximum time to wait when establishing a connection.
+   *
+   * @param connectionTimeout the connection timeout
+   * @since 0.1.0
+   */
+  public void setConnectionTimeout(Duration connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
+  }
+
+  /**
    * Returns the maximum time to wait for a socket write to complete.
    *
    * @return the socket write timeout
+   * @since 0.1.0
    */
   public Duration getSocketWriteTimeout() {
     return socketWriteTimeout;
   }
 
   /**
+   * Sets the maximum time to wait for a socket write to complete.
+   *
+   * @param socketWriteTimeout the socket write timeout
+   * @since 0.1.0
+   */
+  public void setSocketWriteTimeout(Duration socketWriteTimeout) {
+    this.socketWriteTimeout = socketWriteTimeout;
+  }
+
+  /**
    * Returns the maximum number of reconnect attempts. {@code -1} means unlimited.
    *
    * @return the maximum reconnect count
+   * @since 0.1.0
    */
   public int getMaxReconnects() {
     return maxReconnects;
   }
 
   /**
+   * Sets the maximum number of reconnect attempts. Use {@code -1} for unlimited.
+   *
+   * @param maxReconnects the maximum reconnect count
+   * @since 0.1.0
+   */
+  public void setMaxReconnects(int maxReconnects) {
+    this.maxReconnects = maxReconnects;
+  }
+
+  /**
    * Returns the time to wait between reconnect attempts.
    *
    * @return the reconnect wait duration
+   * @since 0.1.0
    */
   public Duration getReconnectWait() {
     return reconnectWait;
   }
 
   /**
+   * Sets the time to wait between reconnect attempts.
+   *
+   * @param reconnectWait the reconnect wait duration
+   * @since 0.1.0
+   */
+  public void setReconnectWait(Duration reconnectWait) {
+    this.reconnectWait = reconnectWait;
+  }
+
+  /**
    * Returns the random jitter added to reconnect wait for non-TLS connections.
    *
    * @return the reconnect jitter
+   * @since 0.1.0
    */
   public Duration getReconnectJitter() {
     return reconnectJitter;
   }
 
   /**
+   * Sets the random jitter added to reconnect wait for non-TLS connections.
+   *
+   * @param reconnectJitter the reconnect jitter
+   * @since 0.1.0
+   */
+  public void setReconnectJitter(Duration reconnectJitter) {
+    this.reconnectJitter = reconnectJitter;
+  }
+
+  /**
    * Returns the random jitter added to reconnect wait for TLS connections.
    *
    * @return the TLS reconnect jitter
+   * @since 0.1.0
    */
   public Duration getReconnectJitterTls() {
     return reconnectJitterTls;
   }
 
   /**
+   * Sets the random jitter added to reconnect wait for TLS connections.
+   *
+   * @param reconnectJitterTls the TLS reconnect jitter
+   * @since 0.1.0
+   */
+  public void setReconnectJitterTls(Duration reconnectJitterTls) {
+    this.reconnectJitterTls = reconnectJitterTls;
+  }
+
+  /**
    * Returns the size in bytes of the buffer used to hold messages during reconnect.
    *
    * @return the reconnect buffer size
+   * @since 0.1.0
    */
   public long getReconnectBufferSize() {
     return reconnectBufferSize;
   }
 
   /**
+   * Sets the size in bytes of the buffer used to hold published messages while reconnecting.
+   *
+   * @param reconnectBufferSize the reconnect buffer size in bytes
+   * @since 0.1.0
+   */
+  public void setReconnectBufferSize(long reconnectBufferSize) {
+    this.reconnectBufferSize = reconnectBufferSize;
+  }
+
+  /**
    * Returns the interval between client-side pings to the server.
    *
    * @return the ping interval
+   * @since 0.1.0
    */
   public Duration getPingInterval() {
     return pingInterval;
   }
 
   /**
+   * Sets the interval between client-side pings to the server.
+   *
+   * @param pingInterval the ping interval
+   * @since 0.1.0
+   */
+  public void setPingInterval(Duration pingInterval) {
+    this.pingInterval = pingInterval;
+  }
+
+  /**
    * Returns the maximum number of outstanding pings before the connection is considered stale.
    *
    * @return the maximum pings out
+   * @since 0.1.0
    */
   public int getMaxPingsOut() {
     return maxPingsOut;
   }
 
   /**
+   * Sets the maximum number of outstanding pings before the connection is considered stale.
+   *
+   * @param maxPingsOut the maximum pings out
+   * @since 0.1.0
+   */
+  public void setMaxPingsOut(int maxPingsOut) {
+    this.maxPingsOut = maxPingsOut;
+  }
+
+  /**
    * Returns the interval for scanning timed-out pending requests.
    *
    * @return the request cleanup interval
+   * @since 0.1.0
    */
   public Duration getRequestCleanupInterval() {
     return requestCleanupInterval;
+  }
+
+  /**
+   * Sets the interval at which the client scans for timed-out pending requests.
+   *
+   * @param requestCleanupInterval the request cleanup interval
+   * @since 0.1.0
+   */
+  public void setRequestCleanupInterval(Duration requestCleanupInterval) {
+    this.requestCleanupInterval = requestCleanupInterval;
   }
 
   /**
@@ -339,53 +405,120 @@ public class NatsProperties {
    * ({@code _INBOX.}).
    *
    * @return the inbox prefix, or {@code null}
+   * @since 0.1.0
    */
   public @Nullable String getInboxPrefix() {
     return inboxPrefix;
   }
 
   /**
+   * Sets the prefix for auto-generated inbox subjects. Must end with {@code .}.
+   *
+   * @param inboxPrefix the inbox prefix, or {@code null} to use the client default
+   * @since 0.1.0
+   */
+  public void setInboxPrefix(@Nullable String inboxPrefix) {
+    this.inboxPrefix = inboxPrefix;
+  }
+
+  /**
    * Returns whether the server should suppress echoing published messages back to this connection.
    *
    * @return whether no-echo is enabled
+   * @since 0.1.0
    */
   public boolean isNoEcho() {
     return noEcho;
   }
 
   /**
+   * Sets whether the server should suppress echoing messages back to this connection.
+   *
+   * @param noEcho whether to enable no-echo
+   * @since 0.1.0
+   */
+  public void setNoEcho(boolean noEcho) {
+    this.noEcho = noEcho;
+  }
+
+  /**
    * Returns whether server list randomization is disabled.
    *
    * @return whether no-randomize is enabled
+   * @since 0.1.0
    */
   public boolean isNoRandomize() {
     return noRandomize;
   }
 
   /**
+   * Sets whether to disable server list randomization on connect and reconnect.
+   *
+   * @param noRandomize whether to disable randomization
+   * @since 0.1.0
+   */
+  public void setNoRandomize(boolean noRandomize) {
+    this.noRandomize = noRandomize;
+  }
+
+  /**
    * Returns whether JetStream stream auto-creation is enabled.
    *
    * @return whether JetStream stream auto-creation is enabled
+   * @since 0.1.0
    */
   public boolean isAutoStreamCreation() {
     return autoStreamCreation;
   }
 
   /**
+   * Sets whether declared {@code StreamConfiguration} beans are used to create or update JetStream
+   * streams on startup.
+   *
+   * @param autoStreamCreation whether to enable auto stream creation
+   * @since 0.1.0
+   */
+  public void setAutoStreamCreation(boolean autoStreamCreation) {
+    this.autoStreamCreation = autoStreamCreation;
+  }
+
+  /**
    * Returns the number of messages to fetch per poll cycle for JetStream pull consumers.
    *
    * @return the pull fetch batch size
+   * @since 0.1.0
    */
   public int getPullFetchBatchSize() {
     return pullFetchBatchSize;
   }
 
   /**
+   * Sets the number of messages to fetch per poll cycle for JetStream pull consumers.
+   *
+   * @param pullFetchBatchSize the pull fetch batch size
+   * @since 0.1.0
+   */
+  public void setPullFetchBatchSize(int pullFetchBatchSize) {
+    this.pullFetchBatchSize = pullFetchBatchSize;
+  }
+
+  /**
    * Returns the maximum time to wait for messages in each fetch call for JetStream pull consumers.
    *
    * @return the pull fetch timeout
+   * @since 0.1.0
    */
   public Duration getPullFetchTimeout() {
     return pullFetchTimeout;
+  }
+
+  /**
+   * Sets the maximum time to wait for messages in each fetch call for JetStream pull consumers.
+   *
+   * @param pullFetchTimeout the pull fetch timeout
+   * @since 0.1.0
+   */
+  public void setPullFetchTimeout(Duration pullFetchTimeout) {
+    this.pullFetchTimeout = pullFetchTimeout;
   }
 }

@@ -22,6 +22,8 @@ import java.util.List;
 /**
  * Registry for {@link JetStreamListenerDetails} describing {@link
  * JetStreamListener @JetStreamListener}-annotated methods.
+ *
+ * @since 0.1.0
  */
 public interface JetStreamListenerRegistry {
 
@@ -29,6 +31,7 @@ public interface JetStreamListenerRegistry {
    * Registers a listener.
    *
    * @param listener the listener details to register
+   * @since 0.1.0
    */
   void register(JetStreamListenerDetails listener);
 
@@ -36,6 +39,7 @@ public interface JetStreamListenerRegistry {
    * Returns all registered listeners.
    *
    * @return immutable list of registered listener details
+   * @since 0.1.0
    */
   List<JetStreamListenerDetails> getListeners();
 }

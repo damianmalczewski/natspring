@@ -31,6 +31,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages JetStream consumer handlers for registered {@link JetStreamListenerDetails listeners}.
+ *
+ * @since 0.1.0
  */
 public class JetStreamListenerManager implements ListenerManager {
 
@@ -51,6 +53,7 @@ public class JetStreamListenerManager implements ListenerManager {
    * @param observer observer notified on listener invocations
    * @param pullFetchBatchSize number of messages to fetch per poll cycle for pull consumers
    * @param pullFetchTimeout maximum time to wait for messages in each fetch call for pull consumers
+   * @since 0.1.0
    */
   public JetStreamListenerManager(
       JetStreamListenerRegistry registry,
@@ -72,6 +75,7 @@ public class JetStreamListenerManager implements ListenerManager {
    *
    * @param connection the active NATS connection
    * @throws Exception if any handler fails to start
+   * @since 0.1.0
    */
   @Override
   public synchronized void start(Connection connection) throws Exception {
@@ -92,7 +96,11 @@ public class JetStreamListenerManager implements ListenerManager {
     }
   }
 
-  /** Stops all active handlers. Attempts to stop every handler before propagating failures. */
+  /**
+   * Stops all active handlers. Attempts to stop every handler before propagating failures.
+   *
+   * @since 0.1.0
+   */
   @Override
   public synchronized void stop() {
     List<RuntimeException> failures = new ArrayList<>();
@@ -103,6 +111,7 @@ public class JetStreamListenerManager implements ListenerManager {
         failures.add(e);
       }
     }
+    handlers.clear();
     if (!failures.isEmpty()) {
       RuntimeException first = failures.get(0);
       if (failures.size() == 1) {

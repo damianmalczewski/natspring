@@ -22,7 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** Manages NATS Core subscription handlers for registered {@link NatsListenerDetails listeners}. */
+/**
+ * Manages NATS Core subscription handlers for registered {@link NatsListenerDetails listeners}.
+ *
+ * @since 0.1.0
+ */
 public class NatsListenerManager implements ListenerManager {
 
   private final NatsListenerRegistry registry;
@@ -37,6 +41,7 @@ public class NatsListenerManager implements ListenerManager {
    * @param registry registry of listener details to initialize
    * @param argumentResolver resolver used to map message data to handler method arguments
    * @param observer observer notified on listener invocations
+   * @since 0.1.0
    */
   public NatsListenerManager(
       NatsListenerRegistry registry,
@@ -53,6 +58,7 @@ public class NatsListenerManager implements ListenerManager {
    *
    * @param connection the active NATS connection
    * @throws Exception if any handler fails to start
+   * @since 0.1.0
    */
   @Override
   public synchronized void start(Connection connection) throws Exception {
@@ -67,7 +73,11 @@ public class NatsListenerManager implements ListenerManager {
     }
   }
 
-  /** Stops all active handlers. Attempts to stop every handler before propagating failures. */
+  /**
+   * Stops all active handlers. Attempts to stop every handler before propagating failures.
+   *
+   * @since 0.1.0
+   */
   @Override
   public synchronized void stop() {
     List<RuntimeException> failures = new ArrayList<>();

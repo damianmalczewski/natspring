@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 /**
  * Binds a method parameter to the subject of the received NATS message. The parameter type must be
  * {@link String}.
+ *
+ * @since 0.1.0
  */
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

@@ -21,11 +21,14 @@ import static io.github.malczuuu.natsify.handler.ListenerMethodValidation.valida
 import java.lang.reflect.Method;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Holds metadata for a {@link
  * io.github.malczuuu.natsify.annotation.NatsListener @NatsListener}-annotated method, including the
  * target bean, method, subject, and queue group.
+ *
+ * @since 0.1.0
  */
 public final class NatsListenerDetails {
 
@@ -48,6 +51,7 @@ public final class NatsListenerDetails {
    * Returns the Spring bean that declares the listener method.
    *
    * @return the listener bean
+   * @since 0.1.0
    */
   public Object getBean() {
     return bean;
@@ -57,6 +61,7 @@ public final class NatsListenerDetails {
    * Returns the listener method.
    *
    * @return the listener method
+   * @since 0.1.0
    */
   public Method getMethod() {
     return method;
@@ -66,6 +71,7 @@ public final class NatsListenerDetails {
    * Returns the NATS subject the listener subscribes to.
    *
    * @return the NATS subject
+   * @since 0.1.0
    */
   public String getSubject() {
     return subject;
@@ -75,6 +81,7 @@ public final class NatsListenerDetails {
    * Returns the queue group name, or an empty string if none was specified.
    *
    * @return the queue group name
+   * @since 0.1.0
    */
   public String getQueue() {
     return queue;
@@ -84,6 +91,7 @@ public final class NatsListenerDetails {
    * Returns the dead-letter subject, or an empty string if dead-lettering is disabled.
    *
    * @return the dead-letter subject
+   * @since 0.1.0
    */
   public String getDeadLetterSubject() {
     return deadLetterSubject;
@@ -93,6 +101,7 @@ public final class NatsListenerDetails {
    * Returns a string representation of this listener details.
    *
    * @return string representation
+   * @since 0.1.0
    */
   @Override
   public String toString() {
@@ -106,12 +115,17 @@ public final class NatsListenerDetails {
    * Returns a new {@link Builder} for constructing a {@link NatsListenerDetails} instance.
    *
    * @return a new builder
+   * @since 0.1.0
    */
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Builder for {@link NatsListenerDetails}. */
+  /**
+   * Builder for {@link NatsListenerDetails}.
+   *
+   * @since 0.1.0
+   */
   public static final class Builder {
 
     private @Nullable Object bean;
@@ -127,6 +141,7 @@ public final class NatsListenerDetails {
      *
      * @param bean the Spring bean that declares the listener method
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withBean(@Nullable Object bean) {
       this.bean = bean;
@@ -138,6 +153,7 @@ public final class NatsListenerDetails {
      *
      * @param method the annotated method
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withMethod(@Nullable Method method) {
       this.method = method;
@@ -149,6 +165,7 @@ public final class NatsListenerDetails {
      *
      * @param subject the NATS subject to subscribe to
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withSubject(@Nullable String subject) {
       this.subject = subject;
@@ -160,6 +177,7 @@ public final class NatsListenerDetails {
      *
      * @param queue the queue group name, or an empty string for none
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withQueue(@Nullable String queue) {
       this.queue = queue;
@@ -172,6 +190,7 @@ public final class NatsListenerDetails {
      * @param deadLetterSubject the subject to publish failed messages to, or an empty string to
      *     disable dead-lettering
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withDeadLetterSubject(String deadLetterSubject) {
       this.deadLetterSubject = deadLetterSubject;
@@ -183,12 +202,21 @@ public final class NatsListenerDetails {
      *
      * @return a new {@link NatsListenerDetails}
      * @throws IllegalArgumentException if configuration constraints are violated
+     * @since 0.1.0
      */
     public NatsListenerDetails build() {
-      if (bean == null) throw new IllegalArgumentException("bean is required");
-      if (method == null) throw new IllegalArgumentException("method is required");
-      if (subject == null) throw new IllegalArgumentException("subject is required");
-      if (queue == null) throw new IllegalArgumentException("queue is required");
+      if (bean == null) {
+        throw new IllegalArgumentException("bean is required");
+      }
+      if (method == null) {
+        throw new IllegalArgumentException("method is required");
+      }
+      if (!StringUtils.hasLength(subject)) {
+        throw new IllegalArgumentException("subject is required");
+      }
+      if (queue == null) {
+        throw new IllegalArgumentException("queue is required");
+      }
       validateNatsListenerMethod(method);
       return new NatsListenerDetails(bean, method, subject, queue, deadLetterSubject);
     }

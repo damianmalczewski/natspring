@@ -20,12 +20,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** Thread-safe {@link NatsListenerRegistry} backed by a {@link CopyOnWriteArrayList}. */
+/**
+ * Thread-safe {@link NatsListenerRegistry} backed by a {@link CopyOnWriteArrayList}.
+ *
+ * @since 0.1.0
+ */
 public final class SimpleNatsListenerRegistry implements NatsListenerRegistry {
 
   private final List<NatsListenerDetails> listeners = new CopyOnWriteArrayList<>();
 
-  /** Creates a new {@code SimpleNatsListenerRegistry}. */
+  /**
+   * Creates a new {@code SimpleNatsListenerRegistry}.
+   *
+   * @since 0.1.0
+   */
   public SimpleNatsListenerRegistry() {}
 
   /**
@@ -33,6 +41,7 @@ public final class SimpleNatsListenerRegistry implements NatsListenerRegistry {
    * methods.
    *
    * @param listener the listener details to register
+   * @since 0.1.0
    */
   @Override
   public void register(NatsListenerDetails listener) {
@@ -44,6 +53,7 @@ public final class SimpleNatsListenerRegistry implements NatsListenerRegistry {
    * Returns all registered listeners.
    *
    * @return immutable list of registered listener details
+   * @since 0.1.0
    */
   @Override
   public List<NatsListenerDetails> getListeners() {

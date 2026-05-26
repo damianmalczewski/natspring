@@ -88,10 +88,12 @@ final class JetStreamInvocation implements Consumer<Message> {
         observer.onAcked(listener.getSubject(), listener.getStream());
       }
     } catch (InvocationTargetException | IllegalAccessException e) {
-      log.error("Failed to invoke handler for NATS JetStream listener {}", listener.getMethod(), e);
+      Throwable cause = e instanceof InvocationTargetException ite ? ite.getCause() : e;
+      log.error(
+          "Failed to invoke handler for NATS JetStream listener {}", listener.getMethod(), cause);
       if (listener.getAckMode() == AckMode.AUTO) {
         if (isLastDelivery(msg)) {
-          publishDeadLetter(msg, e);
+          publishDeadLetter(msg, cause instanceof Exception ex ? ex : e);
           observer.onDeadLettered(listener.getSubject(), listener.getStream());
           msg.term();
         } else {

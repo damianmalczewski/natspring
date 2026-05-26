@@ -26,6 +26,8 @@ import org.springframework.boot.health.contributor.HealthIndicator;
  *
  * <p>Reports {@code UP} when the connection status is {@link Connection.Status#CONNECTED} and
  * {@code DOWN} for all other statuses.
+ *
+ * @since 0.1.0
  */
 public class NatsHealthIndicator implements HealthIndicator {
 
@@ -35,11 +37,18 @@ public class NatsHealthIndicator implements HealthIndicator {
    * Creates a new {@link NatsHealthIndicator}.
    *
    * @param connectionManager the connection manager used to obtain the active NATS connection
+   * @since 0.1.0
    */
   public NatsHealthIndicator(ConnectionManager connectionManager) {
     this.connectionManager = connectionManager;
   }
 
+  /**
+   * Return an indication of health of NATS connection.
+   *
+   * @return the health of NATS connection
+   * @since 0.1.0
+   */
   @Override
   public Health health() {
     try {

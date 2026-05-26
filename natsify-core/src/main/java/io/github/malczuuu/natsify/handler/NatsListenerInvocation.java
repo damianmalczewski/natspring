@@ -80,9 +80,10 @@ final class NatsListenerInvocation implements Consumer<Message> {
       listener.getMethod().invoke(listener.getBean(), args);
       observer.onSucceeded(listener.getSubject(), listener.getQueue());
     } catch (InvocationTargetException | IllegalAccessException e) {
-      log.error("Failed to invoke handler for NATS listener {}", listener.getMethod(), e);
+      Throwable cause = e instanceof InvocationTargetException ite ? ite.getCause() : e;
+      log.error("Failed to invoke handler for NATS listener {}", listener.getMethod(), cause);
       observer.onFailed(listener.getSubject(), listener.getQueue());
-      publishDeadLetter(msg, e);
+      publishDeadLetter(msg, cause instanceof Exception ex ? ex : e);
     }
   }
 

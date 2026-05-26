@@ -29,22 +29,30 @@ import java.util.function.Supplier;
  * pings). All gauges are registered under the {@code nats.connection.*} namespace.
  *
  * <p>Register as a Spring bean; {@link #bindTo(MeterRegistry)} will be called automatically.
+ *
+ * @since 0.1.0
  */
 public class MicrometerNatsStatisticsObserver implements MeterBinder {
 
   private final ConnectionManager connectionManager;
 
   /**
+   * Creates a new instance of {@link MicrometerNatsStatisticsObserver} with the provided {@code
+   * connectionManager}.
+   *
    * @param connectionManager provides access to the live NATS connection and its statistics
+   * @since 0.1.0
    */
   public MicrometerNatsStatisticsObserver(ConnectionManager connectionManager) {
     this.connectionManager = connectionManager;
   }
 
   /**
-   * Descriptions come from Javadocs of respective getters.
+   * Replaces the temporary registry with the application-wide {@code registry}. Metric descriptions
+   * come from Javadocs of respective getters.
    *
-   * @param registry the {@link MeterRegistry} to bind metrics to
+   * @param registry the application-wide MeterRegistry to bind to
+   * @since 0.1.0
    */
   @Override
   public void bindTo(MeterRegistry registry) {

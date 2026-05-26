@@ -18,7 +18,11 @@ package io.github.malczuuu.natsify.handler;
 
 import io.nats.client.Connection;
 
-/** Manages the lifecycle of NATS message listener handlers for a given connection. */
+/**
+ * Manages the lifecycle of NATS message listener handlers for a given connection.
+ *
+ * @since 0.1.0
+ */
 public interface ListenerManager {
 
   /**
@@ -26,9 +30,14 @@ public interface ListenerManager {
    *
    * @param connection the active NATS connection
    * @throws Exception if any handler fails to start
+   * @since 0.1.0
    */
   void start(Connection connection) throws Exception;
 
-  /** Stops all active handlers. */
+  /**
+   * Stops all active handlers.
+   *
+   * @since 0.1.0
+   */
   void stop();
 }

@@ -23,7 +23,11 @@ import io.nats.client.impl.Headers;
 import java.nio.charset.StandardCharsets;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Default {@link NatsOperations} implementation backed by a {@link ConnectionManager}. */
+/**
+ * Default {@link NatsOperations} implementation backed by a {@link ConnectionManager}.
+ *
+ * @since 0.1.0
+ */
 public class NatsTemplate implements NatsOperations {
 
   private final ConnectionSupplier connectionManager;
@@ -34,6 +38,7 @@ public class NatsTemplate implements NatsOperations {
    *
    * @param connectionSupplier provides the active NATS connection
    * @param jsonMapper used for JSON serialization in {@link #publish(String, Object)}
+   * @since 0.1.0
    */
   public NatsTemplate(ConnectionSupplier connectionSupplier, JsonMapper jsonMapper) {
     this.connectionManager = connectionSupplier;
@@ -44,6 +49,7 @@ public class NatsTemplate implements NatsOperations {
    * Publishes a pre-built {@link Message} as-is.
    *
    * @param message the message to publish
+   * @since 0.1.0
    */
   @Override
   public void publish(Message message) {
@@ -55,6 +61,7 @@ public class NatsTemplate implements NatsOperations {
    *
    * @param subject the NATS subject
    * @param body the message body
+   * @since 0.1.0
    */
   @Override
   public void publish(String subject, byte[] body) {
@@ -66,6 +73,7 @@ public class NatsTemplate implements NatsOperations {
    *
    * @param subject the NATS subject
    * @param bodyAsString the message body
+   * @since 0.1.0
    */
   @Override
   public void publish(String subject, String bodyAsString) {
@@ -80,6 +88,7 @@ public class NatsTemplate implements NatsOperations {
    * @param subject the NATS subject
    * @param bodyAsObject the object to serialize and publish
    * @param <T> the object type
+   * @since 0.1.0
    */
   @Override
   public <T> void publish(String subject, T bodyAsObject) {
@@ -92,6 +101,7 @@ public class NatsTemplate implements NatsOperations {
    * @param subject the NATS subject
    * @param headers the message headers
    * @param body the message body
+   * @since 0.1.0
    */
   @Override
   public void publish(String subject, Headers headers, byte[] body) {
@@ -104,6 +114,7 @@ public class NatsTemplate implements NatsOperations {
    * @param subject the NATS subject
    * @param headers the message headers
    * @param bodyAsString the message body
+   * @since 0.1.0
    */
   @Override
   public void publish(String subject, Headers headers, String bodyAsString) {
@@ -119,6 +130,7 @@ public class NatsTemplate implements NatsOperations {
    * @param headers the message headers
    * @param bodyAsObject the object to serialize and publish
    * @param <T> the object type
+   * @since 0.1.0
    */
   @Override
   public <T> void publish(String subject, Headers headers, T bodyAsObject) {

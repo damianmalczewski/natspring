@@ -16,12 +16,24 @@
 
 package io.github.malczuuu.natsify.annotation;
 
-/** JetStream consumer delivery model. */
+/**
+ * JetStream consumer delivery model.
+ *
+ * @since 0.1.0
+ */
 public enum ConsumerType {
 
-  /** Server pushes messages to a dispatcher callback. */
+  /**
+   * Server pushes messages to a dispatcher callback.
+   *
+   * @since 0.1.0
+   */
   PUSH,
 
-  /** Handler polls the server via {@code fetch()}; backed by a daemon thread per subscription. */
+  /**
+   * Handler polls the server via {@code fetch()}; backed by a daemon thread per subscription.
+   *
+   * @since 0.1.0
+   */
   PULL
 }

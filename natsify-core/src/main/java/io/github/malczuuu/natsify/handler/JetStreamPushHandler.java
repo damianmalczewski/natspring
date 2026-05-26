@@ -73,25 +73,32 @@ final class JetStreamPushHandler implements JetStreamHandler {
       builder.stream(listener.getStream());
     }
     PushSubscribeOptions options = builder.build();
-    dispatcher = connection.createDispatcher();
-    if (listener.getQueue().isEmpty()) {
-      subscription =
-          stream.subscribe(
-              listener.getSubject(), dispatcher, messageConsumer::accept, false, options);
-      log.info("Subscribed push JetStream listener to subject {}", listener.getSubject());
-    } else {
-      subscription =
-          stream.subscribe(
-              listener.getSubject(),
-              listener.getQueue(),
-              dispatcher,
-              messageConsumer::accept,
-              false,
-              options);
-      log.info(
-          "Subscribed push JetStream listener to subject {}, queue {}",
-          listener.getSubject(),
-          listener.getQueue());
+    Dispatcher dispatcher = connection.createDispatcher();
+    this.dispatcher = dispatcher;
+    try {
+      if (listener.getQueue().isEmpty()) {
+        subscription =
+            stream.subscribe(
+                listener.getSubject(), dispatcher, messageConsumer::accept, false, options);
+        log.info("Subscribed push JetStream listener to subject {}", listener.getSubject());
+      } else {
+        subscription =
+            stream.subscribe(
+                listener.getSubject(),
+                listener.getQueue(),
+                dispatcher,
+                messageConsumer::accept,
+                false,
+                options);
+        log.info(
+            "Subscribed push JetStream listener to subject {}, queue {}",
+            listener.getSubject(),
+            listener.getQueue());
+      }
+    } catch (Exception e) {
+      connection.closeDispatcher(dispatcher);
+      this.dispatcher = null;
+      throw e;
     }
     running = true;
   }

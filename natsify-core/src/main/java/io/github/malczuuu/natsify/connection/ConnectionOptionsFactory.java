@@ -18,7 +18,11 @@ package io.github.malczuuu.natsify.connection;
 
 import io.nats.client.Options;
 
-/** Factory for producing NATS {@link Options} used when establishing a connection. */
+/**
+ * Factory for producing NATS {@link Options} used when establishing a connection.
+ *
+ * @since 0.1.0
+ */
 @FunctionalInterface
 public interface ConnectionOptionsFactory {
 
@@ -26,6 +30,7 @@ public interface ConnectionOptionsFactory {
    * Returns the NATS connection options.
    *
    * @return the {@link Options}
+   * @since 0.1.0
    */
   Options getOptions();
 }

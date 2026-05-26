@@ -20,12 +20,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** Thread-safe {@link JetStreamListenerRegistry} backed by a {@link CopyOnWriteArrayList}. */
+/**
+ * Thread-safe {@link JetStreamListenerRegistry} backed by a {@link CopyOnWriteArrayList}.
+ *
+ * @since 0.1.0
+ */
 public final class SimpleJetStreamListenerRegistry implements JetStreamListenerRegistry {
 
   private final List<JetStreamListenerDetails> listeners = new CopyOnWriteArrayList<>();
 
-  /** Creates a new {@code SimpleJetStreamListenerRegistry}. */
+  /**
+   * Creates a new {@code SimpleJetStreamListenerRegistry}.
+   *
+   * @since 0.1.0
+   */
   public SimpleJetStreamListenerRegistry() {}
 
   /**
@@ -33,6 +41,7 @@ public final class SimpleJetStreamListenerRegistry implements JetStreamListenerR
    * methods.
    *
    * @param listener the listener details to register
+   * @since 0.1.0
    */
   @Override
   public void register(JetStreamListenerDetails listener) {
@@ -44,6 +53,7 @@ public final class SimpleJetStreamListenerRegistry implements JetStreamListenerR
    * Returns all registered listeners.
    *
    * @return immutable list of registered listener details
+   * @since 0.1.0
    */
   @Override
   public List<JetStreamListenerDetails> getListeners() {

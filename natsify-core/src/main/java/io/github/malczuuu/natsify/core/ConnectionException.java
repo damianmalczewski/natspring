@@ -16,10 +16,22 @@
 
 package io.github.malczuuu.natsify.core;
 
-/** Thrown when a NATS connection cannot be established. */
+import java.io.Serial;
+
+/**
+ * Thrown when a NATS connection cannot be established.
+ *
+ * @since 0.1.0
+ */
 public class ConnectionException extends NatsIntegrationException {
 
-  /** Creates a new {@link ConnectionException}. */
+  @Serial private static final long serialVersionUID = 1L;
+
+  /**
+   * Creates a new {@link ConnectionException}.
+   *
+   * @since 0.1.0
+   */
   public ConnectionException() {
     super();
   }
@@ -28,6 +40,7 @@ public class ConnectionException extends NatsIntegrationException {
    * Creates a new {@link ConnectionException}.
    *
    * @param message the detail message
+   * @since 0.1.0
    */
   public ConnectionException(String message) {
     super(message);
@@ -38,6 +51,7 @@ public class ConnectionException extends NatsIntegrationException {
    *
    * @param message the detail message
    * @param cause the underlying cause
+   * @since 0.1.0
    */
   public ConnectionException(String message, Throwable cause) {
     super(message, cause);
@@ -47,6 +61,7 @@ public class ConnectionException extends NatsIntegrationException {
    * Creates a new {@link ConnectionException}.
    *
    * @param cause the underlying cause
+   * @since 0.1.0
    */
   public ConnectionException(Throwable cause) {
     super(cause);
@@ -59,6 +74,7 @@ public class ConnectionException extends NatsIntegrationException {
    * @param cause the underlying cause
    * @param enableSuppression whether suppression is enabled or disabled
    * @param writableStackTrace whether the stack trace should be writable
+   * @since 0.1.0
    */
   protected ConnectionException(
       String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

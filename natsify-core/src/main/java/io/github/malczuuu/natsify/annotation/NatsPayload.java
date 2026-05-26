@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 /**
  * Forces a parameter to be resolved from the message payload (body), even when the parameter type
  * would otherwise be recognized as something else.
+ *
+ * @since 0.1.0
  */
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

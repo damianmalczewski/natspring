@@ -21,6 +21,8 @@ import io.nats.client.Options;
 /**
  * Callback interface for customizing a NATS {@link Options.Builder} before the connection is
  * established.
+ *
+ * @since 0.1.0
  */
 @FunctionalInterface
 public interface ConnectionOptionsBuilderCustomizer {
@@ -30,6 +32,7 @@ public interface ConnectionOptionsBuilderCustomizer {
    *
    * @param builder the builder to customize
    * @return the customized builder
+   * @since 0.1.0
    */
   Options.Builder customize(Options.Builder builder);
 }

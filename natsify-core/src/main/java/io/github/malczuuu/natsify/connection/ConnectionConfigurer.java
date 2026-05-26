@@ -45,6 +45,8 @@ import org.springframework.aop.support.AopUtils;
  *
  * <p>Also implements {@link ConnectionListener} and {@link ErrorListener} to forward connection
  * events and errors to instrumentation observers.
+ *
+ * @since 0.1.0
  */
 public final class ConnectionConfigurer
     implements ConnectionManager, ConnectionListener, ErrorListener {
@@ -64,6 +66,7 @@ public final class ConnectionConfigurer
    * @param options NATS connection options
    * @param listenerManagers managers responsible for setting up annotation-based listeners
    * @param connectionObserver observer for connection lifecycle events
+   * @since 0.1.0
    */
   public ConnectionConfigurer(
       Options options,
@@ -78,6 +81,7 @@ public final class ConnectionConfigurer
    * Returns the active NATS connection, establishing one if not yet connected.
    *
    * @return the active {@link Connection}
+   * @since 0.1.0
    */
   @Override
   public Connection getConnection() {
@@ -96,18 +100,31 @@ public final class ConnectionConfigurer
     return Objects.requireNonNull(connection);
   }
 
-  /** Establishes the NATS connection and initializes all registered listener managers. */
+  /**
+   * Establishes the NATS connection and initializes all registered listener managers.
+   *
+   * @since 0.1.0
+   */
   @Override
   public synchronized void start() {
     Connection connection = getConnection();
+    int started = 0;
     try {
       for (ListenerManager listenerManager : listenerManagers) {
         log.info(
             "Setting up annotation-based NATS listeners with {}",
             AopUtils.getTargetClass(listenerManager).getSimpleName());
         listenerManager.start(connection);
+        started++;
       }
     } catch (Exception e) {
+      for (int i = started - 1; i >= 0; i--) {
+        try {
+          listenerManagers.get(i).stop();
+        } catch (Exception suppressed) {
+          e.addSuppressed(suppressed);
+        }
+      }
       if (e instanceof NatsIntegrationException ex) {
         throw ex;
       }
@@ -116,7 +133,11 @@ public final class ConnectionConfigurer
     running = true;
   }
 
-  /** Stops all listener managers in reverse registration order and closes the NATS connection. */
+  /**
+   * Stops all listener managers in reverse registration order and closes the NATS connection.
+   *
+   * @since 0.1.0
+   */
   @Override
   public synchronized void stop() {
     running = false;
@@ -151,6 +172,7 @@ public final class ConnectionConfigurer
    * #getConnection()}, but this method reflects only the managed lifecycle state.
    *
    * @return {@code true} if running
+   * @since 0.1.0
    */
   @Override
   public boolean isRunning() {
@@ -165,6 +187,7 @@ public final class ConnectionConfigurer
    * @param conn the connection associated with the error
    * @param type the type of event that has occurred
    * @deprecated use {@link #connectionEvent(Connection, Events, Long, String)} instead
+   * @since 0.1.0
    */
   @Override
   @Deprecated
@@ -177,6 +200,7 @@ public final class ConnectionConfigurer
    * @param type the type of event
    * @param time the time of the event in milliseconds
    * @param uriDetails URI details of the connection
+   * @since 0.1.0
    */
   @Override
   public void connectionEvent(Connection conn, Events type, Long time, String uriDetails) {
@@ -189,6 +213,7 @@ public final class ConnectionConfigurer
    *
    * @param conn the connection on which the error occurred
    * @param error the error description
+   * @since 0.1.0
    */
   @Override
   public void errorOccurred(Connection conn, String error) {
@@ -202,6 +227,7 @@ public final class ConnectionConfigurer
    *
    * @param conn the connection on which the exception occurred
    * @param exp the exception
+   * @since 0.1.0
    */
   @Override
   public void exceptionOccurred(Connection conn, Exception exp) {
@@ -219,6 +245,7 @@ public final class ConnectionConfigurer
    *
    * @param conn the connection that detected the slow consumer
    * @param consumer the slow consumer
+   * @since 0.1.0
    */
   @Override
   public void slowConsumerDetected(Connection conn, Consumer consumer) {
@@ -231,6 +258,7 @@ public final class ConnectionConfigurer
    *
    * @param conn the connection that discarded the message
    * @param msg the discarded message
+   * @since 0.1.0
    */
   @Override
   public void messageDiscarded(Connection conn, Message msg) {

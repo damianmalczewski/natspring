@@ -21,5 +21,7 @@ import org.springframework.context.SmartLifecycle;
 /**
  * Manages the lifecycle of JetStream stream provisioning, driven by Spring's {@link
  * SmartLifecycle}.
+ *
+ * @since 0.1.0
  */
 public interface JetStreamManager extends SmartLifecycle {}

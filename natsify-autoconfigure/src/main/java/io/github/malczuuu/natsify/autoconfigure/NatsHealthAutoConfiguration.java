@@ -30,6 +30,8 @@ import org.springframework.context.annotation.Bean;
  *
  * <p>When {@code spring-boot-health} is on the classpath, registers a {@link NatsHealthIndicator}
  * bean unless one is already defined.
+ *
+ * @since 0.1.0
  */
 @AutoConfiguration(after = NatsAutoConfiguration.class)
 @ConditionalOnBooleanProperty(name = "natsify.enabled", matchIfMissing = true)

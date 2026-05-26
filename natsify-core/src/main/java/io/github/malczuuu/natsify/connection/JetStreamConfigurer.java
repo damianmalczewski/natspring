@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 /**
  * {@link JetStreamManager} that auto-creates or updates JetStream streams on startup using the
  * provided {@link StreamConfiguration} list.
+ *
+ * @since 0.1.0
  */
 public final class JetStreamConfigurer implements JetStreamManager {
 
@@ -52,6 +54,7 @@ public final class JetStreamConfigurer implements JetStreamManager {
    * @param options NATS connection options used for the management connection
    * @param enabled whether stream auto-creation is enabled
    * @param streamConfigurations stream configurations to create or update on startup
+   * @since 0.1.0
    */
   public JetStreamConfigurer(
       Options options, boolean enabled, List<StreamConfiguration> streamConfigurations) {
@@ -65,6 +68,7 @@ public final class JetStreamConfigurer implements JetStreamManager {
    * ensure streams are provisioned before listeners start.
    *
    * @return the phase value
+   * @since 0.1.0
    */
   @Override
   public int getPhase() {
@@ -73,6 +77,8 @@ public final class JetStreamConfigurer implements JetStreamManager {
 
   /**
    * Creates or updates all configured JetStream streams using a short-lived management connection.
+   *
+   * @since 0.1.0
    */
   @Override
   public void start() {
@@ -124,7 +130,11 @@ public final class JetStreamConfigurer implements JetStreamManager {
     running = true;
   }
 
-  /** Marks this manager as stopped. */
+  /**
+   * Marks this manager as stopped.
+   *
+   * @since 0.1.0
+   */
   @Override
   public void stop() {
     running = false;
@@ -134,6 +144,7 @@ public final class JetStreamConfigurer implements JetStreamManager {
    * Returns {@code true} if stream provisioning has completed.
    *
    * @return {@code true} if running
+   * @since 0.1.0
    */
   @Override
   public boolean isRunning() {

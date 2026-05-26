@@ -21,5 +21,7 @@ import org.springframework.context.SmartLifecycle;
 /**
  * Manages the lifecycle of a NATS {@link io.nats.client.Connection}, combining {@link
  * ConnectionSupplier} with Spring's {@link SmartLifecycle} for context-driven startup and shutdown.
+ *
+ * @since 0.1.0
  */
 public interface ConnectionManager extends ConnectionSupplier, SmartLifecycle {}

@@ -24,12 +24,15 @@ import io.github.malczuuu.natsify.annotation.DeliverPolicyType;
 import java.lang.reflect.Method;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Holds metadata for a {@link
  * io.github.malczuuu.natsify.annotation.JetStreamListener @JetStreamListener}-annotated method,
  * including the target bean, method, subject, stream, durable consumer name, queue group, consumer
  * type, ack mode, deliver policy, and dead-letter configuration.
+ *
+ * @since 0.1.0
  */
 public final class JetStreamListenerDetails {
 
@@ -74,6 +77,7 @@ public final class JetStreamListenerDetails {
    * Returns the Spring bean that declares the listener method.
    *
    * @return the listener bean
+   * @since 0.1.0
    */
   public Object getBean() {
     return bean;
@@ -83,6 +87,7 @@ public final class JetStreamListenerDetails {
    * Returns the listener method.
    *
    * @return the listener method
+   * @since 0.1.0
    */
   public Method getMethod() {
     return method;
@@ -92,6 +97,7 @@ public final class JetStreamListenerDetails {
    * Returns the NATS subject filter for the consumer.
    *
    * @return the NATS subject
+   * @since 0.1.0
    */
   public String getSubject() {
     return subject;
@@ -101,6 +107,7 @@ public final class JetStreamListenerDetails {
    * Returns the JetStream stream name.
    *
    * @return the stream name
+   * @since 0.1.0
    */
   public String getStream() {
     return stream;
@@ -110,6 +117,7 @@ public final class JetStreamListenerDetails {
    * Returns the durable consumer name, or an empty string for an ephemeral consumer.
    *
    * @return the durable consumer name
+   * @since 0.1.0
    */
   public String getDurable() {
     return durable;
@@ -119,6 +127,7 @@ public final class JetStreamListenerDetails {
    * Returns the queue group name for push consumers, or an empty string if none.
    *
    * @return the queue group name
+   * @since 0.1.0
    */
   public String getQueue() {
     return queue;
@@ -128,6 +137,7 @@ public final class JetStreamListenerDetails {
    * Returns the consumer type (push or pull).
    *
    * @return the consumer type
+   * @since 0.1.0
    */
   public ConsumerType getConsumerType() {
     return consumerType;
@@ -137,6 +147,7 @@ public final class JetStreamListenerDetails {
    * Returns the acknowledgement mode for received messages.
    *
    * @return the ack mode
+   * @since 0.1.0
    */
   public AckMode getAckMode() {
     return ackMode;
@@ -146,6 +157,7 @@ public final class JetStreamListenerDetails {
    * Returns the deliver policy controlling which messages the consumer receives.
    *
    * @return the deliver policy
+   * @since 0.1.0
    */
   public DeliverPolicyType getDeliverPolicy() {
     return deliverPolicy;
@@ -156,6 +168,7 @@ public final class JetStreamListenerDetails {
    * string if the dead-letter queue is disabled.
    *
    * @return the dead-letter subject
+   * @since 0.1.0
    */
   public String getDeadLetterSubject() {
     return deadLetterSubject;
@@ -166,6 +179,7 @@ public final class JetStreamListenerDetails {
    * unlimited.
    *
    * @return the max delivery count
+   * @since 0.1.0
    */
   public int getMaxDeliveries() {
     return maxDeliveries;
@@ -175,6 +189,7 @@ public final class JetStreamListenerDetails {
    * Returns a string representation of this listener details.
    *
    * @return string representation
+   * @since 0.1.0
    */
   @Override
   public String toString() {
@@ -195,12 +210,17 @@ public final class JetStreamListenerDetails {
    * Returns a new {@link Builder} for constructing a {@link JetStreamListenerDetails} instance.
    *
    * @return a new builder
+   * @since 0.1.0
    */
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Builder for {@link JetStreamListenerDetails}. */
+  /**
+   * Builder for {@link JetStreamListenerDetails}.
+   *
+   * @since 0.1.0
+   */
   public static final class Builder {
 
     private @Nullable Object bean;
@@ -222,6 +242,7 @@ public final class JetStreamListenerDetails {
      *
      * @param bean the Spring bean that declares the listener method
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withBean(@Nullable Object bean) {
       this.bean = bean;
@@ -233,6 +254,7 @@ public final class JetStreamListenerDetails {
      *
      * @param method the annotated method
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withMethod(@Nullable Method method) {
       this.method = method;
@@ -244,6 +266,7 @@ public final class JetStreamListenerDetails {
      *
      * @param subject the NATS subject
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withSubject(@Nullable String subject) {
       this.subject = subject;
@@ -255,6 +278,7 @@ public final class JetStreamListenerDetails {
      *
      * @param stream the stream name
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withStream(@Nullable String stream) {
       this.stream = stream;
@@ -266,6 +290,7 @@ public final class JetStreamListenerDetails {
      *
      * @param durable the durable consumer name, or an empty string for ephemeral
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withDurable(@Nullable String durable) {
       this.durable = durable;
@@ -277,6 +302,7 @@ public final class JetStreamListenerDetails {
      *
      * @param queue the queue group name, or an empty string for none
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withQueue(@Nullable String queue) {
       this.queue = queue;
@@ -288,6 +314,7 @@ public final class JetStreamListenerDetails {
      *
      * @param consumerType push or pull consumer type
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withConsumerType(@Nullable ConsumerType consumerType) {
       this.consumerType = consumerType;
@@ -299,6 +326,7 @@ public final class JetStreamListenerDetails {
      *
      * @param ackMode the ack mode for received messages
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withAckMode(@Nullable AckMode ackMode) {
       this.ackMode = ackMode;
@@ -310,6 +338,7 @@ public final class JetStreamListenerDetails {
      *
      * @param deliverPolicy the deliver policy controlling which messages the consumer receives
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withDeliverPolicy(@Nullable DeliverPolicyType deliverPolicy) {
       this.deliverPolicy = deliverPolicy;
@@ -321,6 +350,7 @@ public final class JetStreamListenerDetails {
      *
      * @param deadLetterSubject subject to publish failed messages to
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withDeadLetterSubject(String deadLetterSubject) {
       this.deadLetterSubject = deadLetterSubject;
@@ -333,6 +363,7 @@ public final class JetStreamListenerDetails {
      *
      * @param maxDeliveries max delivery count
      * @return this builder
+     * @since 0.1.0
      */
     public Builder withMaxDeliveries(int maxDeliveries) {
       this.maxDeliveries = maxDeliveries;
@@ -344,17 +375,36 @@ public final class JetStreamListenerDetails {
      *
      * @return a new {@link JetStreamListenerDetails}
      * @throws IllegalArgumentException if configuration constraints are violated
+     * @since 0.1.0
      */
     public JetStreamListenerDetails build() {
-      if (bean == null) throw new IllegalArgumentException("bean is required");
-      if (method == null) throw new IllegalArgumentException("method is required");
-      if (subject == null) throw new IllegalArgumentException("subject is required");
-      if (stream == null) throw new IllegalArgumentException("stream is required");
-      if (durable == null) throw new IllegalArgumentException("durable is required");
-      if (queue == null) throw new IllegalArgumentException("queue is required");
-      if (consumerType == null) throw new IllegalArgumentException("consumerType is required");
-      if (ackMode == null) throw new IllegalArgumentException("ackMode is required");
-      if (deliverPolicy == null) throw new IllegalArgumentException("deliverPolicy is required");
+      if (bean == null) {
+        throw new IllegalArgumentException("bean is required");
+      }
+      if (method == null) {
+        throw new IllegalArgumentException("method is required");
+      }
+      if (!StringUtils.hasLength(subject)) {
+        throw new IllegalArgumentException("subject is required");
+      }
+      if (stream == null) {
+        throw new IllegalArgumentException("stream is required");
+      }
+      if (durable == null) {
+        throw new IllegalArgumentException("durable is required");
+      }
+      if (queue == null) {
+        throw new IllegalArgumentException("queue is required");
+      }
+      if (consumerType == null) {
+        throw new IllegalArgumentException("consumerType is required");
+      }
+      if (ackMode == null) {
+        throw new IllegalArgumentException("ackMode is required");
+      }
+      if (deliverPolicy == null) {
+        throw new IllegalArgumentException("deliverPolicy is required");
+      }
       if (consumerType == ConsumerType.PULL && !queue.isEmpty()) {
         throw new IllegalArgumentException("queue group is not supported for pull consumers");
       }

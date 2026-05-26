@@ -22,6 +22,8 @@ import java.util.List;
 /**
  * Registry for {@link NatsListenerDetails} describing {@link NatsListener @NatsListener}-annotated
  * methods.
+ *
+ * @since 0.1.0
  */
 public interface NatsListenerRegistry {
 
@@ -29,6 +31,7 @@ public interface NatsListenerRegistry {
    * Registers a listener.
    *
    * @param listener the listener details to register
+   * @since 0.1.0
    */
   void register(NatsListenerDetails listener);
 
@@ -36,6 +39,7 @@ public interface NatsListenerRegistry {
    * Returns all registered listeners.
    *
    * @return immutable list of registered listener details
+   * @since 0.1.0
    */
   List<NatsListenerDetails> getListeners();
 }

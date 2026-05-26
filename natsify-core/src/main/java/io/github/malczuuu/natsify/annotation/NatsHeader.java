@@ -36,6 +36,7 @@ public @interface NatsHeader {
    * Alias for {@code name}; preferred when used as the sole annotation attribute.
    *
    * @return the header name (alias for {@code name})
+   * @since 0.1.0
    */
   String value() default "";
 
@@ -43,6 +44,7 @@ public @interface NatsHeader {
    * Header name to look up.
    *
    * @return the header name
+   * @since 0.1.0
    */
   String name() default "";
 }

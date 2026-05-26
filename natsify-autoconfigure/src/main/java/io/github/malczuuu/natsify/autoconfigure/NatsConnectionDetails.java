@@ -19,13 +19,18 @@ package io.github.malczuuu.natsify.autoconfigure;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.service.connection.ConnectionDetails;
 
-/** Connection details for establishing a NATS connection. */
+/**
+ * Connection details for establishing a NATS connection.
+ *
+ * @since 0.1.0
+ */
 public interface NatsConnectionDetails extends ConnectionDetails {
 
   /**
    * Returns the NATS server URL (e.g. {@code nats://localhost:4222}).
    *
    * @return the server URL
+   * @since 0.1.0
    */
   String getServer();
 
@@ -33,6 +38,7 @@ public interface NatsConnectionDetails extends ConnectionDetails {
    * Returns the username for authentication, or {@code null} if not required.
    *
    * @return the username, or {@code null}
+   * @since 0.1.0
    */
   @Nullable String getUsername();
 
@@ -40,6 +46,7 @@ public interface NatsConnectionDetails extends ConnectionDetails {
    * Returns the password for authentication, or {@code null} if not required.
    *
    * @return the password, or {@code null}
+   * @since 0.1.0
    */
   @Nullable String getPassword();
 }
