@@ -31,19 +31,26 @@ Requires Spring Boot 4.x.
     - [Mixed parameters](#mixed-parameters)
 - [JetStream stream auto-creation](#jetstream-stream-auto-creation)
 - [Publishing messages](#publishing-messages)
+- [Observability](#observability)
+    - [Health](#health)
+    - [Metrics](#metrics)
 - [Testing](#testing)
     - [Testcontainers](#testcontainers)
 
 ## Configuration
 
-Following properties are supported, with defaults shown:
-
-```properties
-natsify.server=nats://localhost:4222
-natsify.username=
-natsify.password=
-natsify.auto-stream-create=false
-```
+| Property                        | Default                 | Description                                                                                   |
+|---------------------------------|-------------------------|-----------------------------------------------------------------------------------------------|
+| `natsify.enabled`               | `true`                  | Whether NATS auto-configuration is enabled.                                                   |
+| `natsify.server`                | `nats://localhost:4222` | NATS server URL.                                                                              |
+| `natsify.username`              | _(none)_                | Username for NATS authentication. Omit if the server requires no credentials.                 |
+| `natsify.password`              | _(none)_                | Password for NATS authentication. Omit if the server requires no credentials.                 |
+| `natsify.connection-name`       | _(none)_                | Optional name for the NATS connection. Used as the client thread name.                        |
+| `natsify.connection-timeout`    | `2s`                    | Maximum time to wait when establishing a connection.                                          |
+| `natsify.socket-write-timeout`  | `1m`                    | Maximum time to wait for a socket write to complete.                                          |
+| `natsify.auto-stream-creation`  | `false`                 | Whether declared `StreamConfiguration` beans are used to create or update streams on startup. |
+| `natsify.pull-fetch-batch-size` | `200`                   | Number of messages fetched per poll cycle for JetStream pull consumers.                       |
+| `natsify.pull-fetch-timeout`    | `200ms`                 | Maximum time to wait for messages in each fetch call for JetStream pull consumers.            |
 
 ## Listener annotations
 
@@ -264,7 +271,7 @@ Declare `io.nats.client.api.StreamConfiguration` beans and the auto-configuratio
 corresponding streams on startup, before any listeners are registered.
 
 > [!IMPORTANT]
-> Works only if `natsify.auto-stream-create` is set to `true` (disabled by default).
+> Works only if `natsify.auto-stream-creation` is set to `true` (disabled by default).
 
 ```java
 @Bean
@@ -285,6 +292,89 @@ natsOperations.publish("orders.placed", new Order(...));   // serialized to JSON
 natsOperations.publish("orders.placed", "plain text");
 natsOperations.publish("orders.placed", rawBytes);
 ```
+
+## Observability
+
+### Health
+
+When `spring-boot-actuator` is on the classpath, a `NatsHealthIndicator` is auto-configured under the `nats` component
+name. It reports `UP` when the connection status is `CONNECTED` and `DOWN` for any other status, including connection
+loss or failure to obtain the connection.
+
+```json
+{
+  "components": {
+    "nats": {
+      "status": "UP",
+      "details": { "connectionStatus": "CONNECTED" }
+    }
+  }
+}
+```
+
+### Metrics
+
+When Micrometer is on the classpath, the following meters are auto-configured. All observer beans can be replaced by
+declaring a custom implementation in the application context.
+
+<details>
+<summary><b>Core NATS listener metrics (see more...)</b></summary>
+
+Tagged with `subject` and `queue`.
+
+| Meter                                 | Type    | Description                                 |
+|---------------------------------------|---------|---------------------------------------------|
+| `nats.listener.messages.received`     | Counter | Messages received before handler invocation |
+| `nats.listener.messages.success`      | Counter | Messages handled without exception          |
+| `nats.listener.messages.error`        | Counter | Messages that caused a handler exception    |
+| `nats.listener.messages.deadlettered` | Counter | Messages published to a dead-letter subject |
+| `nats.listener.messages.duration`     | Timer   | Handler processing time                     |
+
+</details>
+
+<details>
+<summary><b>JetStream listener metrics (see more...)</b></summary>
+
+Tagged with `subject` and `stream`.
+
+| Meter                                  | Type    | Description                                                                       |
+|----------------------------------------|---------|-----------------------------------------------------------------------------------|
+| `nats.jetstream.messages.received`     | Counter | Messages received before handler invocation                                       |
+| `nats.jetstream.messages.acked`        | Counter | Messages acked after successful handling                                          |
+| `nats.jetstream.messages.nacked`       | Counter | Messages nacked after a handler exception                                         |
+| `nats.jetstream.messages.terminated`   | Counter | Messages terminated (e.g. deserialization failure). Also tagged with `exception`. |
+| `nats.jetstream.messages.deadlettered` | Counter | Messages dead-lettered after exhausting delivery attempts                         |
+| `nats.jetstream.messages.duration`     | Timer   | Handler processing time                                                           |
+
+</details>
+
+<details>
+<summary><b>Connection metrics (see more...)</b></summary>
+
+| Meter                                        | Type    | Tags        | Description                                      |
+|----------------------------------------------|---------|-------------|--------------------------------------------------|
+| `nats.connection.events`                     | Counter | `event`     | Connection state-change events                   |
+| `nats.connection.errors`                     | Counter | `error`     | Server error strings received                    |
+| `nats.connection.exceptions`                 | Counter | `exception` | Client-side exceptions during processing         |
+| `nats.connection.slow.consumer.detected`     | Counter | -           | Slow consumer detections                         |
+| `nats.connection.message.discarded`          | Counter | -           | Messages discarded due to a full consumer queue  |
+| `nats.connection.pings`                      | Gauge   | -           | Total pings sent                                 |
+| `nats.connection.reconnects`                 | Gauge   | -           | Total reconnect attempts                         |
+| `nats.connection.in.msgs`                    | Gauge   | -           | Total inbound messages                           |
+| `nats.connection.out.msgs`                   | Gauge   | -           | Total outbound messages                          |
+| `nats.connection.in.bytes`                   | Gauge   | -           | Total inbound bytes                              |
+| `nats.connection.out.bytes`                  | Gauge   | -           | Total outbound bytes                             |
+| `nats.connection.dropped.count`              | Gauge   | -           | Messages dropped across all slow consumers       |
+| `nats.connection.flush.counter`              | Gauge   | -           | Outgoing message flushes                         |
+| `nats.connection.outstanding.requests`       | Gauge   | -           | Outstanding request count                        |
+| `nats.connection.oks`                        | Gauge   | -           | Op `+OK` messages received                       |
+| `nats.connection.errs`                       | Gauge   | -           | Op `-ERR` messages received                      |
+| `nats.connection.requests.sent`              | Gauge   | -           | Requests sent                                    |
+| `nats.connection.replies.received`           | Gauge   | -           | Replies received                                 |
+| `nats.connection.duplicate.replies.received` | Gauge   | -           | Duplicate replies received (advanced stats only) |
+| `nats.connection.orphan.replies.received`    | Gauge   | -           | Orphan replies received (advanced stats only)    |
+
+</details>
 
 ## Testing
 
@@ -324,7 +414,7 @@ library integrates it with Spring Boot's `@ServiceConnection` for zero-config wi
 class MyIntegrationTests {
 
   @Container @ServiceConnection
-  public static final NatsContainer nats = new NatsContainer("nats:2.14.0");
+  public static final NatsContainer nats = new NatsContainer("nats:2.14.1");
 }
 ```
 
