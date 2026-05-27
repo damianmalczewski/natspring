@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 - Add `@NatsListener` and `@JetStreamListener` annotations post-processor for automatic listener registration.
 - Add `NatsOperations` for common publish operations.
 - Add support for `micrometer-metrics` for NATS metrics.
+- Add support for `spring-boot-health` for `NatsHealthIndicator`.
 - Add Testcontainers support via [`io.github.amadeusitgroup.testcontainers:nats`][nats-testcontainers-java] library and
   `@ServiceConnection` for automatic service connection management.
 - Add Spring Boot starter modules for easy integration.
