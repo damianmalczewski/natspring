@@ -27,9 +27,10 @@ import org.testcontainers.junit.jupiter.Container;
     classes = {
       JacksonAutoConfiguration.class,
       NatsAutoConfiguration.class,
+      NatsHealthAutoConfigurationTests.class,
       NatsMetricsAutoConfiguration.class
     })
-class AutoConfigureTests {
+class NatsAutoConfigureTests {
 
   @Container @ServiceConnection
   public static final NatsContainer nats = new NatsContainer("nats:2.14.1");

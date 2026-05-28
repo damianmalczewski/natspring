@@ -32,7 +32,7 @@ class MicrometerJetStreamListenerObserverTests {
   private MicrometerJetStreamListenerObserver observer;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     registry = new SimpleMeterRegistry();
     observer = new MicrometerJetStreamListenerObserver();
     observer.bindTo(registry);

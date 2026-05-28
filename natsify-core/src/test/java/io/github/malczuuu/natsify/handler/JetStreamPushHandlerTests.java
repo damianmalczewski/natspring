@@ -48,7 +48,7 @@ class JetStreamPushHandlerTests {
   private JetStreamPushHandler handler;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     Connection connection = Mockito.mock(Connection.class);
     JetStream stream = Mockito.mock(JetStream.class);
     Dispatcher dispatcher = Mockito.mock(Dispatcher.class);

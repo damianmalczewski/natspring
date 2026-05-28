@@ -44,7 +44,7 @@ class SubscriptionHandlerTests {
   private SubscriptionHandler handler;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     Connection connection = Mockito.mock(Connection.class);
     Dispatcher dispatcher = Mockito.mock(Dispatcher.class);
     when(connection.createDispatcher(any())).thenReturn(dispatcher);

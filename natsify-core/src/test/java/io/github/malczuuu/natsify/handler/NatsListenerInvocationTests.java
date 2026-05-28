@@ -28,6 +28,7 @@ import io.github.malczuuu.natsify.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import java.lang.reflect.Method;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,7 +43,7 @@ class NatsListenerInvocationTests {
   private Listener listener;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     argumentResolver = Mockito.mock(MessageArgumentResolver.class);
     message = Mockito.mock(Message.class);
     observer = Mockito.mock(NatsListenerObserver.class);
@@ -54,8 +55,7 @@ class NatsListenerInvocationTests {
   void whenHandlerSucceeds_thenCallsOnSucceeded() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
-        .accept(message);
+    invocation(handle("handle")).accept(message);
 
     verify(observer).onSucceeded("test-subject", "");
     verify(observer, never()).onFailed(any(), any());
@@ -66,8 +66,7 @@ class NatsListenerInvocationTests {
   void whenHandlerSucceeds_thenCallsOnReceivedAndOnProcessed() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
-        .accept(message);
+    invocation(handle("handle")).accept(message);
 
     verify(observer).onReceived("test-subject", "");
     verify(observer).onProcessed(eq("test-subject"), eq(""), anyLong());
@@ -77,8 +76,7 @@ class NatsListenerInvocationTests {
   void whenHandlerThrows_thenCallsOnFailed() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handleThrowing"))
-        .accept(message);
+    invocation(handle("handleThrowing")).accept(message);
 
     verify(observer).onFailed("test-subject", "");
     verify(observer, never()).onSucceeded(any(), any());
@@ -88,8 +86,7 @@ class NatsListenerInvocationTests {
   void whenHandlerThrows_thenOnProcessedStillFires() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handleThrowing"))
-        .accept(message);
+    invocation(handle("handleThrowing")).accept(message);
 
     verify(observer).onReceived("test-subject", "");
     verify(observer).onProcessed(eq("test-subject"), eq(""), anyLong());
@@ -100,8 +97,7 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any()))
         .thenThrow(new RuntimeException("bad payload"));
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
-        .accept(message);
+    invocation(handle("handle")).accept(message);
 
     verify(observer).onFailed("test-subject", "");
     verify(observer, never()).onSucceeded(any(), any());
@@ -113,8 +109,7 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any()))
         .thenThrow(new RuntimeException("bad payload"));
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"))
-        .accept(message);
+    invocation(handle("handle")).accept(message);
 
     verify(observer).onReceived("test-subject", "");
     verify(observer).onProcessed(eq("test-subject"), eq(""), anyLong());
@@ -124,9 +119,7 @@ class NatsListenerInvocationTests {
   void givenQueueGroup_whenHandlerSucceeds_thenObserverReceivesQueue() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(
-            connection, argumentResolver, observer, handleWithQueue("handle", "my-queue"))
-        .accept(message);
+    invocation(handleWithQueue("handle", "my-queue")).accept(message);
 
     verify(observer).onReceived("test-subject", "my-queue");
     verify(observer).onSucceeded("test-subject", "my-queue");
@@ -137,12 +130,7 @@ class NatsListenerInvocationTests {
   void givenDeadLetterSubject_whenHandlerThrows_thenPublishesToDeadLetterAndCallsOnDeadLettered() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(
-            connection,
-            argumentResolver,
-            observer,
-            handleWithDeadLetter("handleThrowing", "test-subject.dlq"))
-        .accept(message);
+    invocation(handleWithDeadLetter("handleThrowing", "test-subject.dlq")).accept(message);
 
     verify(connection).publish(any(Message.class));
     verify(observer).onDeadLettered("test-subject", "");
@@ -153,12 +141,7 @@ class NatsListenerInvocationTests {
     when(argumentResolver.resolveArguments(any(), any()))
         .thenThrow(new RuntimeException("bad payload"));
 
-    new NatsListenerInvocation(
-            connection,
-            argumentResolver,
-            observer,
-            handleWithDeadLetter("handle", "test-subject.dlq"))
-        .accept(message);
+    invocation(handleWithDeadLetter("handle", "test-subject.dlq")).accept(message);
 
     verify(connection).publish(any(Message.class));
     verify(observer).onDeadLettered("test-subject", "");
@@ -166,8 +149,7 @@ class NatsListenerInvocationTests {
 
   @Test
   void givenInvocation_whenToStringCalled_thenReturnsClassNameWithBeanAndMethod() {
-    NatsListenerInvocation invocation =
-        new NatsListenerInvocation(connection, argumentResolver, observer, handle("handle"));
+    NatsListenerInvocation invocation = invocation(handle("handle"));
 
     assertThat(invocation.toString()).isEqualTo("NatsListenerInvocation[Listener.handle]");
   }
@@ -176,8 +158,7 @@ class NatsListenerInvocationTests {
   void givenNoDeadLetterSubject_whenHandlerThrows_thenDoesNotPublish() {
     when(argumentResolver.resolveArguments(any(), any())).thenReturn(new Object[0]);
 
-    new NatsListenerInvocation(connection, argumentResolver, observer, handle("handleThrowing"))
-        .accept(message);
+    invocation(handle("handleThrowing")).accept(message);
 
     verify(connection, never()).publish(any(Message.class));
     verify(observer, never()).onDeadLettered(any(), any());
@@ -210,6 +191,10 @@ class NatsListenerInvocationTests {
     } catch (NoSuchMethodException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private NatsListenerInvocation invocation(NatsListenerEndpoint endpoint) {
+    return new NatsListenerInvocation(connection, argumentResolver, observer, endpoint, List.of());
   }
 
   @SuppressWarnings("unused")

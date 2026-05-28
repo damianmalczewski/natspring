@@ -31,7 +31,7 @@ class MicrometerNatsConnectionObserverTests {
   private MicrometerNatsConnectionObserver observer;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     registry = new SimpleMeterRegistry();
     observer = new MicrometerNatsConnectionObserver();
     observer.bindTo(registry);

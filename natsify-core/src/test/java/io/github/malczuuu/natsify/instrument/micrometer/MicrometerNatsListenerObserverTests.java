@@ -32,7 +32,7 @@ class MicrometerNatsListenerObserverTests {
   private MicrometerNatsListenerObserver observer;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     registry = new SimpleMeterRegistry();
     observer = new MicrometerNatsListenerObserver();
     observer.bindTo(registry);

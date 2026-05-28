@@ -46,7 +46,7 @@ class JetStreamPullHandlerTests {
   private JetStreamPullHandler handler;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     JetStream stream = Mockito.mock(JetStream.class);
 
     JetStreamListenerEndpoint endpoint =

@@ -35,7 +35,7 @@ class MicrometerNatsStatisticsObserverTests {
   private Statistics statistics;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     statistics = Mockito.mock(Statistics.class);
     Connection connection = Mockito.mock(Connection.class);
     ConnectionManager connectionManager = Mockito.mock(ConnectionManager.class);

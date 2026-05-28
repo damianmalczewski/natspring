@@ -20,6 +20,7 @@ import static io.github.malczuuu.natsify.handler.DeadLetterSupport.buildAndPubli
 import static io.github.malczuuu.natsify.handler.DeadLetterSupport.buildDeadLetterHeaders;
 
 import io.github.malczuuu.natsify.annotation.AckMode;
+import io.github.malczuuu.natsify.core.NatsMessageInterceptor;
 import io.github.malczuuu.natsify.instrument.JetStreamListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;
@@ -27,6 +28,7 @@ import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
+import java.util.List;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -41,16 +43,19 @@ final class JetStreamInvocation implements Consumer<Message> {
   private final JetStreamListenerEndpoint endpoint;
   private final MessageArgumentResolver messageArgumentResolver;
   private final JetStreamListenerObserver observer;
+  private final NatsMessageInterceptorChainExecution interceptorChain;
 
   JetStreamInvocation(
       Connection connection,
       MessageArgumentResolver argumentResolver,
       JetStreamListenerObserver observer,
-      JetStreamListenerEndpoint endpoint) {
+      JetStreamListenerEndpoint endpoint,
+      List<NatsMessageInterceptor> interceptors) {
     this.connection = connection;
     this.messageArgumentResolver = argumentResolver;
     this.observer = observer;
     this.endpoint = endpoint;
+    this.interceptorChain = new NatsMessageInterceptorChainExecution(interceptors);
   }
 
   @Override
@@ -58,7 +63,7 @@ final class JetStreamInvocation implements Consumer<Message> {
     observer.onReceived(endpoint.getSubject(), endpoint.getStream());
     long start = System.nanoTime();
     try {
-      doAccept(msg);
+      interceptorChain.execute(msg, this::doAccept);
     } catch (Exception e) {
       msg.nak();
     } finally {

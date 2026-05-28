@@ -16,6 +16,7 @@
 
 package io.github.malczuuu.natsify.handler;
 
+import io.github.malczuuu.natsify.core.NatsMessageInterceptor;
 import io.github.malczuuu.natsify.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import java.util.ArrayList;
@@ -32,24 +33,28 @@ public class NatsMessageListenerContainer implements MessageListenerContainer {
   private final NatsListenerEndpointRegistry registry;
   private final MessageArgumentResolver argumentResolver;
   private final NatsListenerObserver observer;
+  private final List<NatsMessageInterceptor> interceptors;
 
   private final List<NatsListenerHandler> handlers = new CopyOnWriteArrayList<>();
 
   /**
-   * Creates a new {@code NatsMessageListenerContainer}.
+   * Creates a new {@code NatsMessageListenerContainer} with interceptors.
    *
    * @param registry registry of listener endpoints to initialize
    * @param argumentResolver resolver used to map message data to handler method arguments
    * @param observer observer notified on listener invocations
+   * @param interceptors interceptors applied before each listener method invocation
    * @since 0.1.0
    */
   public NatsMessageListenerContainer(
       NatsListenerEndpointRegistry registry,
       MessageArgumentResolver argumentResolver,
-      NatsListenerObserver observer) {
+      NatsListenerObserver observer,
+      List<NatsMessageInterceptor> interceptors) {
     this.registry = registry;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
+    this.interceptors = interceptors;
   }
 
   /**
@@ -67,7 +72,8 @@ public class NatsMessageListenerContainer implements MessageListenerContainer {
           new SubscriptionHandler(
               connection,
               endpoint,
-              new NatsListenerInvocation(connection, argumentResolver, observer, endpoint));
+              new NatsListenerInvocation(
+                  connection, argumentResolver, observer, endpoint, interceptors));
       handlers.add(handler);
       handler.start();
     }

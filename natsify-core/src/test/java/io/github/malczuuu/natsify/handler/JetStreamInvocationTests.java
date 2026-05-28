@@ -30,6 +30,7 @@ import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.NatsJetStreamMetaData;
 import java.lang.reflect.Method;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -43,7 +44,7 @@ class JetStreamInvocationTests {
   private Listener listener;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     argumentResolver = Mockito.mock(MessageArgumentResolver.class);
     message = Mockito.mock(Message.class);
     connection = Mockito.mock(Connection.class);
@@ -159,7 +160,7 @@ class JetStreamInvocationTests {
 
   private JetStreamInvocation invocation(
       JetStreamListenerEndpoint details, JetStreamListenerObserver observer) {
-    return new JetStreamInvocation(connection, argumentResolver, observer, details);
+    return new JetStreamInvocation(connection, argumentResolver, observer, details, List.of());
   }
 
   private JetStreamListenerEndpoint endpoint(String methodName, AckMode ackMode) {

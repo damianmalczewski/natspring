@@ -18,6 +18,7 @@ package io.github.malczuuu.natsify.handler;
 
 import io.github.malczuuu.natsify.annotation.ConsumerType;
 import io.github.malczuuu.natsify.annotation.DeliverPolicyType;
+import io.github.malczuuu.natsify.core.NatsMessageInterceptor;
 import io.github.malczuuu.natsify.instrument.JetStreamListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
@@ -39,6 +40,7 @@ public class JetStreamMessageListenerContainer implements MessageListenerContain
   private final JetStreamListenerEndpointRegistry registry;
   private final MessageArgumentResolver argumentResolver;
   private final JetStreamListenerObserver observer;
+  private final List<NatsMessageInterceptor> interceptors;
 
   private final int pullFetchBatchSize;
   private final Duration pullFetchTimeout;
@@ -46,13 +48,14 @@ public class JetStreamMessageListenerContainer implements MessageListenerContain
   private final List<JetStreamHandler> handlers = new CopyOnWriteArrayList<>();
 
   /**
-   * Creates a new {@code JetStreamMessageListenerContainer}.
+   * Creates a new {@code JetStreamMessageListenerContainer} with interceptors.
    *
    * @param registry registry of listener endpoints to initialize
    * @param argumentResolver resolver used to map message data to handler method arguments
    * @param observer observer notified on listener invocations
    * @param pullFetchBatchSize number of messages to fetch per poll cycle for pull consumers
    * @param pullFetchTimeout maximum time to wait for messages in each fetch call for pull consumers
+   * @param interceptors interceptors applied before each listener method invocation
    * @since 0.1.0
    */
   public JetStreamMessageListenerContainer(
@@ -60,12 +63,14 @@ public class JetStreamMessageListenerContainer implements MessageListenerContain
       MessageArgumentResolver argumentResolver,
       JetStreamListenerObserver observer,
       int pullFetchBatchSize,
-      Duration pullFetchTimeout) {
+      Duration pullFetchTimeout,
+      List<NatsMessageInterceptor> interceptors) {
     this.registry = registry;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
     this.pullFetchBatchSize = pullFetchBatchSize;
     this.pullFetchTimeout = pullFetchTimeout;
+    this.interceptors = interceptors;
   }
 
   /**
@@ -146,7 +151,7 @@ public class JetStreamMessageListenerContainer implements MessageListenerContain
         stream,
         endpoint,
         configuration,
-        new JetStreamInvocation(connection, argumentResolver, observer, endpoint));
+        new JetStreamInvocation(connection, argumentResolver, observer, endpoint, interceptors));
   }
 
   private JetStreamPullHandler createPullHandler(
@@ -158,7 +163,7 @@ public class JetStreamMessageListenerContainer implements MessageListenerContain
         stream,
         endpoint,
         configuration,
-        new JetStreamInvocation(connection, argumentResolver, observer, endpoint),
+        new JetStreamInvocation(connection, argumentResolver, observer, endpoint, interceptors),
         pullFetchBatchSize,
         pullFetchTimeout);
   }

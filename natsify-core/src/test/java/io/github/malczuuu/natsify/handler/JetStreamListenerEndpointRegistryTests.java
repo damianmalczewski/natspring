@@ -43,7 +43,7 @@ class JetStreamListenerEndpointRegistryTests {
   private JetStreamListenerEndpointRegistry registry;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     registry = new JetStreamListenerEndpointRegistry();
   }
 

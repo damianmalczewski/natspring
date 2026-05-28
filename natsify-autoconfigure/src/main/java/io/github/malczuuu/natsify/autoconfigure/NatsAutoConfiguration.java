@@ -23,8 +23,11 @@ import io.github.malczuuu.natsify.connection.CustomizableOptionsFactory;
 import io.github.malczuuu.natsify.connection.DefaultConnectionManager;
 import io.github.malczuuu.natsify.connection.JetStreamConfigurer;
 import io.github.malczuuu.natsify.connection.JetStreamManager;
+import io.github.malczuuu.natsify.core.NatsMessageInterceptor;
 import io.github.malczuuu.natsify.core.NatsOperations;
+import io.github.malczuuu.natsify.core.NatsPublishInterceptor;
 import io.github.malczuuu.natsify.core.NatsTemplate;
+import io.github.malczuuu.natsify.core.NatsTemplateBuilderCustomizer;
 import io.github.malczuuu.natsify.handler.JetStreamListenerAnnotationBeanPostProcessor;
 import io.github.malczuuu.natsify.handler.JetStreamListenerEndpointRegistry;
 import io.github.malczuuu.natsify.handler.JetStreamMessageListenerContainer;
@@ -124,26 +127,49 @@ public final class NatsAutoConfiguration {
       NatsListenerObserver natsListenerObserver,
       JetStreamListenerObserver jetStreamListenerObserver,
       NatsConnectionObserver natsConnectionObserver,
+      List<NatsMessageInterceptor> natsMessageInterceptors,
       JsonMapper jsonMapper) {
     MessageArgumentResolver argumentResolver = new SimpleMessageArgumentResolver(jsonMapper);
     return new DefaultConnectionManager(
         connectionOptionsFactory.getOptions(),
         List.of(
             new NatsMessageListenerContainer(
-                natsListenerEndpointRegistry, argumentResolver, natsListenerObserver),
+                natsListenerEndpointRegistry,
+                argumentResolver,
+                natsListenerObserver,
+                natsMessageInterceptors),
             new JetStreamMessageListenerContainer(
                 jetStreamListenerEndpointRegistry,
                 argumentResolver,
                 jetStreamListenerObserver,
                 properties.getPullFetchBatchSize(),
-                properties.getPullFetchTimeout())),
+                properties.getPullFetchTimeout(),
+                natsMessageInterceptors)),
         natsConnectionObserver);
   }
 
   @Bean
+  @ConditionalOnMissingBean(NatsTemplate.Builder.class)
+  NatsTemplate.Builder natsTemplateBuilder(
+      ConnectionManager connectionManager,
+      JsonMapper jsonMapper,
+      List<NatsPublishInterceptor> natsPublishInterceptors,
+      List<NatsTemplateBuilderCustomizer> customizers) {
+    NatsTemplate.Builder builder =
+        NatsTemplate.builder()
+            .withConnectionSupplier(connectionManager)
+            .withJsonMapper(jsonMapper)
+            .addInterceptors(natsPublishInterceptors);
+    for (NatsTemplateBuilderCustomizer customizer : customizers) {
+      builder = customizer.customize(builder);
+    }
+    return builder;
+  }
+
+  @Bean
   @ConditionalOnMissingBean(NatsOperations.class)
-  NatsTemplate natsTemplate(ConnectionManager connectionManager, JsonMapper jsonMapper) {
-    return new NatsTemplate(connectionManager, jsonMapper);
+  NatsTemplate natsTemplate(NatsTemplate.Builder builder) {
+    return builder.build();
   }
 
   @Bean

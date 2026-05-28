@@ -16,15 +16,19 @@
 
 package io.github.malczuuu.natsify.core;
 
-import io.github.malczuuu.natsify.connection.ConnectionManager;
 import io.github.malczuuu.natsify.connection.ConnectionSupplier;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
+import io.nats.client.impl.NatsMessage;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Default {@link NatsOperations} implementation backed by a {@link ConnectionManager}.
+ * Default {@link NatsOperations} implementation backed by a {@link
+ * io.github.malczuuu.natsify.connection.ConnectionManager}.
  *
  * @since 0.1.0
  */
@@ -32,17 +36,24 @@ public class NatsTemplate implements NatsOperations {
 
   private final ConnectionSupplier connectionManager;
   private final JsonMapper jsonMapper;
+  private final NatsPublishInterceptorChainExecution publishInterceptorChain;
 
-  /**
-   * Creates a new {@link NatsTemplate} with the given connection and JSON mapper.
-   *
-   * @param connectionSupplier provides the active NATS connection
-   * @param jsonMapper used for JSON serialization in {@link #publish(String, Object)}
-   * @since 0.1.0
-   */
-  public NatsTemplate(ConnectionSupplier connectionSupplier, JsonMapper jsonMapper) {
+  private NatsTemplate(
+      ConnectionSupplier connectionSupplier,
+      JsonMapper jsonMapper,
+      List<NatsPublishInterceptor> interceptors) {
     this.connectionManager = connectionSupplier;
     this.jsonMapper = jsonMapper;
+    this.publishInterceptorChain = new NatsPublishInterceptorChainExecution(interceptors);
+  }
+
+  /**
+   * Returns a builder for {@link NatsTemplate}.
+   *
+   * @since 0.1.0
+   */
+  public static Builder builder() {
+    return new Builder();
   }
 
   /**
@@ -53,7 +64,7 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public void publish(Message message) {
-    connectionManager.getConnection().publish(message);
+    doPublish(message);
   }
 
   /**
@@ -65,7 +76,7 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public void publish(String subject, byte[] body) {
-    connectionManager.getConnection().publish(subject, body);
+    doPublish(NatsMessage.builder().subject(subject).data(body).build());
   }
 
   /**
@@ -77,9 +88,11 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public void publish(String subject, String bodyAsString) {
-    connectionManager
-        .getConnection()
-        .publish(subject, bodyAsString.getBytes(StandardCharsets.UTF_8));
+    doPublish(
+        NatsMessage.builder()
+            .subject(subject)
+            .data(bodyAsString.getBytes(StandardCharsets.UTF_8))
+            .build());
   }
 
   /**
@@ -92,7 +105,11 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public <T> void publish(String subject, T bodyAsObject) {
-    connectionManager.getConnection().publish(subject, jsonMapper.writeValueAsBytes(bodyAsObject));
+    doPublish(
+        NatsMessage.builder()
+            .subject(subject)
+            .data(jsonMapper.writeValueAsBytes(bodyAsObject))
+            .build());
   }
 
   /**
@@ -105,7 +122,7 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public void publish(String subject, Headers headers, byte[] body) {
-    connectionManager.getConnection().publish(subject, headers, body);
+    doPublish(NatsMessage.builder().subject(subject).headers(headers).data(body).build());
   }
 
   /**
@@ -118,9 +135,12 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public void publish(String subject, Headers headers, String bodyAsString) {
-    connectionManager
-        .getConnection()
-        .publish(subject, headers, bodyAsString.getBytes(StandardCharsets.UTF_8));
+    doPublish(
+        NatsMessage.builder()
+            .subject(subject)
+            .headers(headers)
+            .data(bodyAsString.getBytes(StandardCharsets.UTF_8))
+            .build());
   }
 
   /**
@@ -134,8 +154,97 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public <T> void publish(String subject, Headers headers, T bodyAsObject) {
-    connectionManager
-        .getConnection()
-        .publish(subject, headers, jsonMapper.writeValueAsBytes(bodyAsObject));
+    doPublish(
+        NatsMessage.builder()
+            .subject(subject)
+            .headers(headers)
+            .data(jsonMapper.writeValueAsBytes(bodyAsObject))
+            .build());
+  }
+
+  private void doPublish(Message message) {
+    publishInterceptorChain.execute(message, m -> connectionManager.getConnection().publish(m));
+  }
+
+  /**
+   * Builder for {@link NatsTemplate}.
+   *
+   * @since 0.1.0
+   */
+  public static final class Builder {
+
+    private @Nullable ConnectionSupplier connectionSupplier;
+    private @Nullable JsonMapper jsonMapper;
+    private final List<NatsPublishInterceptor> interceptors = new ArrayList<>();
+
+    private Builder() {}
+
+    /**
+     * Sets the connection supplier used to obtain the active NATS connection.
+     *
+     * @param connectionSupplier the connection supplier; must not be {@code null}
+     * @return this builder
+     * @since 0.1.0
+     */
+    public Builder withConnectionSupplier(ConnectionSupplier connectionSupplier) {
+      this.connectionSupplier = connectionSupplier;
+      return this;
+    }
+
+    /**
+     * Sets the JSON mapper used for object serialization. If not set, defaults to {@code
+     * JsonMapper.builder().findAndAddModules().build()}.
+     *
+     * @param jsonMapper the JSON mapper
+     * @return this builder
+     * @since 0.1.0
+     */
+    public Builder withJsonMapper(JsonMapper jsonMapper) {
+      this.jsonMapper = jsonMapper;
+      return this;
+    }
+
+    /**
+     * Adds all given interceptors to the publish interceptor chain.
+     *
+     * @param interceptors interceptors to add
+     * @return this builder
+     * @since 0.1.0
+     */
+    public Builder addInterceptors(List<NatsPublishInterceptor> interceptors) {
+      this.interceptors.addAll(interceptors);
+      return this;
+    }
+
+    /**
+     * Adds a single interceptor to the publish interceptor chain.
+     *
+     * @param interceptor the interceptor to add
+     * @return this builder
+     * @since 0.1.0
+     */
+    public Builder addInterceptor(NatsPublishInterceptor interceptor) {
+      this.interceptors.add(interceptor);
+      return this;
+    }
+
+    /**
+     * Builds a {@link NatsTemplate} from the current state of this builder. Requires {@link
+     * #withConnectionSupplier(ConnectionSupplier)} to have been set.
+     *
+     * @return a new {@link NatsTemplate}
+     * @throws IllegalArgumentException if {@code connectionSupplier} has not been set
+     * @since 0.1.0
+     */
+    public NatsTemplate build() {
+      if (connectionSupplier == null) {
+        throw new IllegalArgumentException("connectionSupplier is required");
+      }
+      JsonMapper jsonMapper =
+          this.jsonMapper != null
+              ? this.jsonMapper
+              : JsonMapper.builder().findAndAddModules().build();
+      return new NatsTemplate(connectionSupplier, jsonMapper, interceptors);
+    }
   }
 }

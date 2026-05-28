@@ -40,7 +40,7 @@ class NatsListenerEndpointRegistryTests {
   private NatsListenerEndpointRegistry registry;
 
   @BeforeEach
-  void setUp() {
+  void beforeEach() {
     registry = new NatsListenerEndpointRegistry();
   }
 

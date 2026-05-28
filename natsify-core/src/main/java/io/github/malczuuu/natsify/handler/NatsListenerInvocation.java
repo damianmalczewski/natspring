@@ -19,11 +19,13 @@ package io.github.malczuuu.natsify.handler;
 import static io.github.malczuuu.natsify.handler.DeadLetterSupport.buildAndPublishDeadLetter;
 import static io.github.malczuuu.natsify.handler.DeadLetterSupport.buildDeadLetterHeaders;
 
+import io.github.malczuuu.natsify.core.NatsMessageInterceptor;
 import io.github.malczuuu.natsify.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +39,19 @@ final class NatsListenerInvocation implements Consumer<Message> {
   private final MessageArgumentResolver argumentResolver;
   private final NatsListenerObserver observer;
   private final NatsListenerEndpoint endpoint;
+  private final NatsMessageInterceptorChainExecution interceptorChain;
 
   NatsListenerInvocation(
       Connection connection,
       MessageArgumentResolver argumentResolver,
       NatsListenerObserver observer,
-      NatsListenerEndpoint endpoint) {
+      NatsListenerEndpoint endpoint,
+      List<NatsMessageInterceptor> interceptors) {
     this.connection = connection;
     this.argumentResolver = argumentResolver;
     this.observer = observer;
     this.endpoint = endpoint;
+    this.interceptorChain = new NatsMessageInterceptorChainExecution(interceptors);
   }
 
   @Override
@@ -54,7 +59,7 @@ final class NatsListenerInvocation implements Consumer<Message> {
     observer.onReceived(endpoint.getSubject(), endpoint.getQueue());
     long start = System.nanoTime();
     try {
-      doAccept(msg);
+      interceptorChain.execute(msg, this::doAccept);
     } finally {
       observer.onProcessed(endpoint.getSubject(), endpoint.getQueue(), System.nanoTime() - start);
     }
