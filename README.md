@@ -6,9 +6,9 @@ NATS and JetStream.
 Requires Spring Boot 4.x.
 
 > [!IMPORTANT]
-> This project is currently an educational exercise for learning how to create `@KafkaListener`-alike annotation-based
-> message listeners for NATS. Currently, it has lots of limitations or issues that would need to be addressed before it
-> can be used anywhere outside a sandbox.
+> This project began as an educational exercise for learning how to create `@KafkaListener`-alike annotation-based
+> message listeners for NATS. It has no roadmap and its evolution will most likely be driven by personal interest and
+> contributions.
 
 ## Table of Contents
 
