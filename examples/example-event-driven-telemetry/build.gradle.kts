@@ -47,7 +47,6 @@ spotless {
         endWithNewline()
         lineEndings = LineEnding.UNIX
     }
-
     format("yaml") {
         target("src/**/*.yml", "src/**/*.yaml")
         targetExclude("build/**")

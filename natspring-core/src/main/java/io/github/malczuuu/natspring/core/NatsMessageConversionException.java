@@ -19,7 +19,7 @@ package io.github.malczuuu.natspring.core;
 import java.io.Serial;
 
 /**
- * Thrown when JetStream streams fail to be created or configured on startup.
+ * Thrown when there's a failure in message conversion.
  *
  * @since 0.3.0
  */

@@ -6,7 +6,9 @@ jackson = "3.2.0"
 jnats = "2.25.3"
 jspecify = "1.0.0"
 junit = "6.1.0"
+kotlin = "2.4.0"
 micrometer = "1.17.0"
+namastack-outbox = "1.7.0"
 nmcp = "1.5.0"
 nullaway = "0.13.6"
 slf4j = "2.0.18"
@@ -19,6 +21,7 @@ testcontainers-nats = "1.1.4"
 [plugins]
 errorprone = { id = "net.ltgt.errorprone", version.ref = "errorprone-plugin" }
 idea-ext = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "idea-ext" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 nmcp = { id = "com.gradleup.nmcp", version.ref = "nmcp" }
 nmcp-aggregation = { id = "com.gradleup.nmcp.aggregation", version.ref = "nmcp" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -55,6 +58,7 @@ jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
+namastack-outbox-api = { module = "io.namastack:namastack-outbox-api", version.ref = "namastack-outbox" }
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }

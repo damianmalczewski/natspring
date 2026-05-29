@@ -8,6 +8,7 @@ dependencies {
     constraints {
         api(project(":natspring-autoconfigure"))
         api(project(":natspring-core"))
+        api(project(":natspring-namastack-outbox"))
         api(project(":natspring-starter"))
         api(project(":natspring-starter-test"))
         api(libs.jackson.databind)

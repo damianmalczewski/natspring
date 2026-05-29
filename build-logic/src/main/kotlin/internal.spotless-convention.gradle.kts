@@ -20,6 +20,15 @@ spotless {
         endWithNewline()
         lineEndings = LineEnding.UNIX
     }
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("build/**")
+        licenseHeaderFile(licenseHeader).updateYearWithLatest(updateLicenseYear)
+
+        ktlint("1.8.0")
+        endWithNewline()
+        lineEndings = LineEnding.UNIX
+    }
     format("javaMisc") {
         target("src/**/package-info.java", "src/**/module-info.java")
         targetExclude("build/**")

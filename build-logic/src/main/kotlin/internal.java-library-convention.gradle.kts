@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     id("java-library")
-    id("internal.java-spotless-convention")
+    id("internal.spotless-convention")
 }
 
 // The project is built using a JDK 25 toolchain, but the main sources are compiled with --release 17.
