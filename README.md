@@ -78,10 +78,6 @@ have most transitive dependencies marked with `compileOnly`, so proper dependenc
 
 ## Configuration
 
-> [!IMPORTANT]
-> Default values of properties that directly configure `io.nats.client.Options` are taken from static defaults in the
-> NATS Java client.
-
 ### `nats.enabled`
 
 Whether NATS auto-configuration is enabled. Default: `true`.
@@ -113,58 +109,67 @@ Maximum time to wait for messages in each fetch call for JetStream pull consumer
 <details>
 <summary><b>Additional properties (see more...)</b></summary>
 
+All properties in this section are nullable. Setting a property to `null` skips the related `io.nats.client.Options`
+call and the NATS Java client's built-in default applies.
+
 ### `nats.connection-name`
 
-Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`. Default: 
-_(none)_.
+Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`. Default:
+`null`.
 
 ### `nats.connection-timeout`
 
-Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`. Default: `2s`.
+Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`. Default: `null` (so the
+value of native NATS client is not overwritten).
 
 ### `nats.socket-write-timeout`
 
-Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`. Default: `1m`.
+Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`. Default: `null` (so the
+value of native NATS client is not overwritten).
 
 ### `nats.max-reconnects`
 
-Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`. Default: `60`.
+Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`. Default: `null` (so the
+value of native NATS client is not overwritten).
 
 ### `nats.reconnect-wait`
 
-Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`. Default: `2s`.
+Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`. Default: `null` (`2s` per NATS Java client).
 
 ### `nats.reconnect-jitter`
 
-Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`. Default: `100ms`.
+Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`. Default: `null`
+(so the value of native NATS client is not overwritten).
 
 ### `nats.reconnect-jitter-tls`
 
-Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`. Default: `1s`.
+Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`. Default: `null` (so
+the value of native NATS client is not overwritten).
 
 ### `nats.reconnect-buffer-size`
 
 Size in bytes of the buffer used to hold messages while reconnecting. Maps to `reconnectBufferSize(long)`. Default:
-`8388608` (8 MB).
+`null` (so the value of native NATS client is not overwritten).
 
 ### `nats.ping-interval`
 
-Interval between client-side pings to the server. Maps to `pingInterval(Duration)`. Default: `2m`.
+Interval between client-side pings to the server. Maps to `pingInterval(Duration)`. Default: `null` (so the value of
+native NATS client is not overwritten).
 
 ### `nats.max-pings-out`
 
 Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`.
-Default: `2`.
+Default: `null` (so the value of native NATS client is not overwritten).
 
 ### `nats.request-cleanup-interval`
 
 Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`. Default:
-`5s`.
+`null` (so the value of native NATS client is not overwritten).
 
 ### `nats.inbox-prefix`
 
-Prefix for auto-generated inbox subjects (must end with `.`). Maps to `inboxPrefix(String)`. Default: _(none)_ (falls
-back to `_INBOX.`).
+Prefix for auto-generated inbox subjects (must end with `.`). Maps to `inboxPrefix(String)`. Default: `null` (so the
+value of native NATS client is not overwritten).
 
 ### `nats.no-echo`
 
