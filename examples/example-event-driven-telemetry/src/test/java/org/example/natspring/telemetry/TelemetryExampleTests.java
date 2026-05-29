@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.example.natspring.telemetry.core.model.ContentModel;
 import org.example.natspring.telemetry.core.model.DeadLetterModel;
@@ -86,10 +87,12 @@ class TelemetryExampleTests {
 
     await()
         .atMost(Duration.ofSeconds(10))
-        .until(
+        .untilAsserted(
             () -> {
-              DeviceInfoDocument doc = deviceInfoRepository.findByDeviceId(deviceId).orElse(null);
-              return doc != null && doc.getTotalEvents() >= 1 && doc.getLastActivityAt() != null;
+              Optional<DeviceInfoDocument> metadata = deviceInfoRepository.findByDeviceId(deviceId);
+              assertThat(metadata).isPresent();
+              assertThat(metadata.get().getTotalEvents()).isEqualTo(1L);
+              assertThat(metadata.get().getLastActivityAt()).isNotNull();
             });
 
     DeviceInfoDocument metadata = deviceInfoRepository.findByDeviceId(deviceId).orElseThrow();
@@ -108,15 +111,13 @@ class TelemetryExampleTests {
 
     await()
         .atMost(Duration.ofSeconds(10))
-        .until(
+        .untilAsserted(
             () -> {
-              DeviceInfoDocument doc = deviceInfoRepository.findByDeviceId(deviceId).orElse(null);
-              return doc != null && doc.getTotalEvents() >= 2;
+              Optional<DeviceInfoDocument> metadata = deviceInfoRepository.findByDeviceId(deviceId);
+              assertThat(metadata).isPresent();
+              assertThat(metadata.get().getTotalEvents()).isEqualTo(2L);
+              assertThat(deviceEventRepository.findByDeviceId(deviceId)).hasSize(2);
             });
-
-    assertThat(deviceInfoRepository.findByDeviceId(deviceId).orElseThrow().getTotalEvents())
-        .isEqualTo(2L);
-    assertThat(deviceEventRepository.findByDeviceId(deviceId)).hasSize(2);
   }
 
   @Test
