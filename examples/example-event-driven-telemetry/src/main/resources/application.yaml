@@ -1,0 +1,24 @@
+server:
+  port: 8081
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/telemetry
+      database: telemetry
+      auto-index-creation: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,metrics"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+nats:
+  server: nats://localhost:4222
+  auto-stream-creation: true

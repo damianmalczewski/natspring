@@ -28,7 +28,6 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 [libraries]
 # spring boot starter modules
-spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "spring-boot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-boot-starter-actuator-test = { module = "org.springframework.boot:spring-boot-starter-actuator-test", version.ref = "spring-boot" }
@@ -36,6 +35,8 @@ spring-boot-starter-jackson = { module = "org.springframework.boot:spring-boot-s
 spring-boot-starter-jackson-test = { module = "org.springframework.boot:spring-boot-starter-jackson-test", version.ref = "spring-boot" }
 spring-boot-starter-micrometer-metrics = { module = "org.springframework.boot:spring-boot-starter-micrometer-metrics", version.ref = "spring-boot" }
 spring-boot-starter-micrometer-metrics-test = { module = "org.springframework.boot:spring-boot-starter-micrometer-metrics-test", version.ref = "spring-boot" }
+spring-boot-starter-data-mongodb = { module = "org.springframework.boot:spring-boot-starter-data-mongodb", version.ref = "spring-boot" }
+spring-boot-starter-data-mongodb-test = { module = "org.springframework.boot:spring-boot-starter-data-mongodb-test", version.ref = "spring-boot" }
 spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc", version.ref = "spring-boot" }
 spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test", version.ref = "spring-boot" }
 
@@ -62,4 +63,5 @@ micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-p
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
+testcontainers-mongodb = { module = "org.testcontainers:testcontainers-mongodb", version.ref = "testcontainers" }
 testcontainers-nats = { module = "io.github.amadeusitgroup.testcontainers:nats", version.ref = "testcontainers-nats" }

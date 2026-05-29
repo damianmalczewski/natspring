@@ -37,7 +37,7 @@ import org.testcontainers.junit.jupiter.Container;
 class JetStreamDeadLetterExampleTests {
 
   @Container @ServiceConnection
-  public static final NatsContainer nats = new NatsContainer("nats:2.14.1").withJetStream();
+  public static final NatsContainer nats = new NatsContainer("nats:2.14").withJetStream();
 
   @Autowired JetStreamDeadLetterExample application;
   @Autowired NatsOperations natsOperations;

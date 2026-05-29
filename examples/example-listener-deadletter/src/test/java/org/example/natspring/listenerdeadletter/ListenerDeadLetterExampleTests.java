@@ -37,7 +37,7 @@ import org.testcontainers.junit.jupiter.Container;
 class ListenerDeadLetterExampleTests {
 
   @Container @ServiceConnection
-  public static final NatsContainer nats = new NatsContainer("nats:2.14.1");
+  public static final NatsContainer nats = new NatsContainer("nats:2.14");
 
   @Autowired ListenerDeadLetterExample application;
   @Autowired NatsOperations natsOperations;
