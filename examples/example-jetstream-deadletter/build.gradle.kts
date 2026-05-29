@@ -7,7 +7,7 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.micrometer.metrics)
     implementation(libs.spring.boot.starter.webmvc)
-    implementation(project(":natsify-starter"))
+    implementation(project(":natspring-starter"))
 
     runtimeOnly(libs.micrometer.registry.prometheus)
 

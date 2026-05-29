@@ -1,0 +1,9 @@
+nats:
+  combo:
+    subject: combo.from-property
+    queue: property-queue-group
+  auto-stream-creation: true
+
+logging:
+  level:
+    io.github.malczuuu.natspring: debug

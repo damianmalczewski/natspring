@@ -11,15 +11,15 @@ idea {
     project {
         settings {
             runConfigurations {
-                create<Gradle>("Gradle Clean [natsify]") {
+                create<Gradle>("Gradle Clean [natspring]") {
                     taskNames = listOf("clean")
                     projectPath = rootProject.rootDir.absolutePath
                 }
-                create<Gradle>("Gradle Build [natsify]") {
+                create<Gradle>("Gradle Build [natspring]") {
                     taskNames = listOf("spotlessApply build")
                     projectPath = rootProject.rootDir.absolutePath
                 }
-                create<Gradle>("Gradle Format Code [natsify]") {
+                create<Gradle>("Gradle Format Code [natspring]") {
                     taskNames = listOf("spotlessApply")
                     projectPath = rootProject.rootDir.absolutePath
                 }

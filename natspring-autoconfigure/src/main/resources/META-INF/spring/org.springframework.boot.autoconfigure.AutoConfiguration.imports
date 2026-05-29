@@ -1,0 +1,3 @@
+io.github.malczuuu.natspring.autoconfigure.NatsAutoConfiguration
+io.github.malczuuu.natspring.autoconfigure.NatsHealthAutoConfiguration
+io.github.malczuuu.natspring.autoconfigure.NatsMetricsAutoConfiguration

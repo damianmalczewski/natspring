@@ -1,4 +1,4 @@
-# Natsify Project - Agent Instructions
+# Natspring Project - Agent Instructions
 
 Spring Boot auto-configuration for NATS. Provides annotation-driven message listeners (`@NatsListener`,
 `@JetStreamListener`) and a publishing API (`NatsOperations`) with optional Micrometer instrumentation.
@@ -13,15 +13,15 @@ Spring Boot auto-configuration for NATS. Provides annotation-driven message list
 
 ## Project Layout
 
-| Module                      | Contents                                                   |
-|-----------------------------|------------------------------------------------------------|
-| `natsify-core`              | Core API, annotation processing, argument resolution       |
-| `natsify-autoconfigure`     | Spring Boot auto-configuration and `NatsProperties`        |
-| `natsify-starter`           | Convenience starter (depends on core + autoconfigure)      |
-| `natsify-starter-test`      | Test utilities starter                                     |
-| `natsify-integration-tests` | Full Spring Boot integration tests (requires running NATS) |
-| `examples/`                 | Runnable example applications                              |
-| `buildSrc/`                 | Internal Gradle convention plugins                         |
+| Module                        | Contents                                                   |
+|-------------------------------|------------------------------------------------------------|
+| `natspring-core`              | Core API, annotation processing, argument resolution       |
+| `natspring-autoconfigure`     | Spring Boot auto-configuration and `NatsProperties`        |
+| `natspring-starter`           | Convenience starter (depends on core + autoconfigure)      |
+| `natspring-starter-test`      | Test utilities starter                                     |
+| `natspring-integration-tests` | Full Spring Boot integration tests (requires running NATS) |
+| `examples/`                   | Runnable example applications                              |
+| `buildSrc/`                   | Internal Gradle convention plugins                         |
 
 ## Agent Rules
 

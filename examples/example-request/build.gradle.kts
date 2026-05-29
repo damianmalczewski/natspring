@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation(libs.spring.boot.starter.webmvc)
-    implementation(project(":natsify-starter"))
+    implementation(project(":natspring-starter"))
 
     testImplementation(libs.spring.boot.starter.webmvc.test)
     testImplementation(libs.spring.boot.resttestclient)

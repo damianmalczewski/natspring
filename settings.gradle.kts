@@ -9,13 +9,13 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention").version("1.0.0")
 }
 
-rootProject.name = "natsify"
+rootProject.name = "natspring"
 
-include(":natsify-autoconfigure")
-include(":natsify-core")
-include(":natsify-integration-tests")
-include(":natsify-starter")
-include(":natsify-starter-test")
+include(":natspring-autoconfigure")
+include(":natspring-core")
+include(":natspring-integration-tests")
+include(":natspring-starter")
+include(":natspring-starter-test")
 include(":examples:example-jetstream")
 include(":examples:example-jetstream-deadletter")
 include(":examples:example-listener")

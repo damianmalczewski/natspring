@@ -11,16 +11,16 @@ plugins {
 }
 
 dependencies {
-    nmcpAggregation(project(":natsify-autoconfigure"))
-    nmcpAggregation(project(":natsify-core"))
-    nmcpAggregation(project(":natsify-starter"))
-    nmcpAggregation(project(":natsify-starter-test"))
+    nmcpAggregation(project(":natspring-autoconfigure"))
+    nmcpAggregation(project(":natspring-core"))
+    nmcpAggregation(project(":natspring-starter"))
+    nmcpAggregation(project(":natspring-starter-test"))
 
-    jacocoAggregation(project(":natsify-autoconfigure"))
-    jacocoAggregation(project(":natsify-core"))
-    jacocoAggregation(project(":natsify-integration-tests"))
-    jacocoAggregation(project(":natsify-starter"))
-    jacocoAggregation(project(":natsify-starter-test"))
+    jacocoAggregation(project(":natspring-autoconfigure"))
+    jacocoAggregation(project(":natspring-core"))
+    jacocoAggregation(project(":natspring-integration-tests"))
+    jacocoAggregation(project(":natspring-starter"))
+    jacocoAggregation(project(":natspring-starter-test"))
 }
 
 nmcpAggregation {
@@ -110,10 +110,10 @@ tasks.named<JacocoReport>("testCodeCoverageReport") {
             classDirectories.files.map {
                 fileTree(it) {
                     exclude(
-                        "io/github/malczuuu/natsify/autoconfigure/NatsProperties.class",
-                        "io/github/malczuuu/natsify/instrument/JetStreamListenerObserver.class",
-                        "io/github/malczuuu/natsify/instrument/NatsConnectionObserver.class",
-                        "io/github/malczuuu/natsify/instrument/NatsListenerObserver.class",
+                        "io/github/malczuuu/natspring/autoconfigure/NatsProperties.class",
+                        "io/github/malczuuu/natspring/instrument/JetStreamListenerObserver.class",
+                        "io/github/malczuuu/natspring/instrument/NatsConnectionObserver.class",
+                        "io/github/malczuuu/natspring/instrument/NatsListenerObserver.class",
                         "**/*Exception.class",
                     )
                 }

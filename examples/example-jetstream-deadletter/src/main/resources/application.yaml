@@ -12,7 +12,7 @@ management:
       probes:
         enabled: true
 
-natsify:
+nats:
   server: nats://localhost:4222
   username: nats
   password: nats

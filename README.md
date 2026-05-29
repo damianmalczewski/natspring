@@ -1,4 +1,4 @@
-# Natsify Project
+# Natspring Project
 
 Spring Boot auto-configuration for [NATS](https://nats.io), providing annotation-driven message listeners for both core
 NATS and JetStream.
@@ -31,11 +31,15 @@ Requires Spring Boot 4.x.
     - [JSON deserialization](#json-deserialization)
     - [No-arg methods](#no-arg-methods)
     - [Mixed parameters](#mixed-parameters)
+    - [Message interceptors](#message-interceptors)
 - [Request-reply (RPC)](#request-reply-rpc)
     - [Listener return values](#listener-return-values)
     - [Sending requests](#sending-requests)
 - [JetStream stream auto-creation](#jetstream-stream-auto-creation)
-- [Publishing messages](#publishing-messages)
+- [NatsOperations](#natsoperations)
+    - [Publishing](#publishing)
+    - [Headers](#headers)
+    - [Publish interceptors](#publish-interceptors)
 - [Observability](#observability)
     - [Health](#health)
     - [Metrics](#metrics)
@@ -48,13 +52,13 @@ Add the starter module to your dependencies.
 
 ```xml
 <dependency>
-    <groupId>io.github.malczuuu.natsify</groupId>
-    <artifactId>natsify-starter</artifactId>
+    <groupId>io.github.malczuuu.natspring</groupId>
+    <artifactId>natspring-starter</artifactId>
     <version>{version}</version>
 </dependency>
 <dependency>
-    <groupId>io.github.malczuuu.natsify</groupId>
-    <artifactId>natsify-starter-test</artifactId>
+    <groupId>io.github.malczuuu.natspring</groupId>
+    <artifactId>natspring-starter-test</artifactId>
     <version>{version}</version>
     <scope>test</scope>
 </dependency>
@@ -62,14 +66,14 @@ Add the starter module to your dependencies.
 
 ```kotlin
 dependencies {
-    implementation("io.github.malczuuu.natsify:natsify-starter:{version}")
-    testImplementation("io.github.malczuuu.natsify:natsify-starter-test:{version}")
+    implementation("io.github.malczuuu.natspring:natspring-starter:{version}")
+    testImplementation("io.github.malczuuu.natspring:natspring-starter-test:{version}")
 }
 ```
 
 Starter modules are opinionated conveniences that pull in the necessary dependencies and auto-configurations. If you
-want more control, you can depend on `natsify-core` and `natsify-autoconfigure` separately. Note that these modules have
-most transitive dependencies marked with `compileOnly`, so proper dependency management will be required.
+want more control, you can depend on `natspring-core` and `natspring-autoconfigure` separately. Note that these modules
+have most transitive dependencies marked with `compileOnly`, so proper dependency management will be required.
 
 ## Configuration
 
@@ -77,29 +81,29 @@ most transitive dependencies marked with `compileOnly`, so proper dependency man
 > Default values of properties that directly configure `io.nats.client.Options` are taken from static defaults in the
 > NATS Java client.
 
-| Property                           | Default                 | Description                                                                                                         |
-|------------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------|
-| `natsify.enabled`                  | `true`                  | Whether NATS auto-configuration is enabled.                                                                         |
-| `natsify.server`                   | `nats://localhost:4222` | NATS server URL. Maps to `server(String)`.                                                                          |
-| `natsify.username`                 | _(none)_                | Username for NATS authentication. Combined with `password` into `userInfo(String, char[])`.                         |
-| `natsify.password`                 | _(none)_                | Password for NATS authentication. Combined with `username` into `userInfo(String, char[])`.                         |
-| `natsify.connection-name`          | _(none)_                | Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`.            |
-| `natsify.connection-timeout`       | `2s`                    | Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`.                         |
-| `natsify.socket-write-timeout`     | `1m`                    | Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`.                        |
-| `natsify.max-reconnects`           | `60`                    | Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`.                    |
-| `natsify.reconnect-wait`           | `2s`                    | Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`.                                         |
-| `natsify.reconnect-jitter`         | `100ms`                 | Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`.               |
-| `natsify.reconnect-jitter-tls`     | `1s`                    | Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`.                |
-| `natsify.reconnect-buffer-size`    | `8388608`               | Size in bytes of the buffer used to hold messages while reconnecting (8 MB). Maps to `reconnectBufferSize(long)`.   |
-| `natsify.ping-interval`            | `2m`                    | Interval between client-side pings to the server. Maps to `pingInterval(Duration)`.                                 |
-| `natsify.max-pings-out`            | `2`                     | Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`. |
-| `natsify.request-cleanup-interval` | `5s`                    | Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`.      |
-| `natsify.inbox-prefix`             | _(none)_                | Prefix for auto-generated inbox subjects (must end with `.`); defaults to `_INBOX.`. Maps to `inboxPrefix(String)`. |
-| `natsify.no-echo`                  | `false`                 | Suppress echoing published messages back to the sending connection. Maps to `noEcho()`.                             |
-| `natsify.no-randomize`             | `false`                 | Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`.                         |
-| `natsify.auto-stream-creation`     | `false`                 | Whether declared `StreamConfiguration` beans are used to create or update streams on startup.                       |
-| `natsify.pull-fetch-batch-size`    | `200`                   | Number of messages fetched per poll cycle for JetStream pull consumers.                                             |
-| `natsify.pull-fetch-timeout`       | `200ms`                 | Maximum time to wait for messages in each fetch call for JetStream pull consumers.                                  |
+| Property                        | Default                 | Description                                                                                                         |
+|---------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `nats.enabled`                  | `true`                  | Whether NATS auto-configuration is enabled.                                                                         |
+| `nats.server`                   | `nats://localhost:4222` | NATS server URL. Maps to `server(String)`.                                                                          |
+| `nats.username`                 | _(none)_                | Username for NATS authentication. Combined with `password` into `userInfo(String, char[])`.                         |
+| `nats.password`                 | _(none)_                | Password for NATS authentication. Combined with `username` into `userInfo(String, char[])`.                         |
+| `nats.connection-name`          | _(none)_                | Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`.            |
+| `nats.connection-timeout`       | `2s`                    | Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`.                         |
+| `nats.socket-write-timeout`     | `1m`                    | Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`.                        |
+| `nats.max-reconnects`           | `60`                    | Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`.                    |
+| `nats.reconnect-wait`           | `2s`                    | Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`.                                         |
+| `nats.reconnect-jitter`         | `100ms`                 | Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`.               |
+| `nats.reconnect-jitter-tls`     | `1s`                    | Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`.                |
+| `nats.reconnect-buffer-size`    | `8388608`               | Size in bytes of the buffer used to hold messages while reconnecting (8 MB). Maps to `reconnectBufferSize(long)`.   |
+| `nats.ping-interval`            | `2m`                    | Interval between client-side pings to the server. Maps to `pingInterval(Duration)`.                                 |
+| `nats.max-pings-out`            | `2`                     | Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`. |
+| `nats.request-cleanup-interval` | `5s`                    | Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`.      |
+| `nats.inbox-prefix`             | _(none)_                | Prefix for auto-generated inbox subjects (must end with `.`); defaults to `_INBOX.`. Maps to `inboxPrefix(String)`. |
+| `nats.no-echo`                  | `false`                 | Suppress echoing published messages back to the sending connection. Maps to `noEcho()`.                             |
+| `nats.no-randomize`             | `false`                 | Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`.                         |
+| `nats.auto-stream-creation`     | `false`                 | Whether declared `StreamConfiguration` beans are used to create or update streams on startup.                       |
+| `nats.pull-fetch-batch-size`    | `200`                   | Number of messages fetched per poll cycle for JetStream pull consumers.                                             |
+| `nats.pull-fetch-timeout`       | `200ms`                 | Maximum time to wait for messages in each fetch call for JetStream pull consumers.                                  |
 
 ## Listener annotations
 
@@ -163,7 +167,7 @@ immediately and the original message is gone regardless.
 
 ```java
 @NatsListener(subject = "orders.placed", deadLetterSubject = "orders.placed.dlq")
-public void onOrder(Order order) { ... }
+public void onOrder(Order order) { /* ... */ }
 ```
 
 Both argument resolution failures (malformed payload) and handler invocation failures dead-letter on the first attempt.
@@ -180,7 +184,7 @@ JetStream has persistence and delivery tracking, so dead-lettering integrates wi
     durable = "order-processor",
     deadLetterSubject = "orders.dlq",
     maxDeliveries = 3)
-public void onOrder(Order order) { ... }
+public void onOrder(Order order) { /* ... */ }
 ```
 
 | Failure type                | Behaviour                                                                                                 |
@@ -232,13 +236,13 @@ keeping for clarity and/or documentation purposes.
 
 ```java
 @NatsListener(subject = "raw.events")
-public void handle(@NatsPayload byte[] body) {}
+public void handle(@NatsPayload byte[] body) { /* ... */ }
 
 @NatsListener(subject = "text.events")
-public void handle(@NatsPayload String text) {}
+public void handle(@NatsPayload String text) { /* ... */ }
 
 @NatsListener(subject = "json.events")
-public void handle(@NatsPayload List<Event> events) {}
+public void handle(@NatsPayload List<Event> events) { /* ... */ }
 ```
 
 #### `@NatsHeader`
@@ -248,13 +252,13 @@ on the parameter type.
 
 ```java
 @NatsListener(subject = "events")
-public void handle(Event event, @NatsHeader("X-Correlation-Id") String correlationId) {}
+public void handle(Event event, @NatsHeader("X-Correlation-Id") String correlationId) { /* ... */ }
 
 @NatsListener(subject = "events")
-public void handle(@NatsHeader("X-Tags") List<String> tags) {}
+public void handle(@NatsHeader("X-Tags") List<String> tags) { /* ... */ }
 
 @NatsListener(subject = "events")
-public void handle(@NatsHeader("X-Tags") String[] tags) {}
+public void handle(@NatsHeader("X-Tags") String[] tags) { /* ... */ }
 ```
 
 `value` and `name` are aliases; either can be used to specify the header name.
@@ -269,7 +273,7 @@ and needs to inspect the concrete subject at runtime.
 public void handle(Event event, @NatsSubject String subject) {}
 
 @JetStreamListener(subject = "orders.>", stream = "ORDERS", durable = "router")
-public void handle(Order order, @NatsSubject String subject) {}
+public void handle(Order order, @NatsSubject String subject) { /* ... */ }
 ```
 
 #### `@NatsHeaders`
@@ -278,7 +282,7 @@ Injects all message headers. Equivalent to declaring `io.nats.client.impl.Header
 
 ```java
 @NatsListener(subject = "events")
-public void handle(Event event, @NatsHeaders Headers headers) {}
+public void handle(Event event, @NatsHeaders Headers headers) { /* ... */ }
 ```
 
 #### `@NatsReplyTo`
@@ -302,10 +306,10 @@ information is preserved, so `List<Order>`, `Order[]`, and other parameterized t
 
 ```java
 @NatsListener(subject = "batch.orders")
-public void onBatch(List<Order> orders) {}
+public void onBatch(List<Order> orders) { /* ... */ }
 
 @NatsListener(subject = "batch.orders")
-public void onBatch(Order[] orders) {}
+public void onBatch(Order[] orders) { /* ... */ }
 ```
 
 ### No-arg methods
@@ -314,7 +318,7 @@ Methods with no parameters are supported. The message is received and discarded.
 
 ```java
 @NatsListener(subject = "ping")
-public void onPing() {}
+public void onPing() { /* ... */ }
 ```
 
 ### Mixed parameters
@@ -324,9 +328,45 @@ A method may declare any combination of the above in any order.
 ```java
 @JetStreamListener(subject = "orders.>", stream = "ORDERS", durable = "auditor")
 public void onOrder(
-    Order order, @NatsHeader("X-Source") String source, Headers allHeaders, Message rawMessage) {}
-
+    Order order, @NatsHeader("X-Source") String source, Headers allHeaders, Message rawMessage) {
+  // ...
+}
 ```
+
+### Message interceptors
+
+`NatsMessageInterceptor` beans are discovered automatically and applied to every inbound message in order, for both
+`@NatsListener` and `@JetStreamListener` methods. The interceptor receives the raw `io.nats.client.Message` before any
+argument resolution or deserialization.
+
+```java
+@Component
+public class TracingMessageInterceptor implements NatsMessageInterceptor {
+
+  private final Tracer tracer;
+
+  public TracingMessageInterceptor(Tracer tracer) {
+    this.tracer = tracer;
+  }
+
+  @Override
+  public void intercept(Message message, NatsMessageInterceptorChain chain) {
+    String traceId =
+        message.getHeaders() != null ? message.getHeaders().getFirst("X-Trace-Id") : null;
+    tracer.setCurrentTraceId(traceId != null ? traceId : tracer.newTraceId());
+    try {
+      chain.proceed(message);
+    } finally {
+      tracer.clearCurrentTraceId();
+    }
+  }
+}
+```
+
+Not calling `chain.proceed()` drops the message silently. For JetStream listeners, a dropped message will be
+redelivered by the broker unless the interceptor explicitly acknowledges or terminates it beforehand.
+
+Multiple interceptors are sorted by their `getOrder()` value (`Ordered.LOWEST_PRECEDENCE` by default).
 
 ## Request-reply (RPC)
 
@@ -338,12 +378,12 @@ responder publishes the reply to that address.
 A `@NatsListener` method can participate as a responder by returning a non-void value. When the incoming message
 carries a reply-to address, the return value is automatically serialized and published to that address.
 
-| Return type                   | Reply body                              |
-|-------------------------------|-----------------------------------------|
-| `byte[]`                      | Sent as-is                              |
-| `String`                      | UTF-8 encoded bytes                     |
-| `io.nats.client.Message`      | Body and headers from the returned message |
-| Any other type                | JSON-serialized via Jackson             |
+| Return type              | Reply body                                 |
+|--------------------------|--------------------------------------------|
+| `byte[]`                 | Sent as-is                                 |
+| `String`                 | UTF-8 encoded bytes                        |
+| `io.nats.client.Message` | Body and headers from the returned message |
+| Any other type           | JSON-serialized via Jackson                |
 
 ```java
 @NatsListener(subject = "calc.add")
@@ -365,24 +405,32 @@ acknowledgment.
 
 ### Sending requests
 
-`NatsOperations` provides `request()` methods that send a message and return a `CompletableFuture<Message>` that
+`NatsOperations` provides `request()` methods that send a message and return a `CompletableFuture<NatsReply>` that
 completes when a reply arrives. The future completes exceptionally with `TimeoutException` if no reply arrives within
 the given timeout.
 
 ```java
-@Autowired NatsOperations natsOperations;
+class RequestExample {
+    
+  private final NatsOperations natsOperations;
 
-// bytes
-CompletableFuture<Message> future = natsOperations.request("ping", new byte[0], Duration.ofSeconds(5));
+  public void requestExamples() {
+    // bytes
+    NatsReply reply = natsOperations.request("ping", new byte[0], Duration.ofSeconds(5)).get();
 
-// string
-CompletableFuture<Message> future = natsOperations.request("ping", "data", Duration.ofSeconds(5));
+    // string
+    NatsReply reply = natsOperations.request("ping", "data", Duration.ofSeconds(5)).get();
 
-// JSON-serialized object
-CompletableFuture<Message> future = natsOperations.request("calc.add", new MathRequest(3, 4), Duration.ofSeconds(5));
-Message reply = future.get();
-MathResult result = objectMapper.readValue(reply.getData(), MathResult.class);
+    // JSON-serialized object - reply deserialized with bodyAs()
+    NatsReply reply =
+        natsOperations.request("calc.add", new MathRequest(3, 4), Duration.ofSeconds(5)).get();
+    MathResult result = reply.bodyAs(MathResult.class);
+  }
+}
 ```
+
+`NatsReply` wraps the raw `io.nats.client.Message` and adds `bodyAs(Class<T>)` / `bodyAs(TypeReference<T>)` for
+JSON deserialization without a separate `ObjectMapper`.
 
 ## JetStream stream auto-creation
 
@@ -390,27 +438,125 @@ Declare `io.nats.client.api.StreamConfiguration` beans and the auto-configuratio
 corresponding streams on startup, before any listeners are registered.
 
 > [!IMPORTANT]
-> Works only if `natsify.auto-stream-creation` is set to `true` (disabled by default).
+> Works only if `nats.auto-stream-creation` is set to `true` (disabled by default).
 
 ```java
-@Bean
-StreamConfiguration ordersStream() {
-  return StreamConfiguration.builder().name("ORDERS").subjects("orders.>").build();
+@Configuration
+public class ExampleConfiguration {
+
+  @Bean
+  public StreamConfiguration ordersStream() {
+    return StreamConfiguration.builder().name("ORDERS").subjects("orders.>").build();
+  }
 }
 ```
 
-## Publishing messages
+## NatsOperations
 
-`NatsOperations` is auto-configured and available for injection:
+`NatsOperations` is the primary API for publishing messages and sending requests. It is auto-configured as a Spring bean
+and available for injection.
 
 ```java
-@Autowired
-NatsOperations natsOperations;
+@Service
+public class OrderService {
 
-natsOperations.publish("orders.placed", new Order(...));   // serialized to JSON
-natsOperations.publish("orders.placed", "plain text");
-natsOperations.publish("orders.placed", rawBytes);
+  private final NatsOperations natsOperations;
+
+  public OrderService(NatsOperations natsOperations) {
+    this.natsOperations = natsOperations;
+  }
+}
 ```
+
+### Publishing
+
+Three payload types are supported out of the box:
+
+```java
+class OrderService {
+
+  private final NatsOperations natsOperations;
+
+  void publishExamples() {
+    natsOperations.publish("orders.placed", rawBytes); // byte[]
+    natsOperations.publish("orders.placed", "plain text"); // String - UTF-8 encoded
+    natsOperations.publish("orders.placed", new Order("id", "...")); // JSON via Jackson
+  }
+}
+```
+
+A pre-built `io.nats.client.Message` can be published as-is for full control:
+
+```java
+class OrderService {
+
+  private final NatsOperations natsOperations;
+
+  void publishMessage() {
+    Message message = NatsMessage.builder().subject("orders.placed").data(rawBytes).build();
+    natsOperations.publish(message);
+  }
+}
+```
+
+### Headers
+
+Every publish variant has an overload that accepts `io.nats.client.impl.Headers`:
+
+```java
+class OrderService {
+
+  private final NatsOperations natsOperations;
+  private final AppInfo appInfo;
+
+  void publishWithHeaders() {
+    Headers headers = new Headers();
+    headers.add("X-Publisher-App", appInfo.getAppName());
+
+    natsOperations.publish("orders.placed", headers, rawBytes); // byte[]
+    natsOperations.publish("orders.placed", headers, "plain text"); // String - UTF-8 encoded
+    natsOperations.publish("orders.placed", headers, new Order("id", "...")); // JSON via Jackson
+  }
+}
+```
+
+`request()` does not have a headers overload - attach headers via a [publish interceptor](#publish-interceptors) or
+build a `Message` and use `publish()` manually.
+
+### Publish interceptors
+
+`NatsPublishInterceptor` beans are discovered automatically and applied to every outbound message in order, including
+requests. Interceptors receive a fully-built `Message` (subject, headers, serialized body) regardless of which
+`publish()` or `request()` overload was called.
+
+```java
+@Component
+public class TracingPublishInterceptor implements NatsPublishInterceptor {
+
+  private final Tracer tracer;
+
+  public TracingPublishInterceptor(Tracer tracer) {
+    this.tracer = tracer;
+  }
+
+  @Override
+  public void intercept(Message message, NatsPublishInterceptorChain chain) {
+    Headers enriched = message.getHeaders() != null ? message.getHeaders() : new Headers();
+    enriched.add("X-Trace-Id", tracer.currentTraceId());
+    chain.proceed(
+        NatsMessage.builder()
+            .subject(message.getSubject())
+            .headers(enriched)
+            .data(message.getData())
+            .build());
+  }
+}
+```
+
+Not calling `chain.proceed()` suppresses the message entirely. For requests, a suppressed message causes the returned
+`CompletableFuture` to complete exceptionally with `IllegalStateException`.
+
+Multiple interceptors are sorted by their `getOrder()` value (`Ordered.LOWEST_PRECEDENCE` by default).
 
 ## Observability
 
@@ -497,12 +643,12 @@ Tagged with `subject` and `stream`.
 
 ## Testing
 
-Add `natsify-starter-test` to your test dependencies:
+Add `natspring-starter-test` to your test dependencies:
 
 ```xml
 <dependency>
-    <groupId>io.github.malczuuu.natsify</groupId>
-    <artifactId>natsify-starter-test</artifactId>
+    <groupId>io.github.malczuuu.natspring</groupId>
+    <artifactId>natspring-starter-test</artifactId>
     <version>{version}</version>
     <scope>test</scope>
 </dependency>
@@ -523,7 +669,7 @@ library integrates it with Spring Boot's `@ServiceConnection` for zero-config wi
 <dependency>
     <groupId>io.github.amadeusitgroup.testcontainers</groupId>
     <artifactId>nats</artifactId>
-    <version>1.1.3</version>
+    <version>1.1.4</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -537,6 +683,6 @@ class MyIntegrationTests {
 }
 ```
 
-`@ServiceConnection` auto-configures `natsify.server` from the running container - no manual property overrides needed.
+`@ServiceConnection` auto-configures `nats.server` from the running container - no manual property overrides needed.
 
 [nats-testcontainers-java]: https://github.com/AmadeusITGroup/nats-testcontainers-java

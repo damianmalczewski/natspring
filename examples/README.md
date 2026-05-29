@@ -1,6 +1,6 @@
 # Examples
 
-Runnable Spring Boot applications demonstrating Natsify features. All examples use a telemetry subject pattern
+Runnable Spring Boot applications demonstrating Natspring features. All examples use a telemetry subject pattern
 (`telemetry.>`) with an example payload and expose a REST endpoint to inspect received messages.
 
 Each example requires a running NATS server (default: `nats://localhost:4222`).
@@ -24,5 +24,5 @@ whose collected messages are exposed via `GET /dead-letters`.
 ## `example-jetstream-deadletter`
 
 Demonstrates dead-letter handling with `@JetStreamListener`. Combines JetStream durability with a configurable
-`maxDeliveries` limit — messages that exhaust redelivery attempts are routed to a dead-letter subject and captured by
+`maxDeliveries` limit - messages that exhaust redelivery attempts are routed to a dead-letter subject and captured by
 a core NATS listener, exposed via `GET /dead-letters`.
