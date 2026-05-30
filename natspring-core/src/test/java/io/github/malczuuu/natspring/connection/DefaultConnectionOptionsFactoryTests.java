@@ -22,13 +22,13 @@ import io.nats.client.Options;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CustomizableOptionsFactoryTests {
+class DefaultConnectionOptionsFactoryTests {
 
-  private CustomizableOptionsFactory factory;
+  private DefaultConnectionOptionsFactory factory;
 
   @BeforeEach
   void beforeEach() {
-    factory = new CustomizableOptionsFactory();
+    factory = new DefaultConnectionOptionsFactory();
   }
 
   @Test

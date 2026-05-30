@@ -23,8 +23,14 @@ import io.nats.client.Options;
  *
  * @since 0.1.0
  */
-@FunctionalInterface
 public interface ConnectionOptionsFactory {
+
+  /**
+   * Registers a customizer to be applied when building connection options.
+   *
+   * @param customizer the customizer to register
+   */
+  void registerCustomizer(ConnectionOptionsBuilderCustomizer customizer);
 
   /**
    * Returns the NATS connection options.

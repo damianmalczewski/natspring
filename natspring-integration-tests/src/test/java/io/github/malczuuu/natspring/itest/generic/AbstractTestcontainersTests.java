@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.connection;
+package io.github.malczuuu.natspring.itest.generic;
 
-import org.springframework.context.SmartLifecycle;
+import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Manages the lifecycle of JetStream stream provisioning, driven by Spring's {@link
- * SmartLifecycle}.
- *
- * @since 0.1.0
- */
-public interface JetStreamManager extends SmartLifecycle {}
+@Testcontainers
+public abstract class AbstractTestcontainersTests {
+
+  @Container
+  public static final NatsContainer nats =
+      new NatsContainer("nats:2.14").withAuth("nats", "nats").withJetStream();
+}

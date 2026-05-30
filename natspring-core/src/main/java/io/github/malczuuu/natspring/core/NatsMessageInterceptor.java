@@ -17,7 +17,6 @@
 package io.github.malczuuu.natspring.core;
 
 import io.nats.client.Message;
-import org.springframework.core.Ordered;
 
 /**
  * Intercepts inbound messages before they are dispatched to a listener method. Implementations are
@@ -31,7 +30,7 @@ import org.springframework.core.Ordered;
  * @since 0.1.0
  */
 @FunctionalInterface
-public interface NatsMessageInterceptor extends Ordered {
+public interface NatsMessageInterceptor {
 
   /**
    * Intercepts the given message. Call {@link NatsMessageInterceptorChain#proceed(Message)} to
@@ -42,9 +41,4 @@ public interface NatsMessageInterceptor extends Ordered {
    * @param chain the chain to continue processing
    */
   void intercept(Message message, NatsMessageInterceptorChain chain);
-
-  @Override
-  default int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
-  }
 }

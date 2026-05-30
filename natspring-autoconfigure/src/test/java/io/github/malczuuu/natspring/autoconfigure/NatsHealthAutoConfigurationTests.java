@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.github.malczuuu.natspring.connection.ConnectionManager;
+import io.github.malczuuu.natspring.connection.ConnectionLifecycle;
 import io.github.malczuuu.natspring.health.NatsHealthIndicator;
 import io.nats.client.Connection;
 import org.junit.jupiter.api.Test;
@@ -35,13 +35,11 @@ class NatsHealthAutoConfigurationTests {
 
   @Test
   void givenConnectionManagerBeanWithConnectedStatus_whenContextLoads_thenHealthIsUp() {
-    Connection connection = mock(Connection.class);
+    ConnectionLifecycle connection = mock(ConnectionLifecycle.class);
     when(connection.getStatus()).thenReturn(Connection.Status.CONNECTED);
-    ConnectionManager connectionManager = mock(ConnectionManager.class);
-    when(connectionManager.getConnection()).thenReturn(connection);
 
     runner
-        .withBean(ConnectionManager.class, () -> connectionManager)
+        .withBean(ConnectionLifecycle.class, () -> connection)
         .run(
             ctx -> {
               NatsHealthIndicator indicator = ctx.getBean(NatsHealthIndicator.class);
@@ -55,13 +53,11 @@ class NatsHealthAutoConfigurationTests {
 
   @Test
   void givenConnectionManagerBeanWithDisconnectedStatus_whenContextLoads_thenHealthIsDown() {
-    Connection connection = mock(Connection.class);
+    ConnectionLifecycle connection = mock(ConnectionLifecycle.class);
     when(connection.getStatus()).thenReturn(Connection.Status.DISCONNECTED);
-    ConnectionManager connectionManager = mock(ConnectionManager.class);
-    when(connectionManager.getConnection()).thenReturn(connection);
 
     runner
-        .withBean(ConnectionManager.class, () -> connectionManager)
+        .withBean(ConnectionLifecycle.class, () -> connection)
         .run(
             ctx -> {
               NatsHealthIndicator indicator = ctx.getBean(NatsHealthIndicator.class);
@@ -75,11 +71,11 @@ class NatsHealthAutoConfigurationTests {
 
   @Test
   void givenConnectionManagerThatThrows_whenHealthCalled_thenHealthIsDown() {
-    ConnectionManager connectionManager = mock(ConnectionManager.class);
-    when(connectionManager.getConnection()).thenThrow(new RuntimeException("connection failed"));
+    ConnectionLifecycle connection = mock(ConnectionLifecycle.class);
+    when(connection.getStatus()).thenThrow(new RuntimeException("connection failed"));
 
     runner
-        .withBean(ConnectionManager.class, () -> connectionManager)
+        .withBean(ConnectionLifecycle.class, () -> connection)
         .run(
             ctx -> {
               NatsHealthIndicator indicator = ctx.getBean(NatsHealthIndicator.class);
@@ -91,14 +87,12 @@ class NatsHealthAutoConfigurationTests {
 
   @Test
   void givenCustomNatsHealthIndicatorBean_whenContextLoads_thenAutoConfiguredBeanNotRegistered() {
-    Connection connection = mock(Connection.class);
+    ConnectionLifecycle connection = mock(ConnectionLifecycle.class);
     when(connection.getStatus()).thenReturn(Connection.Status.CONNECTED);
-    ConnectionManager connectionManager = mock(ConnectionManager.class);
-    when(connectionManager.getConnection()).thenReturn(connection);
-    NatsHealthIndicator customIndicator = new NatsHealthIndicator(connectionManager);
+    NatsHealthIndicator customIndicator = new NatsHealthIndicator(connection);
 
     runner
-        .withBean(ConnectionManager.class, () -> connectionManager)
+        .withBean(ConnectionLifecycle.class, () -> connection)
         .withBean("customNatsHealthIndicator", NatsHealthIndicator.class, () -> customIndicator)
         .run(ctx -> assertThat(ctx.getBean(NatsHealthIndicator.class)).isSameAs(customIndicator));
   }

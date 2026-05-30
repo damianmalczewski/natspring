@@ -16,17 +16,16 @@
 
 package io.github.malczuuu.natspring.instrument.micrometer;
 
-import io.github.malczuuu.natspring.connection.ConnectionManager;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
-import io.nats.client.Statistics;
+import io.nats.client.Connection;
 import java.util.function.Supplier;
 
 /**
  * {@link MeterBinder} that exposes NATS connection statistics from {@link
  * io.nats.client.Statistics} as Micrometer gauges (e.g. message counts, byte counts, reconnects,
- * pings). All gauges are registered under the {@code nats.connection.*} namespace.
+ * pings). All gauges are registered under the {@code nats.statistics.*} namespace.
  *
  * <p>Register as a Spring bean; {@link #bindTo(MeterRegistry)} will be called automatically.
  *
@@ -34,106 +33,104 @@ import java.util.function.Supplier;
  */
 public class MicrometerNatsStatisticsObserver implements MeterBinder {
 
-  private final ConnectionManager connectionManager;
+  private final Connection connection;
 
   /**
-   * Creates a new instance of {@link MicrometerNatsStatisticsObserver} with the provided {@code
-   * connectionManager}.
+   * Creates a new {@link MicrometerNatsStatisticsObserver}.
    *
-   * @param connectionManager provides access to the live NATS connection and its statistics
+   * @param connection NATS connection to retrieve statistics from
    */
-  public MicrometerNatsStatisticsObserver(ConnectionManager connectionManager) {
-    this.connectionManager = connectionManager;
+  public MicrometerNatsStatisticsObserver(Connection connection) {
+    this.connection = connection;
   }
 
   /**
-   * Replaces the temporary registry with the application-wide {@code registry}. Metric descriptions
-   * come from Javadocs of respective getters.
+   * Registers all NATS statistics gauges against the provided {@code registry}.
    *
-   * @param registry the application-wide MeterRegistry to bind to
+   * @param registry the MeterRegistry to bind to
    */
   @Override
   public void bindTo(MeterRegistry registry) {
     wrapGauge(
         registry,
-        "nats.connection.pings",
+        "nats.statistics.pings",
         "the total number of pings that have been sent from this connection",
-        () -> getStatistics().getPings());
+        () -> connection.getStatistics().getPings());
     wrapGauge(
         registry,
-        "nats.connection.reconnects",
+        "nats.statistics.reconnects",
         "the total number of times this connection has tried to reconnect",
-        () -> getStatistics().getReconnects());
+        () -> connection.getStatistics().getReconnects());
     wrapGauge(
         registry,
-        "nats.connection.dropped.count",
+        "nats.statistics.dropped.count",
         "the total number of messages dropped by this connection across all slow consumers",
-        () -> getStatistics().getDroppedCount());
+        () -> connection.getStatistics().getDroppedCount());
     wrapGauge(
         registry,
-        "nats.connection.oks",
+        "nats.statistics.oks",
         "the total number of op +OKs received by this connection",
-        () -> getStatistics().getOKs());
+        () -> connection.getStatistics().getOKs());
     wrapGauge(
         registry,
-        "nats.connection.errs",
+        "nats.statistics.errs",
         "the total number of op -ERRs received by this connection",
-        () -> getStatistics().getErrs());
+        () -> connection.getStatistics().getErrs());
     wrapGauge(
         registry,
-        "nats.connection.exceptions",
+        "nats.statistics.exceptions",
         "the total number of exceptions seen by this connection",
-        () -> getStatistics().getExceptions());
+        () -> connection.getStatistics().getExceptions());
     wrapGauge(
         registry,
-        "nats.connection.requests.sent",
+        "nats.statistics.requests.sent",
         "the total number of requests sent by this connection",
-        () -> getStatistics().getRequestsSent());
+        () -> connection.getStatistics().getRequestsSent());
     wrapGauge(
         registry,
-        "nats.connection.replies.received",
+        "nats.statistics.replies.received",
         "the total number of replies received by this connection",
-        () -> getStatistics().getRepliesReceived());
+        () -> connection.getStatistics().getRepliesReceived());
     wrapGauge(
         registry,
-        "nats.connection.duplicate.replies.received",
+        "nats.statistics.duplicate.replies.received",
         "the total number of duplicate replies received by this connection, only counted if advanced stats are enabled",
-        () -> getStatistics().getDuplicateRepliesReceived());
+        () -> connection.getStatistics().getDuplicateRepliesReceived());
     wrapGauge(
         registry,
-        "nats.connection.orphan.replies.received",
+        "nats.statistics.orphan.replies.received",
         "the total number of orphan replies received by this connection, only counted if advanced stats are enabled",
-        () -> getStatistics().getOrphanRepliesReceived());
+        () -> connection.getStatistics().getOrphanRepliesReceived());
     wrapGauge(
         registry,
-        "nats.connection.in.msgs",
+        "nats.statistics.in.msgs",
         "the total number of messages that have come in to this connection",
-        () -> getStatistics().getInMsgs());
+        () -> connection.getStatistics().getInMsgs());
     wrapGauge(
         registry,
-        "nats.connection.out.msgs",
+        "nats.statistics.out.msgs",
         "the total number of messages that have gone out of this connection",
-        () -> getStatistics().getOutMsgs());
+        () -> connection.getStatistics().getOutMsgs());
     wrapGauge(
         registry,
-        "nats.connection.in.bytes",
+        "nats.statistics.in.bytes",
         "the total number of message bytes that have come in to this connection",
-        () -> getStatistics().getInBytes());
+        () -> connection.getStatistics().getInBytes());
     wrapGauge(
         registry,
-        "nats.connection.out.bytes",
+        "nats.statistics.out.bytes",
         "the total number of message bytes that have gone out of this connection",
-        () -> getStatistics().getOutBytes());
+        () -> connection.getStatistics().getOutBytes());
     wrapGauge(
         registry,
-        "nats.connection.flush.counter",
+        "nats.statistics.flush.counter",
         "the total number of outgoing message flushes by this connection",
-        () -> getStatistics().getFlushCounter());
+        () -> connection.getStatistics().getFlushCounter());
     wrapGauge(
         registry,
-        "nats.connection.outstanding.requests",
+        "nats.statistics.outstanding.requests",
         "the count of outstanding of requests from this connection",
-        () -> getStatistics().getOutstandingRequests());
+        () -> connection.getStatistics().getOutstandingRequests());
   }
 
   private <T extends Number> void wrapGauge(
@@ -147,9 +144,5 @@ public class MicrometerNatsStatisticsObserver implements MeterBinder {
     } catch (Exception e) {
       return 0;
     }
-  }
-
-  private Statistics getStatistics() {
-    return connectionManager.getConnection().getStatistics();
   }
 }

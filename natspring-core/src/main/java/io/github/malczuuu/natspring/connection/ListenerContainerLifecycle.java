@@ -16,20 +16,23 @@
 
 package io.github.malczuuu.natspring.connection;
 
-import io.nats.client.Connection;
+import org.springframework.context.SmartLifecycle;
 
 /**
- * Provides access to the active NATS {@link Connection}.
+ * {@link SmartLifecycle} marker interface for listener container lifecycle beans.
  *
  * @since 0.1.0
  */
-@FunctionalInterface
-public interface ConnectionSupplier {
+public interface ListenerContainerLifecycle extends SmartLifecycle {
 
   /**
-   * Returns the active NATS connection, establishing one if not yet connected.
+   * Returns the phase for listener container lifecycle beans, which starts after {@link
+   * ConnectionLifecycle} and {@link JetStreamLifecycle}.
    *
-   * @return the active {@link Connection}
+   * @return this lifecycle phase
    */
-  Connection getConnection();
+  @Override
+  default int getPhase() {
+    return ConnectionLifecycle.CONNECTION_LIFECYCLE_PHASE + 100;
+  }
 }

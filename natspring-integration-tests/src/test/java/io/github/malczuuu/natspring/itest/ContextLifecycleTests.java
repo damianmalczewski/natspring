@@ -18,20 +18,19 @@ package io.github.malczuuu.natspring.itest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.malczuuu.natspring.connection.ConnectionManager;
+import io.github.malczuuu.natspring.connection.ConnectionLifecycle;
+import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-@SpringBootTest(classes = Entrypoint.class)
 @DirtiesContext
-class ContextLifecycleTests extends AbstractIntegrationTests {
+class ContextLifecycleTests extends AbstractSpringBootTests {
 
-  @Autowired private ConnectionManager connectionManager;
+  @Autowired private ConnectionLifecycle connection;
 
   @Test
   void givenStartedContext_whenContextCloses_thenConnectionManagerStopsCleanly() {
-    assertThat(connectionManager.isRunning()).isTrue();
+    assertThat(connection.isRunning()).isTrue();
   }
 }

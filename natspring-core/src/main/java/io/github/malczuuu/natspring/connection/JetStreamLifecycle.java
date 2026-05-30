@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.itest;
+package io.github.malczuuu.natspring.connection;
 
-import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.testcontainers.junit.jupiter.Container;
+import org.springframework.context.SmartLifecycle;
 
-public abstract class AbstractIntegrationTests {
+/**
+ * {@link SmartLifecycle} marker interface for JetStream lifecycle beans.
+ *
+ * @since 0.1.0
+ */
+public interface JetStreamLifecycle extends SmartLifecycle {
 
-  @Container @ServiceConnection
-  public static final NatsContainer nats =
-      new NatsContainer("nats:2.14").withAuth("nats", "nats").withJetStream();
+  /**
+   * Returns the phase for JetStream lifecycle beans, which starts after {@link ConnectionLifecycle}
+   * and before {@link ListenerContainerLifecycle}.
+   *
+   * @return this lifecycle phase
+   */
+  @Override
+  default int getPhase() {
+    return ConnectionLifecycle.CONNECTION_LIFECYCLE_PHASE + 50;
+  }
 }

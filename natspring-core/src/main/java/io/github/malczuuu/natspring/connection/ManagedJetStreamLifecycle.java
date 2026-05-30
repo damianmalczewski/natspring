@@ -21,8 +21,6 @@ import io.github.malczuuu.natspring.core.StreamConfigureException;
 import io.nats.client.Connection;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.JetStreamManagement;
-import io.nats.client.Nats;
-import io.nats.client.Options;
 import io.nats.client.api.StreamConfiguration;
 import io.nats.client.api.StreamInfo;
 import java.util.List;
@@ -30,52 +28,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JetStreamManager} that auto-creates or updates JetStream streams on startup using the
+ * {@link JetStreamLifecycle} that auto-creates or updates JetStream streams on startup using the
  * provided {@link StreamConfiguration} list.
  *
  * @since 0.1.0
  */
-public final class JetStreamConfigurer implements JetStreamManager {
+public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
 
-  private static final Logger log = LoggerFactory.getLogger(JetStreamConfigurer.class);
+  private static final Logger log = LoggerFactory.getLogger(ManagedJetStreamLifecycle.class);
 
   private static final int NOT_FOUND_CODE = 404;
   private static final int STREAM_NOT_FOUND_ERROR = 10059;
 
-  private final boolean enabled;
-  private final Options options;
+  private final Connection connection;
   private final List<StreamConfiguration> streamConfigurations;
+  private final boolean enabled;
 
   private boolean running = false;
 
   /**
-   * Creates a new {@link JetStreamConfigurer}.
+   * Creates a new {@link ManagedJetStreamLifecycle}.
    *
-   * @param options NATS connection options used for the management connection
-   * @param enabled whether stream auto-creation is enabled
+   * @param connection NATS connection used for stream management
    * @param streamConfigurations stream configurations to create or update on startup
+   * @param enabled whether stream auto-creation is enabled
    */
-  public JetStreamConfigurer(
-      Options options, boolean enabled, List<StreamConfiguration> streamConfigurations) {
-    this.enabled = enabled;
-    this.options = options;
+  public ManagedJetStreamLifecycle(
+      Connection connection, List<StreamConfiguration> streamConfigurations, boolean enabled) {
+    this.connection = connection;
     this.streamConfigurations = streamConfigurations;
+    this.enabled = enabled;
   }
 
-  /**
-   * Returns the lifecycle phase for this manager. Runs near the end of the startup sequence to
-   * ensure streams are provisioned before listeners start.
-   *
-   * @return the phase value
-   */
-  @Override
-  public int getPhase() {
-    return Integer.MAX_VALUE - 1;
-  }
-
-  /**
-   * Creates or updates all configured JetStream streams using a short-lived management connection.
-   */
+  /** Creates or updates all configured JetStream streams. */
   @Override
   public void start() {
     if (!enabled) {
@@ -90,8 +75,8 @@ public final class JetStreamConfigurer implements JetStreamManager {
       return;
     }
 
-    try (Connection conn = Nats.connect(options)) {
-      JetStreamManagement management = conn.jetStreamManagement();
+    try {
+      JetStreamManagement management = connection.jetStreamManagement();
       for (StreamConfiguration stream : streamConfigurations) {
         try {
           StreamInfo info = management.getStreamInfo(stream.getName());

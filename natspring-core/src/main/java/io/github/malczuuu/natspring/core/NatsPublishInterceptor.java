@@ -17,7 +17,6 @@
 package io.github.malczuuu.natspring.core;
 
 import io.nats.client.Message;
-import org.springframework.core.Ordered;
 
 /**
  * Intercepts outbound messages before they are published via {@link NatsOperations}.
@@ -29,7 +28,7 @@ import org.springframework.core.Ordered;
  * @since 0.1.0
  */
 @FunctionalInterface
-public interface NatsPublishInterceptor extends Ordered {
+public interface NatsPublishInterceptor {
 
   /**
    * Intercepts the given outbound message. Use {@link NatsPublishInterceptorChain#proceed(Message)}
@@ -40,9 +39,4 @@ public interface NatsPublishInterceptor extends Ordered {
    * @param chain the chain to continue publishing
    */
   void intercept(Message message, NatsPublishInterceptorChain chain);
-
-  @Override
-  default int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
-  }
 }

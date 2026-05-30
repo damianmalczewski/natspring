@@ -16,13 +16,15 @@
 
 package io.github.malczuuu.natspring.autoconfigure;
 
-import io.github.malczuuu.natspring.connection.ConnectionConfigurer;
-import io.github.malczuuu.natspring.connection.ConnectionManager;
+import io.github.malczuuu.natspring.connection.ConnectionLifecycle;
 import io.github.malczuuu.natspring.connection.ConnectionOptionsBuilderCustomizer;
 import io.github.malczuuu.natspring.connection.ConnectionOptionsFactory;
-import io.github.malczuuu.natspring.connection.CustomizableOptionsFactory;
-import io.github.malczuuu.natspring.connection.JetStreamConfigurer;
-import io.github.malczuuu.natspring.connection.JetStreamManager;
+import io.github.malczuuu.natspring.connection.DefaultConnectionOptionsFactory;
+import io.github.malczuuu.natspring.connection.JetStreamLifecycle;
+import io.github.malczuuu.natspring.connection.ListenerContainerLifecycle;
+import io.github.malczuuu.natspring.connection.ManagedConnectionLifecycle;
+import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
+import io.github.malczuuu.natspring.connection.ManagedListenerContainerLifecycle;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
 import io.github.malczuuu.natspring.core.NatsOperations;
 import io.github.malczuuu.natspring.core.NatsPublishInterceptor;
@@ -42,6 +44,7 @@ import io.github.malczuuu.natspring.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.api.StreamConfiguration;
 import java.util.List;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
@@ -75,62 +78,84 @@ public final class NatsAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(ConnectionOptionsFactory.class)
-  CustomizableOptionsFactory customizableNatsConnectionOptionsFactory(
+  DefaultConnectionOptionsFactory customizableNatsConnectionOptionsFactory(
       Environment environment,
       NatsProperties properties,
       NatsConnectionDetails connectionDetails,
-      List<ConnectionOptionsBuilderCustomizer> customizers) {
-    CustomizableOptionsFactory connectionOptionsFactory = new CustomizableOptionsFactory();
+      NatsConnectionObserver connectionObserver,
+      ObjectProvider<ConnectionOptionsBuilderCustomizer> customizers) {
+    DefaultConnectionOptionsFactory connectionOptionsFactory =
+        new DefaultConnectionOptionsFactory();
     connectionOptionsFactory.registerCustomizer(
         new PropertiesOptionsBuilderCustomizer(environment, properties, connectionDetails));
-    customizers.forEach(connectionOptionsFactory::registerCustomizer);
+    connectionOptionsFactory.registerCustomizer(
+        new WatcherOptionsBuilderCustomizer(connectionObserver));
+    customizers.orderedStream().forEach(connectionOptionsFactory::registerCustomizer);
     return connectionOptionsFactory;
   }
 
   @Bean
-  @ConditionalOnMissingBean(ConnectionManager.class)
-  ConnectionConfigurer natsConnectionConfigurer(
+  @ConditionalOnMissingBean(JetStreamLifecycle.class)
+  ManagedJetStreamLifecycle managedJetStreamLifecycle(
       NatsProperties properties,
-      ConnectionOptionsFactory connectionOptionsFactory,
+      ConnectionLifecycle connectionLifecycle,
+      ObjectProvider<StreamConfiguration> streamConfigurations) {
+    return new ManagedJetStreamLifecycle(
+        connectionLifecycle,
+        streamConfigurations.orderedStream().toList(),
+        properties.isAutoStreamCreation());
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(ConnectionLifecycle.class)
+  ManagedConnectionLifecycle managedConnectionLifecycle(
+      ConnectionOptionsFactory connectionOptionsFactory) {
+    return new ManagedConnectionLifecycle(connectionOptionsFactory.getOptions());
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(ListenerContainerLifecycle.class)
+  ManagedListenerContainerLifecycle managedListenerContainerLifecycle(
+      ManagedConnectionLifecycle managedConnection,
+      NatsProperties properties,
       NatsListenerEndpointRegistry natsListenerEndpointRegistry,
       JetStreamListenerEndpointRegistry jetStreamListenerEndpointRegistry,
       NatsListenerObserver natsListenerObserver,
       JetStreamListenerObserver jetStreamListenerObserver,
-      NatsConnectionObserver natsConnectionObserver,
-      List<NatsMessageInterceptor> natsMessageInterceptors,
+      ObjectProvider<NatsMessageInterceptor> messageInterceptors,
       JsonMapper jsonMapper) {
     MessageArgumentResolver argumentResolver = new SimpleMessageArgumentResolver(jsonMapper);
-    return new ConnectionConfigurer(
-        connectionOptionsFactory.getOptions(),
+    List<NatsMessageInterceptor> orderedInterceptors = messageInterceptors.orderedStream().toList();
+    return new ManagedListenerContainerLifecycle(
+        managedConnection,
         List.of(
             new NatsMessageListenerContainer(
                 natsListenerEndpointRegistry,
                 argumentResolver,
                 natsListenerObserver,
-                natsMessageInterceptors),
+                orderedInterceptors),
             new JetStreamMessageListenerContainer(
                 jetStreamListenerEndpointRegistry,
                 argumentResolver,
                 jetStreamListenerObserver,
                 properties.getPullFetchBatchSize(),
                 properties.getPullFetchTimeout(),
-                natsMessageInterceptors)),
-        natsConnectionObserver);
+                orderedInterceptors)));
   }
 
   @Bean
   @ConditionalOnMissingBean(NatsTemplate.Builder.class)
   NatsTemplate.Builder natsTemplateBuilder(
-      ConnectionManager connectionManager,
+      Connection connection,
       JsonMapper jsonMapper,
-      List<NatsPublishInterceptor> natsPublishInterceptors,
-      List<NatsTemplateBuilderCustomizer> customizers) {
+      ObjectProvider<NatsPublishInterceptor> publishInterceptors,
+      ObjectProvider<NatsTemplateBuilderCustomizer> customizers) {
     NatsTemplate.Builder builder =
         NatsTemplate.builder()
-            .withConnectionSupplier(connectionManager)
+            .withConnection(connection)
             .withJsonMapper(jsonMapper)
-            .addInterceptors(natsPublishInterceptors);
-    for (NatsTemplateBuilderCustomizer customizer : customizers) {
+            .addInterceptors(publishInterceptors.orderedStream().toList());
+    for (NatsTemplateBuilderCustomizer customizer : customizers.orderedStream().toList()) {
       builder = customizer.customize(builder);
     }
     return builder;
@@ -140,18 +165,6 @@ public final class NatsAutoConfiguration {
   @ConditionalOnMissingBean(NatsOperations.class)
   NatsTemplate natsTemplate(NatsTemplate.Builder builder) {
     return builder.build();
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(JetStreamManager.class)
-  JetStreamConfigurer jetStreamConfigurer(
-      NatsProperties properties,
-      ConnectionOptionsFactory connectionOptionsFactory,
-      List<StreamConfiguration> streamConfigurations) {
-    return new JetStreamConfigurer(
-        connectionOptionsFactory.getOptions(),
-        properties.isAutoStreamCreation(),
-        streamConfigurations);
   }
 
   @Bean

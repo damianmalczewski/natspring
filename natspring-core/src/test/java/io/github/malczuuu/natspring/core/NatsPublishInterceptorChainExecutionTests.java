@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.core.Ordered;
 
 class NatsPublishInterceptorChainExecutionTests {
 
@@ -79,37 +78,6 @@ class NatsPublishInterceptorChainExecutionTests {
 
     assertThat(calls)
         .containsExactly("first-before", "second-before", "target", "second-after", "first-after");
-  }
-
-  @Test
-  void givenOrderedInterceptors_whenExecuted_thenLowerOrderRunsFirst() {
-    Message message = Mockito.mock(Message.class);
-    List<String> calls = new ArrayList<>();
-
-    NatsPublishInterceptor high =
-        new NatsPublishInterceptor() {
-          @Override
-          public void intercept(Message message, NatsPublishInterceptorChain chain) {
-            calls.add("high");
-            chain.proceed(message);
-          }
-
-          @Override
-          public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-          }
-        };
-
-    NatsPublishInterceptor low =
-        (msg, chain) -> {
-          calls.add("low");
-          chain.proceed(msg);
-        };
-
-    new NatsPublishInterceptorChainExecution(List.of(low, high))
-        .execute(message, m -> calls.add("target"));
-
-    assertThat(calls).containsExactly("high", "low", "target");
   }
 
   @Test

@@ -42,7 +42,7 @@ public class NatsMessageListenerContainer implements MessageListenerContainer {
   private final List<NatsListenerHandler> handlers = new CopyOnWriteArrayList<>();
 
   /**
-   * Creates a new {@code NatsMessageListenerContainer} with interceptors.
+   * Creates a new {@code NatsMessageListenerContainer} .
    *
    * @param registry registry of listener endpoints to initialize
    * @param argumentResolver resolver used to map message data to handler method arguments

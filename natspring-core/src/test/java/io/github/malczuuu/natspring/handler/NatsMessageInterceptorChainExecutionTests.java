@@ -20,13 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
-import io.github.malczuuu.natspring.core.NatsMessageInterceptorChain;
 import io.nats.client.Message;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.core.Ordered;
 
 class NatsMessageInterceptorChainExecutionTests {
 
@@ -81,37 +79,6 @@ class NatsMessageInterceptorChainExecutionTests {
 
     assertThat(calls)
         .containsExactly("first-before", "second-before", "target", "second-after", "first-after");
-  }
-
-  @Test
-  void givenOrderedInterceptors_whenExecuted_thenLowerOrderRunsFirst() {
-    Message message = Mockito.mock(Message.class);
-    List<String> calls = new ArrayList<>();
-
-    NatsMessageInterceptor high =
-        new NatsMessageInterceptor() {
-          @Override
-          public void intercept(Message message, NatsMessageInterceptorChain chain) {
-            calls.add("high");
-            chain.proceed(message);
-          }
-
-          @Override
-          public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-          }
-        };
-
-    NatsMessageInterceptor low =
-        (message1, chain) -> {
-          calls.add("low");
-          chain.proceed(message1);
-        };
-
-    new NatsMessageInterceptorChainExecution(List.of(low, high))
-        .execute(message, m -> calls.add("target"));
-
-    assertThat(calls).containsExactly("high", "low", "target");
   }
 
   @Test

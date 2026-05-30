@@ -53,7 +53,7 @@ public class JetStreamMessageListenerContainer implements MessageListenerContain
   private final List<JetStreamHandler> handlers = new CopyOnWriteArrayList<>();
 
   /**
-   * Creates a new {@code JetStreamMessageListenerContainer} with interceptors.
+   * Creates a new {@link JetStreamMessageListenerContainer}.
    *
    * @param registry registry of listener endpoints to initialize
    * @param argumentResolver resolver used to map message data to handler method arguments

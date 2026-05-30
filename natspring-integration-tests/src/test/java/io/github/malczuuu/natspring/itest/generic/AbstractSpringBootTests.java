@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.connection;
+package io.github.malczuuu.natspring.itest.generic;
 
-import org.springframework.context.SmartLifecycle;
+import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
+import io.github.malczuuu.natspring.itest.Entrypoint;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.testcontainers.junit.jupiter.Container;
 
-/**
- * Manages the lifecycle of a NATS {@link io.nats.client.Connection}, combining {@link
- * ConnectionSupplier} with Spring's {@link SmartLifecycle} for context-driven startup and shutdown.
- *
- * @since 0.1.0
- */
-public interface ConnectionManager extends ConnectionSupplier, SmartLifecycle {}
+@SpringBootTest(classes = Entrypoint.class)
+public abstract class AbstractSpringBootTests {
+
+  @Container @ServiceConnection
+  public static final NatsContainer nats =
+      new NatsContainer("nats:2.14").withAuth("nats", "nats").withJetStream();
+}

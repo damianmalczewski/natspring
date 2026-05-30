@@ -16,7 +16,6 @@
 
 package io.github.malczuuu.natspring.health;
 
-import io.github.malczuuu.natspring.connection.ConnectionManager;
 import io.nats.client.Connection;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
@@ -31,15 +30,15 @@ import org.springframework.boot.health.contributor.HealthIndicator;
  */
 public class NatsHealthIndicator implements HealthIndicator {
 
-  private final ConnectionManager connectionManager;
+  private final Connection connection;
 
   /**
    * Creates a new {@link NatsHealthIndicator}.
    *
-   * @param connectionManager the connection manager used to obtain the active NATS connection
+   * @param connection the NATS connection
    */
-  public NatsHealthIndicator(ConnectionManager connectionManager) {
-    this.connectionManager = connectionManager;
+  public NatsHealthIndicator(Connection connection) {
+    this.connection = connection;
   }
 
   /**
@@ -50,7 +49,6 @@ public class NatsHealthIndicator implements HealthIndicator {
   @Override
   public Health health() {
     try {
-      Connection connection = connectionManager.getConnection();
       Connection.Status status = connection.getStatus();
       if (status == Connection.Status.CONNECTED) {
         return Health.up().withDetail("connectionStatus", status).build();

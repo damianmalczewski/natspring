@@ -26,18 +26,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @since 0.1.0
  */
-public final class CustomizableOptionsFactory implements ConnectionOptionsFactory {
+public class DefaultConnectionOptionsFactory implements ConnectionOptionsFactory {
 
   private final List<ConnectionOptionsBuilderCustomizer> customizers = new CopyOnWriteArrayList<>();
 
-  /** Creates a new {@code CustomizableOptionsFactory} with no registered customizers. */
-  public CustomizableOptionsFactory() {}
+  /** Creates a new {@link DefaultConnectionOptionsFactory}. */
+  public DefaultConnectionOptionsFactory() {}
 
   /**
    * Registers a customizer to be applied when building connection options.
    *
    * @param customizer the customizer to register
    */
+  @Override
   public void registerCustomizer(ConnectionOptionsBuilderCustomizer customizer) {
     customizers.add(customizer);
   }

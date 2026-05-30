@@ -19,7 +19,6 @@ package io.github.malczuuu.natspring.instrument.micrometer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.github.malczuuu.natspring.connection.ConnectionManager;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.nats.client.Connection;
@@ -38,19 +37,17 @@ class MicrometerNatsStatisticsObserverTests {
   void beforeEach() {
     statistics = Mockito.mock(Statistics.class);
     Connection connection = Mockito.mock(Connection.class);
-    ConnectionManager connectionManager = Mockito.mock(ConnectionManager.class);
     when(connection.getStatistics()).thenReturn(statistics);
-    when(connectionManager.getConnection()).thenReturn(connection);
 
     registry = new SimpleMeterRegistry();
-    new MicrometerNatsStatisticsObserver(connectionManager).bindTo(registry);
+    new MicrometerNatsStatisticsObserver(connection).bindTo(registry);
   }
 
   @Test
   void givenConnection_whenInMsgsRead_thenGaugeReflectsStatisticsValue() {
     when(statistics.getInMsgs()).thenReturn(42L);
 
-    Gauge gauge = registry.find("nats.connection.in.msgs").gauge();
+    Gauge gauge = registry.find("nats.statistics.in.msgs").gauge();
     assertThat(gauge).isNotNull();
     assertThat(Objects.requireNonNull(gauge).value()).isEqualTo(42.0);
   }
@@ -59,7 +56,7 @@ class MicrometerNatsStatisticsObserverTests {
   void givenConnection_whenOutMsgsRead_thenGaugeReflectsStatisticsValue() {
     when(statistics.getOutMsgs()).thenReturn(7L);
 
-    Gauge gauge = registry.find("nats.connection.out.msgs").gauge();
+    Gauge gauge = registry.find("nats.statistics.out.msgs").gauge();
     assertThat(gauge).isNotNull();
     assertThat(Objects.requireNonNull(gauge).value()).isEqualTo(7.0);
   }
@@ -68,7 +65,7 @@ class MicrometerNatsStatisticsObserverTests {
   void givenConnection_whenInBytesRead_thenGaugeReflectsStatisticsValue() {
     when(statistics.getInBytes()).thenReturn(1024L);
 
-    Gauge gauge = registry.find("nats.connection.in.bytes").gauge();
+    Gauge gauge = registry.find("nats.statistics.in.bytes").gauge();
     assertThat(gauge).isNotNull();
     assertThat(Objects.requireNonNull(gauge).value()).isEqualTo(1024.0);
   }
@@ -77,7 +74,7 @@ class MicrometerNatsStatisticsObserverTests {
   void givenConnection_whenOutBytesRead_thenGaugeReflectsStatisticsValue() {
     when(statistics.getOutBytes()).thenReturn(512L);
 
-    Gauge gauge = registry.find("nats.connection.out.bytes").gauge();
+    Gauge gauge = registry.find("nats.statistics.out.bytes").gauge();
     assertThat(gauge).isNotNull();
     assertThat(Objects.requireNonNull(gauge).value()).isEqualTo(512.0);
   }
@@ -86,28 +83,28 @@ class MicrometerNatsStatisticsObserverTests {
   void givenConnection_whenReconnectsRead_thenGaugeReflectsStatisticsValue() {
     when(statistics.getReconnects()).thenReturn(3L);
 
-    Gauge gauge = registry.find("nats.connection.reconnects").gauge();
+    Gauge gauge = registry.find("nats.statistics.reconnects").gauge();
     assertThat(gauge).isNotNull();
     assertThat(Objects.requireNonNull(gauge).value()).isEqualTo(3.0);
   }
 
   @Test
   void givenAllGaugesRegistered_whenContextStarted_thenAllGaugesPresent() {
-    assertThat(registry.find("nats.connection.pings").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.reconnects").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.dropped.count").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.oks").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.errs").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.exceptions").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.requests.sent").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.replies.received").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.duplicate.replies.received").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.orphan.replies.received").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.in.msgs").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.out.msgs").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.in.bytes").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.out.bytes").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.flush.counter").gauge()).isNotNull();
-    assertThat(registry.find("nats.connection.outstanding.requests").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.pings").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.reconnects").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.dropped.count").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.oks").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.errs").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.exceptions").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.requests.sent").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.replies.received").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.duplicate.replies.received").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.orphan.replies.received").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.in.msgs").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.out.msgs").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.in.bytes").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.out.bytes").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.flush.counter").gauge()).isNotNull();
+    assertThat(registry.find("nats.statistics.outstanding.requests").gauge()).isNotNull();
   }
 }

@@ -16,7 +16,6 @@
 
 package io.github.malczuuu.natspring.autoconfigure;
 
-import io.github.malczuuu.natspring.connection.ConnectionManager;
 import io.github.malczuuu.natspring.instrument.JetStreamListenerObserver;
 import io.github.malczuuu.natspring.instrument.NatsConnectionObserver;
 import io.github.malczuuu.natspring.instrument.NatsListenerObserver;
@@ -76,8 +75,8 @@ public final class NatsMetricsAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(MicrometerNatsStatisticsObserver.class)
-    MicrometerNatsStatisticsObserver natsStatisticsObserver(ConnectionManager connectionManager) {
-      return new MicrometerNatsStatisticsObserver(connectionManager);
+    MicrometerNatsStatisticsObserver natsStatisticsObserver(Connection connection) {
+      return new MicrometerNatsStatisticsObserver(connection);
     }
   }
 

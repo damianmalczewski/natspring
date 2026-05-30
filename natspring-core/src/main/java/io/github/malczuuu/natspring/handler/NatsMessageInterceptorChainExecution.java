@@ -19,7 +19,6 @@ package io.github.malczuuu.natspring.handler;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptorChain;
 import io.nats.client.Message;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -28,10 +27,7 @@ final class NatsMessageInterceptorChainExecution {
   private final List<NatsMessageInterceptor> interceptors;
 
   NatsMessageInterceptorChainExecution(List<NatsMessageInterceptor> interceptors) {
-    this.interceptors =
-        interceptors.stream()
-            .sorted(Comparator.comparingInt(NatsMessageInterceptor::getOrder))
-            .toList();
+    this.interceptors = interceptors;
   }
 
   void execute(Message message, Consumer<Message> target) {

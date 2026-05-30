@@ -21,16 +21,15 @@ import static org.awaitility.Awaitility.await;
 
 import io.github.malczuuu.natspring.core.NatsOperations;
 import io.github.malczuuu.natspring.core.NatsReply;
+import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = Entrypoint.class)
-class NatsListenerRequestReplyTests extends AbstractIntegrationTests {
+class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
 
   @Autowired private NatsListenerComponent handler;
   @Autowired private NatsOperations natsOperations;

@@ -20,26 +20,41 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import io.github.malczuuu.natspring.connection.JetStreamConfigurer;
+import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
 import io.github.malczuuu.natspring.core.StreamConfigureException;
+import io.github.malczuuu.natspring.itest.generic.AbstractTestcontainersTests;
+import io.nats.client.Connection;
+import io.nats.client.Nats;
 import io.nats.client.Options;
 import io.nats.client.api.StreamConfiguration;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers
-class JetStreamConfigurerTests extends AbstractIntegrationTests {
+class ManagedJetStreamLifecycleTests extends AbstractTestcontainersTests {
 
-  @Test
-  void givenNoStreams_whenStart_thenShouldNotFail() {
+  private Connection connection;
+
+  @BeforeEach
+  void setUp() throws Exception {
     Options options =
         new Options.Builder()
             .server(nats.getConnectionUrl())
             .userInfo(nats.getUsername(), nats.getPassword())
             .build();
+    connection = Nats.connect(options);
+  }
 
-    JetStreamConfigurer configurer = new JetStreamConfigurer(options, true, List.of());
+  @AfterEach
+  void tearDown() throws Exception {
+    connection.close();
+  }
+
+  @Test
+  void givenNoStreams_whenStart_thenShouldNotFail() {
+    ManagedJetStreamLifecycle configurer =
+        new ManagedJetStreamLifecycle(connection, List.of(), true);
     configurer.start();
 
     assertThat(configurer.isRunning()).isTrue();
@@ -47,16 +62,9 @@ class JetStreamConfigurerTests extends AbstractIntegrationTests {
 
   @Test
   void givenConflictingSubjects_whenStart_thenThrowsStreamConfigureException() {
-    Options options =
-        new Options.Builder()
-            .server(nats.getConnectionUrl())
-            .userInfo(nats.getUsername(), nats.getPassword())
-            .build();
-
-    JetStreamConfigurer configurer =
-        new JetStreamConfigurer(
-            options,
-            true,
+    ManagedJetStreamLifecycle configurer =
+        new ManagedJetStreamLifecycle(
+            connection,
             List.of(
                 StreamConfiguration.builder()
                     .name("CONFLICT_DIRECT_ALPHA")
@@ -65,25 +73,21 @@ class JetStreamConfigurerTests extends AbstractIntegrationTests {
                 StreamConfiguration.builder()
                     .name("CONFLICT_DIRECT_BETA")
                     .subjects("conflict.direct.subject")
-                    .build()));
+                    .build()),
+            true);
 
     assertThatThrownBy(configurer::start).isInstanceOf(StreamConfigureException.class);
   }
 
   @Test
   void givenDuplicateStream_whenStartCalledTwice_thenNoExceptionThrown() {
-    Options options =
-        new Options.Builder()
-            .server(nats.getConnectionUrl())
-            .userInfo(nats.getUsername(), nats.getPassword())
-            .build();
-
     StreamConfiguration stream =
         StreamConfiguration.builder()
             .name("DUPLICATE_STREAM")
             .subjects("duplicate.stream.subject")
             .build();
-    JetStreamConfigurer configurer = new JetStreamConfigurer(options, true, List.of(stream));
+    ManagedJetStreamLifecycle configurer =
+        new ManagedJetStreamLifecycle(connection, List.of(stream), true);
 
     configurer.start();
 

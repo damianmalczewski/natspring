@@ -16,7 +16,7 @@
 
 package io.github.malczuuu.natspring.core;
 
-import io.github.malczuuu.natspring.connection.ConnectionSupplier;
+import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsMessage;
@@ -30,21 +30,19 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Default {@link NatsOperations} implementation backed by a {@link ConnectionSupplier}.
+ * Default {@link NatsOperations} implementation backed by a {@link Connection}.
  *
  * @since 0.1.0
  */
-public final class NatsTemplate implements NatsOperations {
+public class NatsTemplate implements NatsOperations {
 
-  private final ConnectionSupplier connectionManager;
+  private final Connection connection;
   private final JsonMapper jsonMapper;
   private final NatsPublishInterceptorChainExecution publishInterceptorChain;
 
   private NatsTemplate(
-      ConnectionSupplier connectionSupplier,
-      JsonMapper jsonMapper,
-      List<NatsPublishInterceptor> interceptors) {
-    this.connectionManager = connectionSupplier;
+      Connection connection, JsonMapper jsonMapper, List<NatsPublishInterceptor> interceptors) {
+    this.connection = connection;
     this.jsonMapper = jsonMapper;
     this.publishInterceptorChain = new NatsPublishInterceptorChainExecution(interceptors);
   }
@@ -158,7 +156,7 @@ public final class NatsTemplate implements NatsOperations {
   }
 
   private void doPublish(Message message) {
-    publishInterceptorChain.execute(message, m -> connectionManager.getConnection().publish(m));
+    publishInterceptorChain.execute(message, connection::publish);
   }
 
   /**
@@ -220,7 +218,7 @@ public final class NatsTemplate implements NatsOperations {
   private CompletableFuture<NatsReply> doRequest(Message message, Duration timeout) {
     AtomicReference<@Nullable CompletableFuture<Message>> ref = new AtomicReference<>();
     publishInterceptorChain.execute(
-        message, m -> ref.set(connectionManager.getConnection().requestWithTimeout(m, timeout)));
+        message, m -> ref.set(connection.requestWithTimeout(m, timeout)));
     CompletableFuture<Message> result = ref.get();
     return result != null
         ? result.thenApply(m -> new SimpleNatsReply(m, jsonMapper))
@@ -229,22 +227,22 @@ public final class NatsTemplate implements NatsOperations {
   }
 
   /** Builder for {@link NatsTemplate}. */
-  public static final class Builder {
+  public static class Builder {
 
-    private @Nullable ConnectionSupplier connectionSupplier;
+    private @Nullable Connection connection;
     private @Nullable JsonMapper jsonMapper;
     private final List<NatsPublishInterceptor> interceptors = new ArrayList<>();
 
     private Builder() {}
 
     /**
-     * Sets the connection supplier used to obtain the active NATS connection.
+     * Sets the NATS connection.
      *
-     * @param connectionSupplier the connection supplier; must not be {@code null}
+     * @param connection the NATS connection; must not be {@code null}
      * @return this builder
      */
-    public Builder withConnectionSupplier(ConnectionSupplier connectionSupplier) {
-      this.connectionSupplier = connectionSupplier;
+    public Builder withConnection(Connection connection) {
+      this.connection = connection;
       return this;
     }
 
@@ -284,20 +282,20 @@ public final class NatsTemplate implements NatsOperations {
 
     /**
      * Builds a {@link NatsTemplate} from the current state of this builder. Requires {@link
-     * #withConnectionSupplier(ConnectionSupplier)} to have been set.
+     * #withConnection(Connection)} to have been set.
      *
      * @return a new {@link NatsTemplate}
-     * @throws IllegalArgumentException if {@code connectionSupplier} has not been set
+     * @throws IllegalArgumentException if {@code connection} has not been set
      */
     public NatsTemplate build() {
-      if (connectionSupplier == null) {
-        throw new IllegalArgumentException("connectionSupplier is required");
+      if (connection == null) {
+        throw new IllegalArgumentException("connection is required");
       }
       JsonMapper jsonMapper =
           this.jsonMapper != null
               ? this.jsonMapper
               : JsonMapper.builder().findAndAddModules().build();
-      return new NatsTemplate(connectionSupplier, jsonMapper, interceptors);
+      return new NatsTemplate(connection, jsonMapper, interceptors);
     }
   }
 }

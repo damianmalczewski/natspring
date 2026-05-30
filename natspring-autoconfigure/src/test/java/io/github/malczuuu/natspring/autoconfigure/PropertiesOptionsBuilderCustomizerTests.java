@@ -18,7 +18,7 @@ package io.github.malczuuu.natspring.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.malczuuu.natspring.connection.CustomizableOptionsFactory;
+import io.github.malczuuu.natspring.connection.DefaultConnectionOptionsFactory;
 import io.nats.client.Options;
 import java.net.URI;
 import java.time.Duration;
@@ -46,7 +46,7 @@ class PropertiesOptionsBuilderCustomizerTests {
 
   private Options customize(@Nullable String username, @Nullable String password) {
     NatsConnectionDetails details = new StubConnectionDetails(SERVER, username, password);
-    CustomizableOptionsFactory factory = new CustomizableOptionsFactory();
+    DefaultConnectionOptionsFactory factory = new DefaultConnectionOptionsFactory();
     factory.registerCustomizer(
         new PropertiesOptionsBuilderCustomizer(environment, properties, details));
     return factory.getOptions();

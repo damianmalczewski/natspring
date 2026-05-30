@@ -19,6 +19,7 @@ package io.github.malczuuu.natspring.itest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
@@ -29,10 +30,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = Entrypoint.class)
-class JetStreamListenerTests extends AbstractIntegrationTests {
+class JetStreamListenerTests extends AbstractSpringBootTests {
 
   @Autowired private JetStreamListenerComponent handler;
   @Autowired private NatsOperations natsOperations;
