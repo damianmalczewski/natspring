@@ -78,7 +78,7 @@ public final class NatsAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(ConnectionOptionsFactory.class)
-  DefaultConnectionOptionsFactory customizableNatsConnectionOptionsFactory(
+  DefaultConnectionOptionsFactory natsConnectionOptionsFactory(
       Environment environment,
       NatsProperties properties,
       NatsConnectionDetails connectionDetails,
