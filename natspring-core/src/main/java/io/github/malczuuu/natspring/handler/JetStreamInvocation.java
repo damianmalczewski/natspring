@@ -120,7 +120,7 @@ final class JetStreamInvocation implements Consumer<Message> {
       return false;
     }
     NatsJetStreamMetaData meta = message.metaData();
-    return meta != null && meta.deliveredCount() >= endpoint.getMaxDeliveries();
+    return meta != null && meta.deliveredCount() >= endpoint.getDeadLetterDeliveries();
   }
 
   private void publishDeadLetter(Message message, @Nullable Throwable cause) {

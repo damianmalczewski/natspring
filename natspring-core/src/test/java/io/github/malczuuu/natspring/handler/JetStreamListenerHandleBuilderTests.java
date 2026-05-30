@@ -138,17 +138,17 @@ class JetStreamListenerHandleBuilderTests {
   }
 
   @Test
-  void givenDlqWithoutMaxDeliveries_whenBuild_thenThrowsIllegalArgumentException() {
+  void givenDlqWithoutDeadLetterDeliveries_whenBuild_thenThrowsIllegalArgumentException() {
     assertThatThrownBy(() -> fullBuilder().withDeadLetterSubject("dlq.subject").build())
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("maxDeliveries must be positive when deadLetterSubject is set");
+        .hasMessage("deadLetterDeliveries must be positive when deadLetterSubject is set");
   }
 
   @Test
-  void givenMaxDeliveriesWithoutDlq_whenBuild_thenThrowsIllegalArgumentException() {
-    assertThatThrownBy(() -> fullBuilder().withMaxDeliveries(3).build())
+  void givenDeadLetterDeliveriesWithoutDlq_whenBuild_thenThrowsIllegalArgumentException() {
+    assertThatThrownBy(() -> fullBuilder().withDeadLetterDeliveries(3).build())
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("deadLetterSubject is required when maxDeliveries is set");
+        .hasMessage("deadLetterSubject is required when deadLetterDeliveries is set");
   }
 
   @Test
@@ -157,7 +157,7 @@ class JetStreamListenerHandleBuilderTests {
             () ->
                 fullBuilder()
                     .withDeadLetterSubject("dlq.subject")
-                    .withMaxDeliveries(3)
+                    .withDeadLetterDeliveries(3)
                     .withAckMode(AckMode.MANUAL)
                     .build())
         .isInstanceOf(IllegalArgumentException.class)

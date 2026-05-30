@@ -33,7 +33,7 @@ public class DeviceEventEntrypointListener {
       subject = "${app.nats.listeners.device-event-entrypoint.subject}",
       stream = "${app.nats.listeners.device-event-entrypoint.stream}",
       durable = "${app.nats.listeners.device-event-entrypoint.durable}",
-      maxDeliveries = 5,
+      deadLetterDeliveries = 5,
       deadLetterSubject = "${app.nats.listeners.device-event-entrypoint.dead-letter-subject}")
   public void onRawEvent(DeviceEventMessage message, NatsJetStreamMetaData meta) {
     validate(message);

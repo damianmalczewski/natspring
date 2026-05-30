@@ -89,7 +89,7 @@ public @interface JetStreamListener {
    * Subject to publish failed messages to. Empty string disables dead-lettering. Supports property
    * placeholders (e.g., {@code ${my.dlq}}).
    *
-   * <p>Requires {@link #maxDeliveries()} to be positive. Not compatible with {@link
+   * <p>Requires {@link #deadLetterDeliveries()} to be positive. Not compatible with {@link
    * AckMode#MANUAL}.
    *
    * <p>Delivery semantics differ by failure type:
@@ -98,7 +98,7 @@ public @interface JetStreamListener {
    *   <li><b>Deserialization failure</b> - message is terminated and dead-lettered immediately on
    *       the first delivery attempt. Retrying a malformed payload would never succeed.
    *   <li><b>Handler invocation failure</b> - message is nacked and redelivered until {@link
-   *       #maxDeliveries()} is exhausted, then terminated and dead-lettered.
+   *       #deadLetterDeliveries()} is exhausted, then terminated and dead-lettered.
    * </ul>
    *
    * @return the dead-letter subject
@@ -107,9 +107,10 @@ public @interface JetStreamListener {
 
   /**
    * Maximum number of delivery attempts before the message is dead-lettered. {@code -1} means
-   * unlimited. When positive, sets the JetStream consumer {@code maxDeliver} configuration.
+   * unlimited.
    *
    * @return the max delivery count
+   * @since 0.1.1
    */
-  int maxDeliveries() default -1;
+  int deadLetterDeliveries() default -1;
 }

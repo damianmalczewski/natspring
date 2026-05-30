@@ -46,7 +46,7 @@ public final class JetStreamListenerEndpoint {
   private final AckMode ackMode;
   private final DeliverPolicyType deliverPolicy;
   private final String deadLetterSubject;
-  private final int maxDeliveries;
+  private final int deadLetterDeliveries;
 
   private JetStreamListenerEndpoint(
       Object bean,
@@ -59,7 +59,7 @@ public final class JetStreamListenerEndpoint {
       AckMode ackMode,
       DeliverPolicyType deliverPolicy,
       String deadLetterSubject,
-      int maxDeliveries) {
+      int deadLetterDeliveries) {
     this.bean = bean;
     this.method = method;
     this.subject = subject;
@@ -70,7 +70,7 @@ public final class JetStreamListenerEndpoint {
     this.ackMode = ackMode;
     this.deliverPolicy = deliverPolicy;
     this.deadLetterSubject = deadLetterSubject;
-    this.maxDeliveries = maxDeliveries;
+    this.deadLetterDeliveries = deadLetterDeliveries;
   }
 
   /**
@@ -169,9 +169,10 @@ public final class JetStreamListenerEndpoint {
    * unlimited.
    *
    * @return the max delivery count
+   * @since 0.1.1
    */
-  public int getMaxDeliveries() {
-    return maxDeliveries;
+  public int getDeadLetterDeliveries() {
+    return deadLetterDeliveries;
   }
 
   /**
@@ -191,7 +192,7 @@ public final class JetStreamListenerEndpoint {
         + (", ackMode=" + ackMode)
         + (", deliverPolicy=" + deliverPolicy)
         + (", deadLetterSubject=" + deadLetterSubject)
-        + (", maxDeliveries=" + maxDeliveries + "]");
+        + (", deadLetterDeliveries=" + deadLetterDeliveries + "]");
   }
 
   /**
@@ -216,7 +217,7 @@ public final class JetStreamListenerEndpoint {
     private @Nullable AckMode ackMode;
     private @Nullable DeliverPolicyType deliverPolicy;
     private String deadLetterSubject = "";
-    private int maxDeliveries = -1;
+    private int deadLetterDeliveries = -1;
 
     private Builder() {}
 
@@ -334,11 +335,12 @@ public final class JetStreamListenerEndpoint {
      * Sets the maximum number of delivery attempts before dead-lettering. {@code -1} means
      * unlimited.
      *
-     * @param maxDeliveries max delivery count
+     * @param deadLetterDeliveries max delivery count
      * @return this builder
+     * @since 0.1.1
      */
-    public Builder withMaxDeliveries(int maxDeliveries) {
-      this.maxDeliveries = maxDeliveries;
+    public Builder withDeadLetterDeliveries(int deadLetterDeliveries) {
+      this.deadLetterDeliveries = deadLetterDeliveries;
       return this;
     }
 
@@ -379,13 +381,13 @@ public final class JetStreamListenerEndpoint {
       if (consumerType == ConsumerType.PULL && !queue.isEmpty()) {
         throw new IllegalArgumentException("queue group is not supported for pull consumers");
       }
-      if (!deadLetterSubject.isEmpty() && maxDeliveries <= 0) {
+      if (!deadLetterSubject.isEmpty() && deadLetterDeliveries <= 0) {
         throw new IllegalArgumentException(
-            "maxDeliveries must be positive when deadLetterSubject is set");
+            "deadLetterDeliveries must be positive when deadLetterSubject is set");
       }
-      if (maxDeliveries > 0 && deadLetterSubject.isEmpty()) {
+      if (deadLetterDeliveries > 0 && deadLetterSubject.isEmpty()) {
         throw new IllegalArgumentException(
-            "deadLetterSubject is required when maxDeliveries is set");
+            "deadLetterSubject is required when deadLetterDeliveries is set");
       }
       if (!deadLetterSubject.isEmpty() && ackMode == AckMode.MANUAL) {
         throw new IllegalArgumentException(
@@ -403,7 +405,7 @@ public final class JetStreamListenerEndpoint {
           ackMode,
           deliverPolicy,
           deadLetterSubject,
-          maxDeliveries);
+          deadLetterDeliveries);
     }
   }
 }

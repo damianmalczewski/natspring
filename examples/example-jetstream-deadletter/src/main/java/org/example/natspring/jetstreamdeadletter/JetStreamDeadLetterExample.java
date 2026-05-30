@@ -41,7 +41,7 @@ public class JetStreamDeadLetterExample {
       stream = "TELEMETRY",
       durable = "telemetry-dlq-listener",
       deadLetterSubject = "dlq.telemetry",
-      maxDeliveries = 1)
+      deadLetterDeliveries = 1)
   public void onRecord(SenmlRecord record) {
     throw new IllegalArgumentException("simulated handler failure");
   }

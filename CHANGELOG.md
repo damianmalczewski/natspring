@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 ### Fixed
 
 - Add `isEmpty` to `MessageListenerContainer` and hide unnecessary logging.
+- Do not relate `deadLetterDeliveries` with `maxDeliver`, as dead-lettering is an opinionated feature coming from
+  Natspring Project and not a core NATS concept.
 
 ## [0.1.0] - 2026-05-30
 

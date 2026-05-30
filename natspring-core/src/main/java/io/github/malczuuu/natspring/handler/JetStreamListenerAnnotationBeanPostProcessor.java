@@ -103,7 +103,7 @@ public class JetStreamListenerAnnotationBeanPostProcessor
               .withAckMode(annotation.ackMode())
               .withDeliverPolicy(annotation.deliverPolicy())
               .withDeadLetterSubject(deadLetterSubject)
-              .withMaxDeliveries(annotation.maxDeliveries())
+              .withDeadLetterDeliveries(annotation.deadLetterDeliveries())
               .build();
 
       registry.register(endpoint);

@@ -128,7 +128,7 @@ public class JetStreamListenerComponent {
       consumerType = ConsumerType.PUSH,
       ackMode = AckMode.AUTO,
       deadLetterSubject = "js.dead-letter",
-      maxDeliveries = 1)
+      deadLetterDeliveries = 1)
   public void handleDlqSource(String data) {
     throw new RuntimeException("simulated failure for dlq test");
   }

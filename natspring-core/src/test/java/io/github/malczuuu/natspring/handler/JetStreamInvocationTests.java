@@ -184,12 +184,12 @@ class JetStreamInvocationTests {
   }
 
   private JetStreamListenerEndpoint endpointWithDlq(
-      String methodName, String dlqSubject, int maxDeliveries) {
-    return endpointWithDlq(methodName, dlqSubject, maxDeliveries, new Class<?>[0]);
+      String methodName, String dlqSubject, int deadLetterDeliveries) {
+    return endpointWithDlq(methodName, dlqSubject, deadLetterDeliveries, new Class<?>[0]);
   }
 
   private JetStreamListenerEndpoint endpointWithDlq(
-      String methodName, String dlqSubject, int maxDeliveries, Class<?>... paramTypes) {
+      String methodName, String dlqSubject, int deadLetterDeliveries, Class<?>... paramTypes) {
     try {
       Method method = Listener.class.getDeclaredMethod(methodName, paramTypes);
       method.setAccessible(true);
@@ -204,7 +204,7 @@ class JetStreamInvocationTests {
           .withAckMode(AckMode.AUTO)
           .withDeliverPolicy(DeliverPolicyType.NEW)
           .withDeadLetterSubject(dlqSubject)
-          .withMaxDeliveries(maxDeliveries)
+          .withDeadLetterDeliveries(deadLetterDeliveries)
           .build();
     } catch (NoSuchMethodException e) {
       throw new RuntimeException(e);
