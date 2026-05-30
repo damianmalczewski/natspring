@@ -1,5 +1,7 @@
 # Natspring Core
 
+[![Sonatype](https://img.shields.io/maven-central/v/io.github.malczuuu.natspring/natspring-core)][maven-central]
+
 Core module providing the public API for NATS integration. Contains the publishing API (`NatsOperations`,
 `NatsTemplate`), listener annotations (`@NatsListener`, `@JetStreamListener`), and argument resolution for annotated
 listener methods. Optional Micrometer instrumentation for connections and listeners is also included here.
@@ -80,3 +82,5 @@ Bean post-processors scan application beans at startup:
                                           ▼
                                JetStreamListenerEndpointRegistry
 ```
+
+[maven-central]: https://central.sonatype.com/artifact/io.github.malczuuu.natspring/natspring-core

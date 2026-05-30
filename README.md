@@ -1,5 +1,9 @@
 # Natspring Project
 
+[![Build Status](https://github.com/damianmalczewski/natspring/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/damianmalczewski/natspring/actions/workflows/gradle-build.yml)
+[![Sonatype](https://img.shields.io/maven-central/v/io.github.malczuuu.natspring/natspring-starter)][maven-central]
+[![License](https://img.shields.io/github/license/damianmalczewski/natspring)](https://github.com/damianmalczewski/natspring/blob/main/LICENSE)
+
 Spring Boot auto-configuration for [NATS](https://nats.io), providing annotation-driven message listeners for both core
 NATS and JetStream.
 
@@ -48,6 +52,8 @@ Requires Spring Boot 4.x.
 - [Building from source](#building-from-source)
 
 ## Installation
+
+[![Sonatype](https://img.shields.io/maven-central/v/io.github.malczuuu.natspring/natspring-starter)][maven-central]
 
 Add the starter module to your dependencies.
 
@@ -826,3 +832,5 @@ repositories {
 ```
 
 </details>
+
+[maven-central]: https://central.sonatype.com/artifact/io.github.malczuuu.natspring/natspring-starter
