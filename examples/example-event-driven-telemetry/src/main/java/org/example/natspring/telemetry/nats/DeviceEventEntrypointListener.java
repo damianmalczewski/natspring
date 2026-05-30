@@ -7,6 +7,7 @@ import io.nats.client.impl.NatsJetStreamMetaData;
 import org.example.natspring.telemetry.nats.model.DeviceEventMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,24 +17,29 @@ public class DeviceEventEntrypointListener {
 
   private final NatsOperations natsOperations;
   private final StreamSequenceSupport streamSequence;
+  private final String processedSubject;
 
   public DeviceEventEntrypointListener(
-      NatsOperations natsOperations, StreamSequenceSupport streamSequence) {
+      NatsOperations natsOperations,
+      StreamSequenceSupport streamSequence,
+      @Value("${app.nats.listeners.device-event-entrypoint.publish-subject}")
+          String processedSubject) {
     this.natsOperations = natsOperations;
     this.streamSequence = streamSequence;
+    this.processedSubject = processedSubject;
   }
 
   @JetStreamListener(
-      subject = "iot.events.raw",
-      stream = "IOT_RAW",
-      durable = "iot-raw-processor",
+      subject = "${app.nats.listeners.device-event-entrypoint.subject}",
+      stream = "${app.nats.listeners.device-event-entrypoint.stream}",
+      durable = "${app.nats.listeners.device-event-entrypoint.durable}",
       maxDeliveries = 5,
-      deadLetterSubject = "iot.events.deadletter")
+      deadLetterSubject = "${app.nats.listeners.device-event-entrypoint.dead-letter-subject}")
   public void onRawEvent(DeviceEventMessage message, NatsJetStreamMetaData meta) {
     validate(message);
     Headers headers = new Headers();
     headers.add("X-Event-Id", streamSequence.build(meta.getStream(), meta.streamSequence()));
-    natsOperations.publish("iot.events.processed", headers, message);
+    natsOperations.publish(processedSubject, headers, message);
     log.info("Processed IoT event id={}, type={}", message.deviceId(), message.type());
   }
 

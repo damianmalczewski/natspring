@@ -20,9 +20,9 @@ public class DeviceEventCounterListener {
   }
 
   @JetStreamListener(
-      subject = "iot.events.processed",
-      stream = "IOT_PROCESSED",
-      durable = "iot-device-counter")
+      subject = "${app.nats.listeners.device-event-counter.subject}",
+      stream = "${app.nats.listeners.device-event-counter.stream}",
+      durable = "${app.nats.listeners.device-event-counter.durable}")
   public void onProcessedEvent(DeviceEventMessage message) {
     deviceInfoService.incrementEventCount(new IncrementEventCountCommand(message.deviceId()));
     log.info("Incremented event count for id={}", message.deviceId());

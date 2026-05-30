@@ -22,3 +22,27 @@ management:
 nats:
   server: nats://localhost:4222
   auto-stream-creation: true
+
+app:
+  nats:
+    listeners:
+      device-event-entrypoint:
+        subject: iot.events.raw
+        stream: IOT_RAW
+        durable: iot-raw-processor
+        dead-letter-subject: iot.events.deadletter
+        publish-subject: iot.events.processed
+      device-event-persist:
+        subject: iot.events.processed
+        stream: IOT_PROCESSED
+        durable: iot-event-persister
+      device-event-counter:
+        subject: iot.events.processed
+        stream: IOT_PROCESSED
+        durable: iot-device-counter
+      dead-letter:
+        subject: iot.events.deadletter
+        stream: IOT_DLQ
+        durable: iot-dlq-persister
+      device-activity:
+        subject: iot.events.processed

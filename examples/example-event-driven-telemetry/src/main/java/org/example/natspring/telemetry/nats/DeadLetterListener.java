@@ -30,9 +30,9 @@ public class DeadLetterListener {
   }
 
   @JetStreamListener(
-      subject = "iot.events.deadletter",
-      stream = "IOT_DLQ",
-      durable = "iot-dlq-persister")
+      subject = "${app.nats.listeners.dead-letter.subject}",
+      stream = "${app.nats.listeners.dead-letter.stream}",
+      durable = "${app.nats.listeners.dead-letter.durable}")
   public void onDeadLetter(Message message, NatsJetStreamMetaData meta) {
     String streamId = streamSequence.build(meta.getStream(), meta.streamSequence());
     String rawPayload =

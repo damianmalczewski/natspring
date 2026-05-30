@@ -23,9 +23,9 @@ public class DeviceEventPersistListener {
   }
 
   @JetStreamListener(
-      subject = "iot.events.processed",
-      stream = "IOT_PROCESSED",
-      durable = "iot-event-persister")
+      subject = "${app.nats.listeners.device-event-persist.subject}",
+      stream = "${app.nats.listeners.device-event-persist.stream}",
+      durable = "${app.nats.listeners.device-event-persist.durable}")
   public void onProcessedEvent(
       DeviceEventMessage message, @NatsHeader("X-Event-Id") @Nullable String eventId) {
     if (eventId == null) {

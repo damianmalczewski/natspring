@@ -19,7 +19,7 @@ public class DeviceActivityListener {
     this.deviceInfoService = deviceInfoService;
   }
 
-  @NatsListener(subject = "iot.events.processed")
+  @NatsListener(subject = "${app.nats.listeners.device-activity.subject}")
   public void onProcessedEvent(DeviceEventMessage message) {
     deviceInfoService.recordActivity(new RecordActivityCommand(message.deviceId()));
     log.info("Updated last activity for id={}", message.deviceId());
