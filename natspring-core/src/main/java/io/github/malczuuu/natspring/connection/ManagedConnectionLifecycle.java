@@ -96,10 +96,19 @@ public class ManagedConnectionLifecycle implements ConnectionLifecycle {
    */
   @Override
   public synchronized void stop() {
-    try {
-      close();
-    } catch (Exception e) {
-      throw new ConnectionException("Failed to close NATS connection", e);
+    Connection delegate = this.delegate;
+    if (delegate != null) {
+      log.info("Closing NATS connection at servers={}", options.getServers());
+      try {
+        delegate.close();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new ConnectionException("Failed to close NATS connection", e);
+      } catch (Exception e) {
+        throw new ConnectionException("Failed to close NATS connection", e);
+      } finally {
+        this.delegate = null;
+      }
     }
   }
 
@@ -430,20 +439,11 @@ public class ManagedConnectionLifecycle implements ConnectionLifecycle {
   /**
    * Closes the NATS connection and releases all lifecycle resources.
    *
-   * @throws InterruptedException if the thread, or one owned by the connection is interrupted
-   *     during the close
+   * @throws ConnectionException if the connection cannot be closed
    */
   @Override
   public synchronized void close() throws InterruptedException {
-    Connection delegate = this.delegate;
-    if (delegate != null) {
-      log.info("Closing NATS connection at servers={}", options.getServers());
-      try {
-        delegate.close();
-      } finally {
-        this.delegate = null;
-      }
-    }
+    stop();
   }
 
   /**

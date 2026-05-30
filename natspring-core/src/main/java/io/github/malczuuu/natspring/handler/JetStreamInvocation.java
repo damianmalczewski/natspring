@@ -80,9 +80,11 @@ final class JetStreamInvocation implements Consumer<Message> {
       logResolutionException(message, e);
       if (!endpoint.getDeadLetterSubject().isEmpty()) {
         publishDeadLetter(message, e);
-        observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
       }
       message.term();
+      if (!endpoint.getDeadLetterSubject().isEmpty()) {
+        observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
+      }
       observer.onTerminated(endpoint.getSubject(), endpoint.getStream(), e);
       return;
     }
@@ -102,9 +104,9 @@ final class JetStreamInvocation implements Consumer<Message> {
           cause);
       if (endpoint.getAckMode() == AckMode.AUTO) {
         if (isLastDelivery(message)) {
-          publishDeadLetter(message, cause instanceof Exception ex ? ex : e);
-          observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
+          publishDeadLetter(message, cause);
           message.term();
+          observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
         } else {
           message.nak();
           observer.onNacked(endpoint.getSubject(), endpoint.getStream());
@@ -121,7 +123,7 @@ final class JetStreamInvocation implements Consumer<Message> {
     return meta != null && meta.deliveredCount() >= endpoint.getMaxDeliveries();
   }
 
-  private void publishDeadLetter(Message message, @Nullable Exception cause) {
+  private void publishDeadLetter(Message message, @Nullable Throwable cause) {
     Headers headers = buildDeadLetterHeaders(message, message.getSubject(), cause);
     headers.add("X-Dead-Letter-Stream", endpoint.getStream());
     headers.add("X-Dead-Letter-Durable", endpoint.getDurable());
@@ -139,12 +141,13 @@ final class JetStreamInvocation implements Consumer<Message> {
     Long deliveredCount = null;
     Instant timestamp = null;
 
-    if (message.metaData() != null) {
-      stream = message.metaData().getStream();
-      streamSequence = message.metaData().streamSequence();
-      consumerSequence = message.metaData().consumerSequence();
-      deliveredCount = message.metaData().deliveredCount();
-      timestamp = message.metaData().timestamp().toInstant();
+    NatsJetStreamMetaData meta = message.metaData();
+    if (meta != null) {
+      stream = meta.getStream();
+      streamSequence = meta.streamSequence();
+      consumerSequence = meta.consumerSequence();
+      deliveredCount = meta.deliveredCount();
+      timestamp = meta.timestamp().toInstant();
     }
 
     log.error(

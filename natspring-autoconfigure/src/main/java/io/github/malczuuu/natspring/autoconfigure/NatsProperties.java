@@ -41,8 +41,8 @@ public class NatsProperties {
   private @Nullable String password = null;
 
   /**
-   * Whether declared {@code StreamConfiguration} beans are used to create or update JetStream
-   * streams on startup.
+   * Whether declared {@code StreamConfiguration} beans are used to create JetStream streams on
+   * startup.
    */
   private boolean autoStreamCreation = false;
 
@@ -181,8 +181,8 @@ public class NatsProperties {
   }
 
   /**
-   * Sets whether declared {@code StreamConfiguration} beans are used to create or update JetStream
-   * streams on startup.
+   * Sets whether declared {@code StreamConfiguration} beans are used to create JetStream streams on
+   * startup.
    *
    * @param autoStreamCreation whether to enable auto stream creation
    */

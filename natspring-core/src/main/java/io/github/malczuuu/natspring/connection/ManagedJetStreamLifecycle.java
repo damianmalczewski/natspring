@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JetStreamLifecycle} that auto-creates or updates JetStream streams on startup using the
- * provided {@link StreamConfiguration} list.
+ * {@link JetStreamLifecycle} that auto-creates JetStream streams on startup using the provided
+ * {@link StreamConfiguration} list.
  *
  * @since 0.1.0
  */
@@ -50,7 +50,7 @@ public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
    * Creates a new {@link ManagedJetStreamLifecycle}.
    *
    * @param connection NATS connection used for stream management
-   * @param streamConfigurations stream configurations to create or update on startup
+   * @param streamConfigurations stream configurations to create on startup
    * @param enabled whether stream auto-creation is enabled
    */
   public ManagedJetStreamLifecycle(
@@ -60,7 +60,7 @@ public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
     this.enabled = enabled;
   }
 
-  /** Creates or updates all configured JetStream streams. */
+  /** Creates all configured JetStream streams that do not yet exist. */
   @Override
   public void start() {
     if (!enabled) {
@@ -135,7 +135,7 @@ public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
     return new StreamConfigureException(
         "Unable to configure JetStream due to errorCode="
             + ex.getErrorCode()
-            + ", errorDescription"
+            + ", errorDescription="
             + ex.getErrorDescription()
             + ", apiErrorCode="
             + ex.getApiErrorCode(),

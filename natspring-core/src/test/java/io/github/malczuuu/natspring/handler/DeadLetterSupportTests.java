@@ -89,6 +89,19 @@ class DeadLetterSupportTests {
   }
 
   @Test
+  void givenError_whenBuildDeadLetterHeaders_thenReasonAndExceptionHeadersPresent() {
+    Message message = NatsMessage.builder().subject("src.subject").build();
+    StackOverflowError cause = new StackOverflowError("stack overflow");
+
+    Headers headers = DeadLetterSupport.buildDeadLetterHeaders(message, "src.subject", cause);
+
+    assertThat(headers.getFirst("X-Dead-Letter-Reason")).contains("StackOverflowError");
+    assertThat(headers.getFirst("X-Dead-Letter-Reason")).contains("stack overflow");
+    assertThat(headers.getFirst("X-Dead-Letter-Exception"))
+        .isEqualTo("java.lang.StackOverflowError");
+  }
+
+  @Test
   void givenCauseWithLongMessage_whenBuildDeadLetterHeaders_thenReasonTruncated() {
     Message message = NatsMessage.builder().subject("src.subject").build();
     String longMessage = "x".repeat(300);

@@ -94,7 +94,7 @@ final class NatsListenerInvocation implements Consumer<Message> {
           endpoint.getMethod().getName(),
           cause);
       observer.onFailed(endpoint.getSubject(), endpoint.getQueue());
-      publishDeadLetter(message, cause instanceof Exception ex ? ex : e);
+      publishDeadLetter(message, cause);
     }
   }
 
@@ -124,7 +124,7 @@ final class NatsListenerInvocation implements Consumer<Message> {
     }
   }
 
-  private void publishDeadLetter(Message message, Exception cause) {
+  private void publishDeadLetter(Message message, @Nullable Throwable cause) {
     if (endpoint.getDeadLetterSubject().isEmpty()) {
       return;
     }

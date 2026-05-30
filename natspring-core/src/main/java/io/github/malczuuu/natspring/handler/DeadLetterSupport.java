@@ -35,7 +35,7 @@ final class DeadLetterSupport {
    * X-Dead-Letter-Timestamp}. Callers may add further headers before publishing.
    */
   static Headers buildDeadLetterHeaders(
-      Message message, String sourceSubject, @Nullable Exception cause) {
+      Message message, String sourceSubject, @Nullable Throwable cause) {
     Headers headers = new Headers();
     Headers origHeaders = message.getHeaders();
     if (origHeaders != null) {
@@ -48,17 +48,16 @@ final class DeadLetterSupport {
     }
     headers.add("X-Dead-Letter-Subject", sourceSubject);
     if (cause != null) {
-      Throwable root = cause instanceof InvocationTargetException ite ? ite.getCause() : cause;
-
-      String exceptionName = root != null ? root.getClass().getName() : cause.getClass().getName();
-      String exceptionMessage = root != null ? root.getMessage() : null;
-
+      Throwable root =
+          cause instanceof InvocationTargetException ite && ite.getCause() != null
+              ? ite.getCause()
+              : cause;
+      String exceptionMessage = root.getMessage();
       String reason =
-          (root != null ? root.getClass().getSimpleName() : cause.getClass().getSimpleName())
+          root.getClass().getSimpleName()
               + (exceptionMessage != null ? ": " + truncate(exceptionMessage) : "");
-
       headers.add("X-Dead-Letter-Reason", reason);
-      headers.add("X-Dead-Letter-Exception", exceptionName);
+      headers.add("X-Dead-Letter-Exception", root.getClass().getName());
     }
     headers.add("X-Dead-Letter-Timestamp", Instant.now().toString());
     return headers;
