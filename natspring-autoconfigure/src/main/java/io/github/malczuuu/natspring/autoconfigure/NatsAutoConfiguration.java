@@ -16,12 +16,15 @@
 
 package io.github.malczuuu.natspring.autoconfigure;
 
+import io.github.malczuuu.natspring.connection.ConnectionHook;
+import io.github.malczuuu.natspring.connection.ConnectionHookLifecycle;
 import io.github.malczuuu.natspring.connection.ConnectionLifecycle;
 import io.github.malczuuu.natspring.connection.ConnectionOptionsBuilderCustomizer;
 import io.github.malczuuu.natspring.connection.ConnectionOptionsFactory;
 import io.github.malczuuu.natspring.connection.DefaultConnectionOptionsFactory;
 import io.github.malczuuu.natspring.connection.JetStreamLifecycle;
 import io.github.malczuuu.natspring.connection.ListenerContainerLifecycle;
+import io.github.malczuuu.natspring.connection.ManagedConnectionHookLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedConnectionLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedListenerContainerLifecycle;
@@ -44,6 +47,7 @@ import io.github.malczuuu.natspring.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.api.StreamConfiguration;
 import java.util.List;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -94,40 +98,38 @@ public final class NatsAutoConfiguration {
     return connectionOptionsFactory;
   }
 
-  @Bean
+  @Bean(autowireCandidate = false)
   @ConditionalOnMissingBean(JetStreamLifecycle.class)
   ManagedJetStreamLifecycle managedJetStreamLifecycle(
-      NatsProperties properties,
-      ConnectionLifecycle connectionLifecycle,
-      ObjectProvider<StreamConfiguration> streamConfigurations) {
+      NatsProperties properties, BeanFactory beanFactory) {
     return new ManagedJetStreamLifecycle(
-        connectionLifecycle,
-        streamConfigurations.orderedStream().toList(),
+        beanFactory.getBean(Connection.class),
+        beanFactory.getBeanProvider(StreamConfiguration.class).orderedStream().toList(),
         properties.isAutoStreamCreation());
   }
 
-  @Bean
+  @Bean(autowireCandidate = false)
   @ConditionalOnMissingBean(ConnectionLifecycle.class)
   ManagedConnectionLifecycle managedConnectionLifecycle(
       ConnectionOptionsFactory connectionOptionsFactory) {
     return new ManagedConnectionLifecycle(connectionOptionsFactory.getOptions());
   }
 
-  @Bean
+  @Bean(autowireCandidate = false)
   @ConditionalOnMissingBean(ListenerContainerLifecycle.class)
   ManagedListenerContainerLifecycle managedListenerContainerLifecycle(
-      ManagedConnectionLifecycle managedConnection,
       NatsProperties properties,
+      BeanFactory beanFactory,
       NatsListenerEndpointRegistry natsListenerEndpointRegistry,
       JetStreamListenerEndpointRegistry jetStreamListenerEndpointRegistry,
       NatsListenerObserver natsListenerObserver,
       JetStreamListenerObserver jetStreamListenerObserver,
-      ObjectProvider<NatsMessageInterceptor> messageInterceptors,
       JsonMapper jsonMapper) {
     MessageArgumentResolver argumentResolver = new SimpleMessageArgumentResolver(jsonMapper);
-    List<NatsMessageInterceptor> orderedInterceptors = messageInterceptors.orderedStream().toList();
+    List<NatsMessageInterceptor> orderedInterceptors =
+        beanFactory.getBeanProvider(NatsMessageInterceptor.class).orderedStream().toList();
     return new ManagedListenerContainerLifecycle(
-        managedConnection,
+        beanFactory.getBean(Connection.class),
         List.of(
             new NatsMessageListenerContainer(
                 natsListenerEndpointRegistry,
@@ -143,19 +145,25 @@ public final class NatsAutoConfiguration {
                 orderedInterceptors)));
   }
 
+  @Bean(autowireCandidate = false)
+  @ConditionalOnMissingBean(ConnectionHookLifecycle.class)
+  ManagedConnectionHookLifecycle managedConnectionHookLifecycle(BeanFactory beanFactory) {
+    return new ManagedConnectionHookLifecycle(
+        beanFactory.getBean(Connection.class),
+        beanFactory.getBeanProvider(ConnectionHook.class).orderedStream().toList());
+  }
+
   @Bean
   @ConditionalOnMissingBean(NatsTemplate.Builder.class)
-  NatsTemplate.Builder natsTemplateBuilder(
-      Connection connection,
-      JsonMapper jsonMapper,
-      ObjectProvider<NatsPublishInterceptor> publishInterceptors,
-      ObjectProvider<NatsTemplateBuilderCustomizer> customizers) {
+  NatsTemplate.Builder natsTemplateBuilder(BeanFactory beanFactory, JsonMapper jsonMapper) {
     NatsTemplate.Builder builder =
         NatsTemplate.builder()
-            .withConnection(connection)
+            .withConnection(beanFactory.getBean(Connection.class))
             .withJsonMapper(jsonMapper)
-            .addInterceptors(publishInterceptors.orderedStream().toList());
-    for (NatsTemplateBuilderCustomizer customizer : customizers.orderedStream().toList()) {
+            .addInterceptors(
+                beanFactory.getBeanProvider(NatsPublishInterceptor.class).orderedStream().toList());
+    for (NatsTemplateBuilderCustomizer customizer :
+        beanFactory.getBeanProvider(NatsTemplateBuilderCustomizer.class).orderedStream().toList()) {
       builder = customizer.customize(builder);
     }
     return builder;
@@ -181,7 +189,7 @@ public final class NatsAutoConfiguration {
     return new JetStreamListenerEndpointRegistry();
   }
 
-  @Bean
+  @Bean(autowireCandidate = false)
   @ConditionalOnMissingBean(NatsListenerAnnotationBeanPostProcessor.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static NatsListenerAnnotationBeanPostProcessor natsListenerAnnotationBeanPostProcessor(
@@ -189,7 +197,7 @@ public final class NatsAutoConfiguration {
     return new NatsListenerAnnotationBeanPostProcessor(natsListenerEndpointRegistry);
   }
 
-  @Bean
+  @Bean(autowireCandidate = false)
   @ConditionalOnMissingBean(JetStreamListenerAnnotationBeanPostProcessor.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static JetStreamListenerAnnotationBeanPostProcessor jetStreamListenerAnnotationBeanPostProcessor(

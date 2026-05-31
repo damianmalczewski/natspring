@@ -18,6 +18,7 @@ package io.github.malczuuu.natspring.autoconfigure;
 
 import io.github.malczuuu.natspring.health.NatsHealthIndicator;
 import io.nats.client.Connection;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -43,7 +44,7 @@ public final class NatsHealthAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(NatsHealthIndicator.class)
-  NatsHealthIndicator natsHealthIndicator(Connection connection) {
-    return new NatsHealthIndicator(connection);
+  NatsHealthIndicator natsHealthIndicator(BeanFactory beanFactory) {
+    return new NatsHealthIndicator(beanFactory.getBean(Connection.class));
   }
 }

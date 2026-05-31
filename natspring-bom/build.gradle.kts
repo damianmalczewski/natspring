@@ -10,6 +10,7 @@ dependencies {
         api(project(":natspring-core"))
         api(project(":natspring-starter"))
         api(project(":natspring-starter-test"))
+        api(libs.testcontainers.nats)
     }
 }
 

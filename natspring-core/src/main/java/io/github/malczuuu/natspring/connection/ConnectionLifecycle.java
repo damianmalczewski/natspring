@@ -41,8 +41,7 @@ public interface ConnectionLifecycle extends Connection, SmartLifecycle {
   int CONNECTION_LIFECYCLE_PHASE = SmartLifecycle.DEFAULT_PHASE - 3 * 1024;
 
   /**
-   * Returns the phase for connection lifecycle beans, which starts before {@link
-   * JetStreamLifecycle} and {@link ListenerContainerLifecycle}.
+   * Returns the phase for connection lifecycle beans, which starts first.
    *
    * @return this lifecycle phase
    */

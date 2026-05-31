@@ -27,7 +27,7 @@ public interface ListenerContainerLifecycle extends SmartLifecycle {
 
   /**
    * Returns the phase for listener container lifecycle beans, which starts after {@link
-   * ConnectionLifecycle} and {@link JetStreamLifecycle}.
+   * JetStreamLifecycle}.
    *
    * @return this lifecycle phase
    */

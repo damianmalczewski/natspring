@@ -19,6 +19,8 @@ Requires Spring Boot 4.x.
 
 - [Installation](#installation)
 - [Configuration](#configuration)
+    - [Options customizer](#options-customizer)
+    - [Connection hooks](#connection-hooks)
 - [Listener annotations](#listener-annotations)
     - [`@NatsListener`](#natslistener)
     - [`@JetStreamListener`](#jetstreamlistener)
@@ -188,6 +190,54 @@ Suppress echoing published messages back to the sending connection. Maps to `noE
 Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`. Default: `false`.
 
 </details>
+
+### Options customizer
+
+For connection options not covered by `nats.*` properties, declare a `ConnectionOptionsBuilderCustomizer`bean. It
+receives an `io.nats.client.Options.Builder` before the connection is established and can apply any configuration the
+native NATS Java client supports.
+
+```java
+@Configuration
+public class NatsCustomizerConfiguration {
+
+  @Bean
+  public ConnectionOptionsBuilderCustomizer tlsCustomizer() {
+    return builder -> builder.sslContext(buildSslContext());
+  }
+}
+```
+
+Multiple customizer beans are applied in the order determined by `org.springframework.core.Ordered`. Customizers run
+after the built-in property-based configuration, so they take precedence over `nats.*` properties for the same option.
+
+### Connection hooks
+
+The native `io.nats.client.Connection` cannot be injected as a Spring bean. Natspring manages it internally via Spring's
+`SmartLifecycle` and controls when it is opened and closed. During Spring context recycling - for example, when
+integration tests reuse the same JVM across multiple context instances - the connection is closed when a context stops
+and reopened when the context starts again.
+
+Any logic that depends directly on the native connection - such as creating custom subscriptions, dispatchers, or
+key-value store handles - must be performed through a `ConnectionHook` bean. This ensures that such resources are
+properly set up after each connect and torn down before each close.
+
+```java
+@Component
+public class CustomSubscriptionHook implements ConnectionHook {
+
+  @Override
+  public void postConnect(Connection connection) {
+    connection.createDispatcher().subscribe("custom.subject", msg -> {
+      // handle message
+    });
+  }
+  
+  // you can also override preClose(Connection connection)
+}
+```
+
+Multiple `ConnectionHook` beans are invoked in the order determined by `org.springframework.core.Ordered`.
 
 ## Listener annotations
 

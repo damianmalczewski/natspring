@@ -19,20 +19,20 @@ package io.github.malczuuu.natspring.connection;
 import org.springframework.context.SmartLifecycle;
 
 /**
- * {@link SmartLifecycle} marker interface for JetStream lifecycle beans.
+ * {@link SmartLifecycle} marker interface for connection hook lifecycle beans.
  *
- * @since 0.1.0
+ * @since 0.2.0
  */
-public interface JetStreamLifecycle extends SmartLifecycle {
+public interface ConnectionHookLifecycle extends SmartLifecycle {
 
   /**
-   * Returns the phase for JetStream lifecycle beans, which starts after {@link
-   * ConnectionLifecycle}.
+   * Returns the phase for connection hook lifecycle beans, which starts after {@link
+   * JetStreamLifecycle}.
    *
    * @return this lifecycle phase
    */
   @Override
   default int getPhase() {
-    return ConnectionLifecycle.CONNECTION_LIFECYCLE_PHASE + 50;
+    return ConnectionLifecycle.CONNECTION_LIFECYCLE_PHASE + 100;
   }
 }

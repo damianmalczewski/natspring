@@ -66,7 +66,7 @@ Startup is driven by three `SmartLifecycle` beans started in phase order:
            @NatsListener / @JetStreamListener method
 ```
 
-`ManagedConnectionLifecycle` implements `Connection` directly — it is the `Connection` bean injected throughout the application. `ConnectionWatcher` implements `ConnectionListener` and `ErrorListener` to bridge raw NATS connection/error events to `NatsConnectionObserver`.
+`ManagedConnectionLifecycle` implements `Connection` directly - it is the `Connection` bean injected throughout the application. `ConnectionWatcher` implements `ConnectionListener` and `ErrorListener` to bridge raw NATS connection/error events to `NatsConnectionObserver`.
 
 Bean post-processors scan application beans at startup:
 

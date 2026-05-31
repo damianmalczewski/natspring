@@ -9,10 +9,12 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 ### Added
 
 - Add `natsify-bom` module for version management.
+- Add `ConnectionHook` to allow users to hook into the NATS connection lifecycle.
 
 ### Changed
 
 - Deprecate `@NatsHeader.name()` - let's rely only on `@NatsHeader.value()`.
+- Exclude internal components from injecting via `autowireCandidate = false`.
 
 ## [0.1.1] - 2026-05-30
 

@@ -18,19 +18,23 @@ package io.github.malczuuu.natspring.itest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.malczuuu.natspring.connection.ConnectionLifecycle;
+import io.github.malczuuu.natspring.health.NatsHealthIndicator;
 import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
+import io.nats.client.Connection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.test.annotation.DirtiesContext;
 
 @DirtiesContext
 class ContextLifecycleTests extends AbstractSpringBootTests {
 
-  @Autowired private ConnectionLifecycle connection;
+  @Autowired private NatsHealthIndicator healthIndicator;
 
   @Test
   void givenStartedContext_whenContextCloses_thenConnectionManagerStopsCleanly() {
-    assertThat(connection.isRunning()).isTrue();
+    assertThat(healthIndicator.health().getStatus()).isEqualTo(Status.UP);
+    assertThat(healthIndicator.health().getDetails().get("connectionStatus"))
+        .isEqualTo(Connection.Status.CONNECTED);
   }
 }

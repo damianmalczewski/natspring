@@ -25,6 +25,7 @@ import io.github.malczuuu.natspring.instrument.micrometer.MicrometerNatsListener
 import io.github.malczuuu.natspring.instrument.micrometer.MicrometerNatsStatisticsObserver;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.nats.client.Connection;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -75,8 +76,8 @@ public final class NatsMetricsAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(MicrometerNatsStatisticsObserver.class)
-    MicrometerNatsStatisticsObserver natsStatisticsObserver(Connection connection) {
-      return new MicrometerNatsStatisticsObserver(connection);
+    MicrometerNatsStatisticsObserver natsStatisticsObserver(BeanFactory beanFactory) {
+      return new MicrometerNatsStatisticsObserver(beanFactory.getBean(Connection.class));
     }
   }
 
