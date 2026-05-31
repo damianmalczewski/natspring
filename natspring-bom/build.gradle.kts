@@ -10,6 +10,11 @@ dependencies {
         api(project(":natspring-core"))
         api(project(":natspring-starter"))
         api(project(":natspring-starter-test"))
+        api(libs.jackson.databind)
+        api(libs.jnats)
+        api(libs.jspecify)
+        api(libs.micrometer.core)
+        api(libs.slf4j.api)
         api(libs.testcontainers.nats)
     }
 }
