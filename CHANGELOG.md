@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 
 - Add `natsify-bom` module for version management.
 
+### Changed
+
+- Deprecate `@NatsHeader.name()` - let's rely only on `@NatsHeader.value()`.
+
 ## [0.1.1] - 2026-05-30
 
 ### Fixed

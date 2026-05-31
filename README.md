@@ -11,8 +11,8 @@ NATS and JetStream.
 Requires Spring Boot 4.x.
 
 > [!IMPORTANT]
-> This project began as an educational exercise for learning how to create `@KafkaListener`-alike annotation-based
-> message listeners for NATS. It has no roadmap and its evolution will most likely be driven by personal interest and
+> This project began as an educational exercise for learning how to create `@KafkaListener`-alike, annotation-based
+> message listeners. It has no roadmap and its evolution will most likely be driven by personal interest and/or
 > contributions.
 
 ## Table of Contents
@@ -30,8 +30,8 @@ Requires Spring Boot 4.x.
     - [Parameter annotations](#parameter-annotations)
         - [`@NatsPayload`](#natspayload)
         - [`@NatsHeader`](#natsheader)
-        - [`@NatsSubject`](#natssubject)
         - [`@NatsHeaders`](#natsheaders)
+        - [`@NatsSubject`](#natssubject)
         - [`@NatsReplyTo`](#natsreplyto)
     - [JSON deserialization](#json-deserialization)
     - [No-arg methods](#no-arg-methods)
@@ -51,6 +51,7 @@ Requires Spring Boot 4.x.
 - [Testing](#testing)
     - [Testcontainers](#testcontainers)
 - [Building from source](#building-from-source)
+- [License](#license)
 
 ## Installation
 
@@ -85,31 +86,31 @@ have most transitive dependencies marked with `compileOnly`, so proper dependenc
 
 ## Configuration
 
-### `nats.enabled`
+#### `nats.enabled`
 
 Whether NATS auto-configuration is enabled. Default: `true`.
 
-### `nats.server`
+#### `nats.server`
 
 NATS server URL. Maps to `server(String)`. Default: `nats://localhost:4222`.
 
-### `nats.username`
+#### `nats.username`
 
 Username for NATS authentication. Combined with `password` into `userInfo(String, char[])`. Default: _(none)_.
 
-### `nats.password`
+#### `nats.password`
 
 Password for NATS authentication. Combined with `username` into `userInfo(String, char[])`. Default: _(none)_.
 
-### `nats.auto-stream-creation`
+#### `nats.auto-stream-creation`
 
 Whether declared `StreamConfiguration` beans are used to create streams on startup. Default: `false`.
 
-### `nats.pull-fetch-batch-size`
+#### `nats.pull-fetch-batch-size`
 
 Number of messages fetched per poll cycle for JetStream pull consumers. Default: `200`.
 
-### `nats.pull-fetch-timeout`
+#### `nats.pull-fetch-timeout`
 
 Maximum time to wait for messages in each fetch call for JetStream pull consumers. Default: `200ms`.
 
@@ -119,70 +120,70 @@ Maximum time to wait for messages in each fetch call for JetStream pull consumer
 All properties in this section are nullable. Setting a property to `null` skips the related `io.nats.client.Options`
 call and the NATS Java client's built-in default applies.
 
-### `nats.connection-name`
+#### `nats.connection-name`
 
 Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`. Default:
 `null`.
 
-### `nats.connection-timeout`
+#### `nats.connection-timeout`
 
 Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`. Default: `null` (so the
 value of native NATS client is not overwritten).
 
-### `nats.socket-write-timeout`
+#### `nats.socket-write-timeout`
 
 Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`. Default: `null` (so the
 value of native NATS client is not overwritten).
 
-### `nats.max-reconnects`
+#### `nats.max-reconnects`
 
 Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`. Default: `null` (so the
 value of native NATS client is not overwritten).
 
-### `nats.reconnect-wait`
+#### `nats.reconnect-wait`
 
 Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`. Default: `null` (`2s` per NATS Java client).
 
-### `nats.reconnect-jitter`
+#### `nats.reconnect-jitter`
 
 Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`. Default: `null`
 (so the value of native NATS client is not overwritten).
 
-### `nats.reconnect-jitter-tls`
+#### `nats.reconnect-jitter-tls`
 
 Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`. Default: `null` (so
 the value of native NATS client is not overwritten).
 
-### `nats.reconnect-buffer-size`
+#### `nats.reconnect-buffer-size`
 
 Size in bytes of the buffer used to hold messages while reconnecting. Maps to `reconnectBufferSize(long)`. Default:
 `null` (so the value of native NATS client is not overwritten).
 
-### `nats.ping-interval`
+#### `nats.ping-interval`
 
 Interval between client-side pings to the server. Maps to `pingInterval(Duration)`. Default: `null` (so the value of
 native NATS client is not overwritten).
 
-### `nats.max-pings-out`
+#### `nats.max-pings-out`
 
 Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`.
 Default: `null` (so the value of native NATS client is not overwritten).
 
-### `nats.request-cleanup-interval`
+#### `nats.request-cleanup-interval`
 
 Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`. Default:
 `null` (so the value of native NATS client is not overwritten).
 
-### `nats.inbox-prefix`
+#### `nats.inbox-prefix`
 
 Prefix for auto-generated inbox subjects (must end with `.`). Maps to `inboxPrefix(String)`. Default: `null` (so the
 value of native NATS client is not overwritten).
 
-### `nats.no-echo`
+#### `nats.no-echo`
 
 Suppress echoing published messages back to the sending connection. Maps to `noEcho()`. Default: `false`.
 
-### `nats.no-randomize`
+#### `nats.no-randomize`
 
 Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`. Default: `false`.
 
@@ -198,7 +199,7 @@ Subscribes to a core NATS subject. Supports queue groups for load balancing.
 @NatsListener(subject = "orders.placed")
 public void onOrder(Order order) {}
 
-@NatsListener(subject = "orders.placed", group = "order-processors")
+@NatsListener(subject = "orders.placed", queue = "order-processors")
 public void onOrderQueued(Order order) {}
 ```
 
@@ -225,17 +226,17 @@ public void onOrder(Order order) {}
 public void onOrderQueued(Order order) {}
 ```
 
-| Attribute           | Description                                                                                |
-|---------------------|--------------------------------------------------------------------------------------------|
-| `subject`           | Subject pattern to filter within the stream. Supports `${property}` placeholders.          |
-| `stream`            | JetStream stream name. Optional; NATS will infer from the subject if omitted.              |
-| `durable`           | Durable consumer name. Omit for an ephemeral consumer.                                     |
-| `queue`             | Optional queue group name for competing-consumer load balancing.                           |
-| `deadLetterSubject` | Optional subject to publish failed messages to. Empty string (default) disables DLQ.       |
-| `maxDeliveries`     | Maximum delivery attempts before dead-lettering. Required when `deadLetterSubject` is set. |
-| `ackMode`           | `AUTO` (default) acks on success and nacks on failure; `MANUAL` leaves ack to the handler. |
-| `deliverPolicy`     | Which messages to receive on first connect: `NEW` (default), `ALL`, or `LAST`.             |
-| `consumerType`      | `PULL` (default) or `PUSH`.                                                                |
+| Attribute              | Description                                                                                |
+|------------------------|--------------------------------------------------------------------------------------------|
+| `subject`              | Subject pattern to filter within the stream. Supports `${property}` placeholders.          |
+| `stream`               | JetStream stream name. Optional; NATS will infer from the subject if omitted.              |
+| `durable`              | Durable consumer name. Omit for an ephemeral consumer.                                     |
+| `queue`                | Optional queue group name for competing-consumer load balancing.                           |
+| `deadLetterSubject`    | Optional subject to publish failed messages to. Empty string (default) disables DLQ.       |
+| `deadLetterDeliveries` | Maximum delivery attempts before dead-lettering. Required when `deadLetterSubject` is set. |
+| `ackMode`              | `AUTO` (default) acks on success and nacks on failure; `MANUAL` leaves ack to the handler. |
+| `deliverPolicy`        | Which messages to receive on first connect: `NEW` (default), `ALL`, or `LAST`.             |
+| `consumerType`         | `PULL` (default) or `PUSH`.                                                                |
 
 ## Dead-lettering
 
@@ -281,17 +282,15 @@ becomes reachable rather than being lost.
 
 ### Dead-letter headers
 
-Every dead-letter message carries the following headers in addition to all headers from the original message:
+Every dead-letter message carries the following headers in addition to all headers from the original message.
 
-| Header                    | Description                                                                      |
-|---------------------------|----------------------------------------------------------------------------------|
-| `X-Dead-Letter-Subject`   | Original subject the message was received on                                     |
-| `X-Dead-Letter-Reason`    | Exception simple name and message, truncated to 200 characters                   |
-| `X-Dead-Letter-Exception` | Fully-qualified exception class name                                             |
-| `X-Dead-Letter-Timestamp` | ISO-8601 UTC timestamp of the dead-letter publish                                |
-| `X-Dead-Letter-Stream`    | JetStream stream name, not available from `@NatsListener`                        |
-| `X-Dead-Letter-Durable`   | Durable consumer name, not available from `@NatsListener`                        |
-| `X-Dead-Letter-Delivery`  | Delivery count at the time of dead-lettering, not available from `@NatsListener` |
+- `X-Dead-Letter-Subject` - original subject the message was received on                                    
+- `X-Dead-Letter-Reason` - exception simple name and message, truncated to 200 characters                  
+- `X-Dead-Letter-Exception` - fully-qualified exception class name                                            
+- `X-Dead-Letter-Timestamp` - ISO-8601 UTC timestamp of the dead-letter publish                               
+- `X-Dead-Letter-Stream` - JetStream stream name, not available from `@NatsListener`                       
+- `X-Dead-Letter-Durable` - durable consumer name, not available from `@NatsListener`                       
+- `X-Dead-Letter-Delivery` - delivery count at the time of dead-lettering, not available from `@NatsListener`
 
 ## Method parameter types
 
@@ -344,7 +343,14 @@ public void handle(@NatsHeader("X-Tags") List<String> tags) { /* ... */ }
 public void handle(@NatsHeader("X-Tags") String[] tags) { /* ... */ }
 ```
 
-`value` and `name` are aliases; either can be used to specify the header name.
+### `@NatsHeaders`
+
+Injects all message headers. Equivalent to declaring `io.nats.client.impl.Headers` as the parameter type, but explicit.
+
+```java
+@NatsListener(subject = "events")
+public void handle(Event event, @NatsHeaders Headers headers) { /* ... */ }
+```
 
 ### `@NatsSubject`
 
@@ -357,15 +363,6 @@ public void handle(Event event, @NatsSubject String subject) {}
 
 @JetStreamListener(subject = "orders.>", stream = "ORDERS", durable = "router")
 public void handle(Order order, @NatsSubject String subject) { /* ... */ }
-```
-
-### `@NatsHeaders`
-
-Injects all message headers. Equivalent to declaring `io.nats.client.impl.Headers` as the parameter type, but explicit.
-
-```java
-@NatsListener(subject = "events")
-public void handle(Event event, @NatsHeaders Headers headers) { /* ... */ }
 ```
 
 ### `@NatsReplyTo`
@@ -706,21 +703,22 @@ Tagged with `subject` and `stream`.
 | `nats.connection.exceptions`                 | Counter | `exception` | Client-side exceptions during processing         |
 | `nats.connection.slow.consumer.detected`     | Counter | -           | Slow consumer detections                         |
 | `nats.connection.message.discarded`          | Counter | -           | Messages discarded due to a full consumer queue  |
-| `nats.connection.pings`                      | Gauge   | -           | Total pings sent                                 |
-| `nats.connection.reconnects`                 | Gauge   | -           | Total reconnect attempts                         |
-| `nats.connection.in.msgs`                    | Gauge   | -           | Total inbound messages                           |
-| `nats.connection.out.msgs`                   | Gauge   | -           | Total outbound messages                          |
-| `nats.connection.in.bytes`                   | Gauge   | -           | Total inbound bytes                              |
-| `nats.connection.out.bytes`                  | Gauge   | -           | Total outbound bytes                             |
-| `nats.connection.dropped.count`              | Gauge   | -           | Messages dropped across all slow consumers       |
-| `nats.connection.flush.counter`              | Gauge   | -           | Outgoing message flushes                         |
-| `nats.connection.outstanding.requests`       | Gauge   | -           | Outstanding request count                        |
-| `nats.connection.oks`                        | Gauge   | -           | Op `+OK` messages received                       |
-| `nats.connection.errs`                       | Gauge   | -           | Op `-ERR` messages received                      |
-| `nats.connection.requests.sent`              | Gauge   | -           | Requests sent                                    |
-| `nats.connection.replies.received`           | Gauge   | -           | Replies received                                 |
-| `nats.connection.duplicate.replies.received` | Gauge   | -           | Duplicate replies received (advanced stats only) |
-| `nats.connection.orphan.replies.received`    | Gauge   | -           | Orphan replies received (advanced stats only)    |
+| `nats.statistics.pings`                      | Gauge   | -           | Total pings sent                                 |
+| `nats.statistics.reconnects`                 | Gauge   | -           | Total reconnect attempts                         |
+| `nats.statistics.in.msgs`                    | Gauge   | -           | Total inbound messages                           |
+| `nats.statistics.out.msgs`                   | Gauge   | -           | Total outbound messages                          |
+| `nats.statistics.in.bytes`                   | Gauge   | -           | Total inbound bytes                              |
+| `nats.statistics.out.bytes`                  | Gauge   | -           | Total outbound bytes                             |
+| `nats.statistics.dropped.count`              | Gauge   | -           | Messages dropped across all slow consumers       |
+| `nats.statistics.flush.counter`              | Gauge   | -           | Outgoing message flushes                         |
+| `nats.statistics.outstanding.requests`       | Gauge   | -           | Outstanding request count                        |
+| `nats.statistics.oks`                        | Gauge   | -           | Op `+OK` messages received                       |
+| `nats.statistics.errs`                       | Gauge   | -           | Op `-ERR` messages received                      |
+| `nats.statistics.exceptions`                 | Gauge   | -           |                                                  |
+| `nats.statistics.requests.sent`              | Gauge   | -           | Requests sent                                    |
+| `nats.statistics.replies.received`           | Gauge   | -           | Replies received                                 |
+| `nats.statistics.duplicate.replies.received` | Gauge   | -           | Duplicate replies received (advanced stats only) |
+| `nats.statistics.orphan.replies.received`    | Gauge   | -           | Orphan replies received (advanced stats only)    |
 
 </details>
 
@@ -762,7 +760,7 @@ library integrates it with Spring Boot's `@ServiceConnection` for zero-config wi
 class MyIntegrationTests {
 
   @Container @ServiceConnection
-  public static final NatsContainer nats = new NatsContainer("nats:2.14.1");
+  public static final NatsContainer nats = new NatsContainer("nats:2.14");
 }
 ```
 
@@ -833,5 +831,12 @@ repositories {
 ```
 
 </details>
+
+## License
+
+This project is licensed under the Apache License, Version 2.0.
+
+This project is not affiliated with, sponsored by, or endorsed by Spring Boot or NATS. All product names, logos, and
+brands are property of their respective owners.
 
 [maven-central]: https://central.sonatype.com/artifact/io.github.malczuuu.natspring/natspring-starter
