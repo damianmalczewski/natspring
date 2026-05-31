@@ -23,9 +23,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Binds a method parameter to a NATS message header. Either {@code value} or {@code name} must be
- * set. When the parameter type is {@code List<String>} or {@code String[]}, all values for the
- * header are injected; otherwise the first value is injected as a {@code String}.
+ * Binds a method parameter to a NATS message header. {@code value} must be set. When the parameter
+ * type is {@code List<String>} or {@code String[]}, all values for the header are injected;
+ * otherwise the first value is injected as a {@code String}.
  */
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
@@ -43,6 +43,8 @@ public @interface NatsHeader {
    * Header name to look up.
    *
    * @return the header name
+   * @deprecated use {@link #value()} instead
    */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   String name() default "";
 }

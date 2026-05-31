@@ -19,19 +19,23 @@ package io.github.malczuuu.natspring.annotation;
 /**
  * Acknowledgment mode for JetStream message handlers.
  *
+ * <p>Regardless of the chosen mode, the framework always terminates ({@code term()}) a message when
+ * argument resolution fails before the handler is invoked.
+ *
  * @since 0.1.0
  */
 public enum AckMode {
 
   /**
-   * Framework acknowledges the message on successful handler return and negatively acknowledges
-   * (naks) on handler exception.
+   * Framework acknowledges the message on successful handler return. On handler exception, it naks
+   * the message to allow redelivery; once the dead-letter delivery threshold is reached the message
+   * is terminated ({@code term()}) and forwarded to the dead-letter subject (if configured).
    */
   AUTO,
 
   /**
-   * Handler is responsible for calling {@code msg.ack()} or {@code msg.nak()} itself; the framework
-   * does nothing after the method returns.
+   * Handler is responsible for calling {@code msg.ack()}, {@code msg.nak()}, or {@code msg.term()}
+   * itself; the framework does nothing after the method returns.
    */
   MANUAL
 }
