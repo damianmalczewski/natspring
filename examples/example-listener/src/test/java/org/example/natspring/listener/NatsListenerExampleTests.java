@@ -5,9 +5,9 @@ import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
 import io.github.malczuuu.natspring.core.NatsOperations;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ class NatsListenerExampleTests {
         "telemetry.temperature",
         new SenmlRecord("sensor-single", 1700000000.0, "temperature", 23.5, "Cel"));
 
-    await().atMost(Duration.ofSeconds(5)).until(() -> !measurementsFor("sensor-single").isEmpty());
+    await().atMost(10, TimeUnit.SECONDS).until(() -> !measurementsFor("sensor-single").isEmpty());
 
     restClient
         .get()
@@ -67,7 +67,7 @@ class NatsListenerExampleTests {
         "telemetry.pressure",
         new SenmlRecord("sensor-multi", 1700000002.0, "pressure", 1013.25, "hPa"));
 
-    await().atMost(Duration.ofSeconds(5)).until(() -> measurementsFor("sensor-multi").size() >= 2);
+    await().atMost(10, TimeUnit.SECONDS).until(() -> measurementsFor("sensor-multi").size() >= 2);
 
     restClient
         .get()

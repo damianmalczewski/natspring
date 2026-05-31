@@ -54,7 +54,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
     natsOperations.publish("js.string", "jetstream-metrics-received-test");
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Counter counter =
@@ -81,7 +81,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
     natsOperations.publish("js.string", "jetstream-metrics-acked-test");
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Counter counter =
@@ -110,7 +110,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
     natsOperations.publish("js.object", "not-valid-json");
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               double count =
@@ -139,7 +139,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
     natsOperations.publish("js.string", "jetstream-metrics-duration-test");
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Timer timer =

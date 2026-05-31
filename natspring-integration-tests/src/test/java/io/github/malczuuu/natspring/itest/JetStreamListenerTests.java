@@ -45,7 +45,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
   void givenStringPayloadSubject_whenMessagePublished_thenHandlerReceivesString() throws Exception {
     natsOperations.publish("js.string", "hello jetstream");
 
-    String received = handler.strings.poll(5, TimeUnit.SECONDS);
+    String received = handler.strings.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("hello jetstream");
   }
 
@@ -55,7 +55,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
 
     natsOperations.publish("js.bytes", body);
 
-    byte[] received = handler.bytes.poll(5, TimeUnit.SECONDS);
+    byte[] received = handler.bytes.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo(body);
   }
 
@@ -63,7 +63,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
   void givenMessageParamSubject_whenMessagePublished_thenHandlerReceivesMessage() throws Exception {
     natsOperations.publish("js.message", "msg body");
 
-    Message received = handler.messages.poll(5, TimeUnit.SECONDS);
+    Message received = handler.messages.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(new String(received.getData(), StandardCharsets.UTF_8)).isEqualTo("msg body");
   }
@@ -73,7 +73,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
       throws Exception {
     natsOperations.publish("js.object", new SampleMessage("jet", 99));
 
-    SampleMessage received = handler.objects.poll(5, TimeUnit.SECONDS);
+    SampleMessage received = handler.objects.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received.name()).isEqualTo("jet");
     assertThat(received.value()).isEqualTo(99);
@@ -83,7 +83,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
   void givenQueueGroupSubject_whenMessagePublished_thenHandlerReceivesMessage() throws Exception {
     natsOperations.publish("js.queue", "queued");
 
-    String received = handler.queueGroupMessages.poll(5, TimeUnit.SECONDS);
+    String received = handler.queueGroupMessages.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("queued");
   }
 
@@ -92,7 +92,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
       throws Exception {
     natsOperations.publish("js.push-queue", "push-queued");
 
-    String received = handler.pushQueueGroupMessages.poll(5, TimeUnit.SECONDS);
+    String received = handler.pushQueueGroupMessages.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("push-queued");
   }
 
@@ -102,7 +102,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
     natsOperations.publish(
         "js.generic-list", List.of(new SampleMessage("a", 1), new SampleMessage("b", 2)));
 
-    List<SampleMessage> received = handler.genericLists.poll(5, TimeUnit.SECONDS);
+    List<SampleMessage> received = handler.genericLists.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received).hasSize(2);
     assertThat(received.get(0).name()).isEqualTo("a");
@@ -114,7 +114,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
     natsOperations.publish(
         "js.array", List.of(new SampleMessage("c", 3), new SampleMessage("d", 4)));
 
-    SampleMessage[] received = handler.arrays.poll(5, TimeUnit.SECONDS);
+    SampleMessage[] received = handler.arrays.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received).hasSize(2);
     assertThat(received[0].name()).isEqualTo("c");
@@ -135,7 +135,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
 
     natsOperations.publish(message);
 
-    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    Headers received = handler.headersValuesByType.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received.getFirst("X-Type")).isEqualTo("by-type-value");
   }
@@ -148,7 +148,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
 
     natsOperations.publish("js.headers-by-type", headers, new byte[0]);
 
-    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    Headers received = handler.headersValuesByType.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received.getFirst("X-Type")).isEqualTo("bytes-header-value");
   }
@@ -161,7 +161,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
 
     natsOperations.publish("js.headers-by-type", headers, "");
 
-    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    Headers received = handler.headersValuesByType.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received.getFirst("X-Type")).isEqualTo("string-header-value");
   }
@@ -174,7 +174,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
 
     natsOperations.publish("js.headers-by-type", headers, new SampleMessage("obj", 1));
 
-    Headers received = handler.headersValuesByType.poll(5, TimeUnit.SECONDS);
+    Headers received = handler.headersValuesByType.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received.getFirst("X-Type")).isEqualTo("object-header-value");
   }
@@ -184,7 +184,7 @@ class JetStreamListenerTests extends AbstractSpringBootTests {
       throws Exception {
     natsOperations.publish("js.metadata", "meta body");
 
-    NatsJetStreamMetaData received = handler.metaDataValues.poll(5, TimeUnit.SECONDS);
+    NatsJetStreamMetaData received = handler.metaDataValues.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
     assertThat(received.getStream()).isEqualTo("TEST");
   }

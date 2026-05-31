@@ -113,7 +113,7 @@ final class JetStreamPullHandler implements JetStreamHandler {
       executor.shutdownNow();
       try {
         int i = 0;
-        while (!executor.awaitTermination(5, TimeUnit.SECONDS) && i++ < 3) {
+        while (!executor.awaitTermination(10, TimeUnit.SECONDS) && i++ < 3) {
           log.warn(
               "Pull JetStream listener thread did not terminate after 5 seconds, waiting again (count={} attempts so far)",
               i);

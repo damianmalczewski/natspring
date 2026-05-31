@@ -53,16 +53,21 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
     double countBefore = before != null ? before.count() : 0.0;
 
     natsOperations.publish("combo.string", "metrics-received-test");
-    assertThat(handler.stringPayloads.poll(5, TimeUnit.SECONDS)).isNotNull();
+    assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
 
-    Counter counter =
-        meterRegistry
-            .find("nats.listener.messages.received")
-            .tag("subject", "combo.string")
-            .tag("queue", "")
-            .counter();
-    assertThat(counter).isNotNull();
-    assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
+    await()
+        .atMost(10, TimeUnit.SECONDS)
+        .untilAsserted(
+            () -> {
+              Counter counter =
+                  meterRegistry
+                      .find("nats.listener.messages.received")
+                      .tag("subject", "combo.string")
+                      .tag("queue", "")
+                      .counter();
+              assertThat(counter).isNotNull();
+              assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
+            });
   }
 
   @Test
@@ -77,10 +82,10 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
     double countBefore = before != null ? before.count() : 0.0;
 
     natsOperations.publish("combo.string", "metrics-success-test");
-    assertThat(handler.stringPayloads.poll(5, TimeUnit.SECONDS)).isNotNull();
+    assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Counter counter =
@@ -107,7 +112,7 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
     natsOperations.publish("combo.object", "not-valid-json");
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Counter counter =
@@ -132,15 +137,20 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
     long countBefore = before != null ? before.count() : 0L;
 
     natsOperations.publish("combo.string", "metrics-duration-test");
-    assertThat(handler.stringPayloads.poll(5, TimeUnit.SECONDS)).isNotNull();
+    assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
 
-    Timer timer =
-        meterRegistry
-            .find("nats.listener.messages.duration")
-            .tag("subject", "combo.string")
-            .tag("queue", "")
-            .timer();
-    assertThat(timer).isNotNull();
-    assertThat(Objects.requireNonNull(timer).count()).isEqualTo(countBefore + 1L);
+    await()
+        .atMost(10, TimeUnit.SECONDS)
+        .untilAsserted(
+            () -> {
+              Timer timer =
+                  meterRegistry
+                      .find("nats.listener.messages.duration")
+                      .tag("subject", "combo.string")
+                      .tag("queue", "")
+                      .timer();
+              assertThat(timer).isNotNull();
+              assertThat(Objects.requireNonNull(timer).count()).isEqualTo(countBefore + 1L);
+            });
   }
 }

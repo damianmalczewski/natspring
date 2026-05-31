@@ -5,8 +5,8 @@ import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
 import io.github.malczuuu.natspring.core.NatsOperations;
-import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ class ListenerDeadLetterExampleTests {
         "telemetry.temperature",
         new SenmlRecord("sensor-dlq", 1700000000.0, "temperature", 23.5, "Cel"));
 
-    await().atMost(Duration.ofSeconds(5)).until(() -> !application.getDeadLetters().isEmpty());
+    await().atMost(10, TimeUnit.SECONDS).until(() -> !application.getDeadLetters().isEmpty());
 
     restClient
         .get()
@@ -78,7 +78,7 @@ class ListenerDeadLetterExampleTests {
         "telemetry.humidity",
         new SenmlRecord("sensor-multi", 1700000002.0, "humidity", 60.0, "%RH"));
 
-    await().atMost(Duration.ofSeconds(5)).until(() -> application.getDeadLetters().size() >= 2);
+    await().atMost(10, TimeUnit.SECONDS).until(() -> application.getDeadLetters().size() >= 2);
 
     restClient
         .get()

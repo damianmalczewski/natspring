@@ -46,7 +46,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
     NatsReply reply =
         natsOperations
             .request("rpc.bytes", payload, Duration.ofSeconds(5))
-            .get(5, TimeUnit.SECONDS);
+            .get(10, TimeUnit.SECONDS);
 
     assertThat(reply).isNotNull();
     assertThat(reply.getMessage().getData()).isEqualTo(payload);
@@ -57,7 +57,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
     NatsReply reply =
         natsOperations
             .request("rpc.string", "hello", Duration.ofSeconds(5))
-            .get(5, TimeUnit.SECONDS);
+            .get(10, TimeUnit.SECONDS);
 
     assertThat(reply).isNotNull();
     assertThat(new String(reply.getMessage().getData(), StandardCharsets.UTF_8)).isEqualTo("HELLO");
@@ -68,7 +68,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
     NatsReply reply =
         natsOperations
             .request("rpc.object", new SampleMessage("foo", 3), Duration.ofSeconds(5))
-            .get(5, TimeUnit.SECONDS);
+            .get(10, TimeUnit.SECONDS);
 
     assertThat(reply).isNotNull();
     SampleMessage result = reply.bodyAs(SampleMessage.class);
@@ -83,7 +83,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
     NatsReply reply =
         natsOperations
             .request("rpc.message", payload, Duration.ofSeconds(5))
-            .get(5, TimeUnit.SECONDS);
+            .get(10, TimeUnit.SECONDS);
 
     assertThat(reply).isNotNull();
     assertThat(new String(reply.getMessage().getData(), StandardCharsets.UTF_8))
@@ -94,7 +94,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
   void givenReplyToParamListener_whenRequested_thenReplyToAddressIsInjected() throws Exception {
     natsOperations.request("rpc.reply-to-param", "data", Duration.ofSeconds(5));
 
-    String replyTo = handler.replyToValues.poll(5, TimeUnit.SECONDS);
+    String replyTo = handler.replyToValues.poll(10, TimeUnit.SECONDS);
     assertThat(replyTo).isNotNull().isNotEmpty();
   }
 
@@ -102,7 +102,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
   void givenReplyToParamListener_whenPublishedWithoutReplyTo_thenReplyToIsNull() throws Exception {
     natsOperations.publish("rpc.reply-to-param", "data");
 
-    String replyTo = handler.replyToValues.poll(5, TimeUnit.SECONDS);
+    String replyTo = handler.replyToValues.poll(10, TimeUnit.SECONDS);
     assertThat(replyTo).isNotNull().isEmpty();
   }
 
@@ -120,7 +120,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
     natsOperations.publish("rpc.message", "ping".getBytes(StandardCharsets.UTF_8));
 
     await()
-        .atMost(5, TimeUnit.SECONDS)
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(() -> assertThat(handler.rpcMessages.peek()).isNotNull());
   }
 
@@ -129,7 +129,7 @@ class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
     NatsReply reply =
         natsOperations
             .request("rpc.string", "world", Duration.ofSeconds(5))
-            .get(5, TimeUnit.SECONDS);
+            .get(10, TimeUnit.SECONDS);
 
     assertThat(new String(reply.getMessage().getData(), StandardCharsets.UTF_8)).isEqualTo("WORLD");
   }

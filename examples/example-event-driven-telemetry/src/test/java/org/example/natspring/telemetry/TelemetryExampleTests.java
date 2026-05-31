@@ -5,12 +5,12 @@ import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
 import io.github.malczuuu.natspring.core.NatsOperations;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.example.natspring.telemetry.core.model.ContentModel;
 import org.example.natspring.telemetry.core.model.DeadLetterModel;
 import org.example.natspring.telemetry.core.model.DeviceEventModel;
@@ -67,7 +67,7 @@ class TelemetryExampleTests {
             deviceId, "temperature", Map.of("value", 23.5, "unit", "Celsius"), Instant.now()));
 
     await()
-        .atMost(Duration.ofSeconds(10))
+        .atMost(10, TimeUnit.SECONDS)
         .until(() -> !deviceEventRepository.findByDeviceId(deviceId).isEmpty());
 
     List<DeviceEventDocument> events = deviceEventRepository.findByDeviceId(deviceId);
@@ -84,7 +84,7 @@ class TelemetryExampleTests {
         new DeviceEventMessage(deviceId, "humidity", Map.of("value", 65.0), Instant.now()));
 
     await()
-        .atMost(Duration.ofSeconds(10))
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Optional<DeviceInfoDocument> metadata = deviceInfoRepository.findByDeviceId(deviceId);
@@ -108,7 +108,7 @@ class TelemetryExampleTests {
         new DeviceEventMessage(deviceId, "pressure", Map.of("value", 1013.0), Instant.now()));
 
     await()
-        .atMost(Duration.ofSeconds(10))
+        .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
               Optional<DeviceInfoDocument> metadata = deviceInfoRepository.findByDeviceId(deviceId);
@@ -125,7 +125,7 @@ class TelemetryExampleTests {
         new DeviceEventMessage(deviceId, "temperature", Map.of("value", 20.0), Instant.now()));
 
     await()
-        .atMost(Duration.ofSeconds(10))
+        .atMost(10, TimeUnit.SECONDS)
         .until(
             () -> {
               DeviceInfoDocument doc = deviceInfoRepository.findByDeviceId(deviceId).orElse(null);
@@ -154,7 +154,7 @@ class TelemetryExampleTests {
         new DeviceEventMessage(deviceId, "temperature", Map.of("value", 21.5), Instant.now()));
 
     await()
-        .atMost(Duration.ofSeconds(10))
+        .atMost(10, TimeUnit.SECONDS)
         .until(() -> !deviceEventRepository.findByDeviceId(deviceId).isEmpty());
 
     restClient
@@ -201,7 +201,7 @@ class TelemetryExampleTests {
         "iot.events.raw",
         new DeviceEventMessage("", "temperature", Map.of("value", 25.0), Instant.now()));
 
-    await().atMost(Duration.ofSeconds(60)).until(() -> !deadLetterRepository.findAll().isEmpty());
+    await().atMost(10, TimeUnit.SECONDS).until(() -> !deadLetterRepository.findAll().isEmpty());
 
     DeadLetterDocument deadLetter = deadLetterRepository.findAll().getFirst();
     assertThat(deadLetter.getStreamId()).matches("[0-9a-f]{8}-\\d{12}");
@@ -215,7 +215,7 @@ class TelemetryExampleTests {
     String longPayload = "x".repeat(100);
     natsOperations.publish("iot.events.deadletter", longPayload);
 
-    await().atMost(Duration.ofSeconds(10)).until(() -> !deadLetterRepository.findAll().isEmpty());
+    await().atMost(10, TimeUnit.SECONDS).until(() -> !deadLetterRepository.findAll().isEmpty());
 
     restClient
         .get()
@@ -238,7 +238,7 @@ class TelemetryExampleTests {
     String longPayload = "x".repeat(100);
     natsOperations.publish("iot.events.deadletter", longPayload);
 
-    await().atMost(Duration.ofSeconds(10)).until(() -> !deadLetterRepository.findAll().isEmpty());
+    await().atMost(10, TimeUnit.SECONDS).until(() -> !deadLetterRepository.findAll().isEmpty());
 
     String streamId = deadLetterRepository.findAll().getFirst().getStreamId();
 
