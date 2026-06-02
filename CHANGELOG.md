@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-02
+
 ### Added
 
 - Add `natsify-bom` module for version management.
