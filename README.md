@@ -82,39 +82,15 @@ dependencies {
 }
 ```
 
-Starter modules are opinionated conveniences that pull in the necessary dependencies and auto-configurations. If you
-want more control, you can depend on `natspring-core` and `natspring-autoconfigure` separately. Note that these modules
-have most transitive dependencies marked with `compileOnly`, so proper dependency management will be required.
-
 ## Configuration
 
-#### `nats.enabled`
-
-Whether NATS auto-configuration is enabled. Default: `true`.
-
-#### `nats.server`
-
-NATS server URL. Maps to `server(String)`. Default: `nats://localhost:4222`.
-
-#### `nats.username`
-
-Username for NATS authentication. Combined with `password` into `userInfo(String, char[])`. Default: _(none)_.
-
-#### `nats.password`
-
-Password for NATS authentication. Combined with `username` into `userInfo(String, char[])`. Default: _(none)_.
-
-#### `nats.auto-stream-creation`
-
-Whether declared `StreamConfiguration` beans are used to create streams on startup. Default: `false`.
-
-#### `nats.pull-fetch-batch-size`
-
-Number of messages fetched per poll cycle for JetStream pull consumers. Default: `200`.
-
-#### `nats.pull-fetch-timeout`
-
-Maximum time to wait for messages in each fetch call for JetStream pull consumers. Default: `200ms`.
+- `nats.enabled` - Whether NATS auto-configuration is enabled. Default: `true`.
+- `nats.server` - NATS server URL. Maps to `server(String)`. Default: `nats://localhost:4222`.
+- `nats.username` - Username for NATS authentication. Combined with `password` into `userInfo(String, char[])`. Default: _(none)_.
+- `nats.password` - Password for NATS authentication. Combined with `username` into `userInfo(String, char[])`. Default: _(none)_.
+- `nats.auto-stream-creation` - Whether declared `StreamConfiguration` beans are used to create streams on startup. Default: `false`.
+- `nats.pull-fetch-batch-size` - Number of messages fetched per poll cycle for JetStream pull consumers. Default: `200`.
+- `nats.pull-fetch-timeout` - Maximum time to wait for messages in each fetch call for JetStream pull consumers. Default: `200ms`.
 
 <details>
 <summary><b>Additional properties (see more...)</b></summary>
@@ -122,72 +98,20 @@ Maximum time to wait for messages in each fetch call for JetStream pull consumer
 All properties in this section are nullable. Setting a property to `null` skips the related `io.nats.client.Options`
 call and the NATS Java client's built-in default applies.
 
-#### `nats.connection-name`
-
-Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`. Default:
-`null`.
-
-#### `nats.connection-timeout`
-
-Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`. Default: `null` (so the
-value of native NATS client is not overwritten).
-
-#### `nats.socket-write-timeout`
-
-Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`. Default: `null` (so the
-value of native NATS client is not overwritten).
-
-#### `nats.max-reconnects`
-
-Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`. Default: `null` (so the
-value of native NATS client is not overwritten).
-
-#### `nats.reconnect-wait`
-
-Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`. Default: `null` (`2s` per NATS Java client).
-
-#### `nats.reconnect-jitter`
-
-Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`. Default: `null`
-(so the value of native NATS client is not overwritten).
-
-#### `nats.reconnect-jitter-tls`
-
-Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`. Default: `null` (so
-the value of native NATS client is not overwritten).
-
-#### `nats.reconnect-buffer-size`
-
-Size in bytes of the buffer used to hold messages while reconnecting. Maps to `reconnectBufferSize(long)`. Default:
-`null` (so the value of native NATS client is not overwritten).
-
-#### `nats.ping-interval`
-
-Interval between client-side pings to the server. Maps to `pingInterval(Duration)`. Default: `null` (so the value of
-native NATS client is not overwritten).
-
-#### `nats.max-pings-out`
-
-Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`.
-Default: `null` (so the value of native NATS client is not overwritten).
-
-#### `nats.request-cleanup-interval`
-
-Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`. Default:
-`null` (so the value of native NATS client is not overwritten).
-
-#### `nats.inbox-prefix`
-
-Prefix for auto-generated inbox subjects (must end with `.`). Maps to `inboxPrefix(String)`. Default: `null` (so the
-value of native NATS client is not overwritten).
-
-#### `nats.no-echo`
-
-Suppress echoing published messages back to the sending connection. Maps to `noEcho()`. Default: `false`.
-
-#### `nats.no-randomize`
-
-Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`. Default: `false`.
+- `nats.connection-name` - Name for the NATS connection; falls back to `spring.application.name`. Maps to `connectionName(String)`. Default: `null`.
+- `nats.connection-timeout` - Maximum time to wait when establishing a connection. Maps to `connectionTimeout(Duration)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.socket-write-timeout` - Maximum time to wait for a socket write to complete. Maps to `socketWriteTimeout(Duration)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.max-reconnects` - Maximum reconnect attempts before giving up; `-1` means unlimited. Maps to `maxReconnects(int)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.reconnect-wait` - Time to wait between reconnect attempts. Maps to `reconnectWait(Duration)`. Default: `null` (`2s` per NATS Java client).
+- `nats.reconnect-jitter` - Random jitter added to `reconnect-wait` for non-TLS connections. Maps to `reconnectJitter(Duration)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.reconnect-jitter-tls` - Random jitter added to `reconnect-wait` for TLS connections. Maps to `reconnectJitterTls(Duration)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.reconnect-buffer-size` - Size in bytes of the buffer used to hold messages while reconnecting. Maps to `reconnectBufferSize(long)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.ping-interval` - Interval between client-side pings to the server. Maps to `pingInterval(Duration)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.max-pings-out` - Maximum outstanding pings without a response before the connection is considered stale. Maps to `maxPingsOut(int)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.request-cleanup-interval` - Interval at which the client scans for timed-out pending requests. Maps to `requestCleanupInterval(Duration)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.inbox-prefix` - Prefix for auto-generated inbox subjects (must end with `.`). Maps to `inboxPrefix(String)`. Default: `null` (so the value of native NATS client is not overwritten).
+- `nats.no-echo` - Suppress echoing published messages back to the sending connection. Maps to `noEcho()`. Default: `false`.
+- `nats.no-randomize` - Disable randomization of the server list on connect and reconnect. Maps to `noRandomize()`. Default: `false`.
 
 </details>
 
@@ -213,14 +137,18 @@ after the built-in property-based configuration, so they take precedence over `n
 
 ### Connection hooks
 
-The native `io.nats.client.Connection` cannot be injected as a Spring bean. Natspring manages it internally via Spring's
-`SmartLifecycle` and controls when it is opened and closed. During Spring context recycling - for example, when
-integration tests reuse the same JVM across multiple context instances - the connection is closed when a context stops
-and reopened when the context starts again.
+> ![IMPORTANT]
+> This feature is experimental and most likely will change after more use cases are discovered.
 
-Any logic that depends directly on the native connection - such as creating custom subscriptions, dispatchers, or
-key-value store handles - must be performed through a `ConnectionHook` bean. This ensures that such resources are
-properly set up after each connect and torn down before each close.
+The native `io.nats.client.Connection` cannot be injected as a Spring bean. Current library manages it internally via
+Spring's `SmartLifecycle` and controls when it is opened and closed. For example, when `@SpringBootTest`-annotated tests
+switch context due to different Spring configurations, the subscriptions are stopped, the connection is closed, and the
+fresh one for new context is created and started. When we go back to the previous context, the connection is recreated
+again and so on. One connection never interferes with another.
+
+Any logic that depends directly on the native connection - such as creating subscriptions without annotations provided
+by current library, dispatchers, or key-value store handles - must be performed through a `ConnectionHook` bean. This
+ensures that such resources are properly set up after each connect and torn down before each close.
 
 ```java
 @Component
