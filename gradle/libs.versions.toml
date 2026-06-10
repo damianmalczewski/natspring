@@ -12,7 +12,7 @@ nullaway = "0.13.5"
 slf4j = "2.0.18"
 spotless = "8.6.0"
 spring-boot = "4.0.6"
-spring-framework = "7.0.7"
+spring-framework = "7.0.8"
 testcontainers = "2.0.5"
 testcontainers-nats = "1.1.4"
 
