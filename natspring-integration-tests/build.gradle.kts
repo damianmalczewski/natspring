@@ -1,7 +1,7 @@
 plugins {
     id("internal.errorprone-convention")
     id("internal.jacoco-convention")
-    id("internal.java-convention")
+    id("internal.java-library-convention")
     id("internal.java-spotless-convention")
 }
 

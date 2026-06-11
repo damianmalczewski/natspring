@@ -1,5 +1,5 @@
 plugins {
-    id("com.gradleup.nmcp")
+    alias(libs.plugins.nmcp)
     id("internal.java-library-convention")
     id("internal.publishing-convention")
 }
@@ -10,7 +10,7 @@ dependencies {
     api(libs.spring.boot.starter.jackson)
 }
 
-// see buildSrc/src/main/kotlin/internal.publishing-convention.gradle.kts
+// see build-logic/src/main/kotlin/internal.publishing-convention.gradle.kts
 internalPublishing {
     displayName = "Natspring Starter"
     description = "Spring Boot Starter Module of Natspring Project"

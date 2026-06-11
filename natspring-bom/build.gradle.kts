@@ -1,6 +1,6 @@
 plugins {
-    id("com.gradleup.nmcp")
-    id("internal.java-platform-convention")
+    alias(libs.plugins.nmcp)
+    id("java-platform")
     id("internal.publishing-convention")
 }
 
@@ -19,7 +19,7 @@ dependencies {
     }
 }
 
-// see buildSrc/src/main/kotlin/internal.publishing-convention.gradle.kts
+// see build-logic/src/main/kotlin/internal.publishing-convention.gradle.kts
 internalPublishing {
     displayName = "Natspring BOM"
     description = "BOM Module of Natspring Project"

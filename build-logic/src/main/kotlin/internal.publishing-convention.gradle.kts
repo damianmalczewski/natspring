@@ -4,7 +4,6 @@ import internal.findLicenses
 import internal.getBooleanProperty
 
 plugins {
-    id("internal.common-convention")
     id("maven-publish")
     id("signing")
 }

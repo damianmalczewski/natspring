@@ -21,7 +21,7 @@ Spring Boot auto-configuration for NATS. Provides annotation-driven message list
 | `natspring-starter-test`      | Test utilities starter                                     |
 | `natspring-integration-tests` | Full Spring Boot integration tests (requires running NATS) |
 | `examples/`                   | Runnable example applications                              |
-| `buildSrc/`                   | Internal Gradle convention plugins                         |
+| `build-logic/`                | Internal Gradle convention plugins                         |
 
 ## Agent Rules
 

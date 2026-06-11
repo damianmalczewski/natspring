@@ -1,9 +1,9 @@
 import com.diffplug.spotless.LineEnding
 
 plugins {
-    id("com.diffplug.spotless")
-    id("com.gradleup.nmcp.aggregation")
-    id("internal.common-convention")
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.nmcp) apply false
+    alias(libs.plugins.nmcp.aggregation)
     id("internal.idea-convention")
     id("jacoco-report-aggregation")
     id("test-report-aggregation")

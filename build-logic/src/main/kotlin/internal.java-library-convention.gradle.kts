@@ -2,8 +2,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id("internal.common-convention")
     id("java-library")
+    id("internal.java-spotless-convention")
 }
 
 // The project is built using a JDK 25 toolchain, but the main sources are compiled with --release 17.
@@ -20,6 +20,8 @@ plugins {
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -61,4 +63,22 @@ tasks.withType<Jar>().configureEach {
         into("META-INF/")
         rename { "$it.txt" }
     }
+}
+
+// Usage:
+//   ./gradlew printVersion
+tasks.register<DefaultTask>("printVersion") {
+    description = "Prints the current project version to the console."
+    group = "help"
+
+    val projectName = project.name
+    val projectVersion = project.version.toString()
+
+    doLast {
+        println("$projectName version: $projectVersion")
+    }
+}
+
+tasks.withType<PublishToMavenLocal>().configureEach {
+    finalizedBy("printVersion")
 }

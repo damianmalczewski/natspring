@@ -1,10 +1,14 @@
 import com.diffplug.spotless.LineEnding
 
 plugins {
+    id("java")
     id("com.diffplug.spotless")
-    id("internal.java-convention")
-    id("internal.jacoco-convention")
     id("org.springframework.boot")
+    id("internal.jacoco-convention")
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 dependencies {
@@ -18,6 +22,10 @@ dependencies {
     testImplementation(libs.testcontainers.nats)
 
     testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 tasks.withType<Jar>().configureEach {

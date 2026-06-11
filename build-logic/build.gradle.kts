@@ -1,15 +1,8 @@
-// Note that usage of version catalogs in buildSrc is not as straightforward as in regular modules.
+// Note that usage of version catalogs in build-logic is not as straightforward as in regular modules.
 // For more information, see:
 // https://docs.gradle.org/current/userguide/version_catalogs.html#sec:buildsrc-version-catalog
 plugins {
     `kotlin-dsl`
-}
-
-version = "current"
-
-repositories {
-    gradlePluginPortal()
-    mavenCentral()
 }
 
 dependencies {
@@ -17,8 +10,6 @@ dependencies {
     implementation(plugin(libs.plugins.idea.ext))
     implementation(plugin(libs.plugins.spotless))
     implementation(plugin(libs.plugins.spring.boot))
-    implementation(plugin(libs.plugins.nmcp.core))
-    implementation(plugin(libs.plugins.nmcp.aggregation))
 }
 
 fun plugin(plugin: Provider<PluginDependency>): Provider<String> = plugin.map {

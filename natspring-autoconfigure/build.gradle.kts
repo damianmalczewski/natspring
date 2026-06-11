@@ -1,5 +1,5 @@
 plugins {
-    id("com.gradleup.nmcp")
+    alias(libs.plugins.nmcp)
     id("internal.errorprone-convention")
     id("internal.jacoco-convention")
     id("internal.java-library-convention")
@@ -32,7 +32,7 @@ dependencies {
     errorprone(libs.nullaway)
 }
 
-// see buildSrc/src/main/kotlin/internal.publishing-convention.gradle.kts
+// see build-logic/src/main/kotlin/internal.publishing-convention.gradle.kts
 internalPublishing {
     displayName = "Natspring Auto-Configure"
     description = "Spring Boot Auto-Configure Module of Natspring Project"
