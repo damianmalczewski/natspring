@@ -19,6 +19,8 @@ package io.github.malczuuu.natspring.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.nats.client.Message;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -31,17 +33,17 @@ import tools.jackson.databind.json.JsonMapper;
 class SimpleNatsReplyTests {
 
   private Message message;
-  private JsonMapper jsonMapper;
+  private NatsMessageConverter converter;
 
   @BeforeEach
   void beforeEach() {
     message = Mockito.mock(Message.class);
-    jsonMapper = JsonMapper.builder().findAndAddModules().build();
+    converter = new JacksonNatsMessageConverter(JsonMapper.builder().findAndAddModules().build());
   }
 
   @Test
   void givenWrappedMessage_whenGetMessage_thenReturnsSameInstance() {
-    NatsReply reply = new SimpleNatsReply(message, jsonMapper);
+    NatsReply reply = new SimpleNatsReply(message, converter);
 
     assertThat(reply.getMessage()).isSameAs(message);
   }
@@ -49,7 +51,7 @@ class SimpleNatsReplyTests {
   @Test
   void givenJsonBody_whenBodyAsClass_thenDeserializesFromMessageData() {
     when(message.getData()).thenReturn("\"hello\"".getBytes(StandardCharsets.UTF_8));
-    NatsReply reply = new SimpleNatsReply(message, jsonMapper);
+    NatsReply reply = new SimpleNatsReply(message, converter);
 
     String result = reply.bodyAs(String.class);
 
@@ -59,7 +61,7 @@ class SimpleNatsReplyTests {
   @Test
   void givenJsonBody_whenBodyAsTypeReference_thenDeserializesFromMessageData() {
     when(message.getData()).thenReturn("[\"a\",\"b\"]".getBytes(StandardCharsets.UTF_8));
-    NatsReply reply = new SimpleNatsReply(message, jsonMapper);
+    NatsReply reply = new SimpleNatsReply(message, converter);
 
     List<String> result = reply.bodyAs(new ParameterizedTypeReference<>() {});
 

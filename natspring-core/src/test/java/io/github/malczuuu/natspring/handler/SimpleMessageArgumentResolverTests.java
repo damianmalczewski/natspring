@@ -24,6 +24,7 @@ import io.github.malczuuu.natspring.annotation.NatsHeader;
 import io.github.malczuuu.natspring.annotation.NatsHeaders;
 import io.github.malczuuu.natspring.annotation.NatsPayload;
 import io.github.malczuuu.natspring.annotation.NatsSubject;
+import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
@@ -46,7 +47,9 @@ class SimpleMessageArgumentResolverTests {
 
   @BeforeEach
   void beforeEach() {
-    resolver = new SimpleMessageArgumentResolver(JsonMapper.builder().findAndAddModules().build());
+    resolver =
+        new SimpleMessageArgumentResolver(
+            new JacksonNatsMessageConverter(JsonMapper.builder().findAndAddModules().build()));
   }
 
   @Test

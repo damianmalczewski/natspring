@@ -28,6 +28,8 @@ import io.github.malczuuu.natspring.connection.ManagedConnectionHookLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedConnectionLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedListenerContainerLifecycle;
+import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
 import io.github.malczuuu.natspring.core.NatsOperations;
 import io.github.malczuuu.natspring.core.NatsPublishInterceptor;
@@ -73,6 +75,12 @@ public final class NatsAutoConfiguration {
 
   /** Creates a new {@link NatsAutoConfiguration}. */
   public NatsAutoConfiguration() {}
+
+  @Bean
+  @ConditionalOnMissingBean(NatsMessageConverter.class)
+  JacksonNatsMessageConverter natsMessageConverter(JsonMapper jsonMapper) {
+    return new JacksonNatsMessageConverter(jsonMapper);
+  }
 
   @Bean
   @ConditionalOnMissingBean(NatsConnectionDetails.class)
@@ -124,8 +132,9 @@ public final class NatsAutoConfiguration {
       JetStreamListenerEndpointRegistry jetStreamListenerEndpointRegistry,
       NatsListenerObserver natsListenerObserver,
       JetStreamListenerObserver jetStreamListenerObserver,
-      JsonMapper jsonMapper) {
-    MessageArgumentResolver argumentResolver = new SimpleMessageArgumentResolver(jsonMapper);
+      NatsMessageConverter natsMessageConverter) {
+    MessageArgumentResolver argumentResolver =
+        new SimpleMessageArgumentResolver(natsMessageConverter);
     List<NatsMessageInterceptor> orderedInterceptors =
         beanFactory.getBeanProvider(NatsMessageInterceptor.class).orderedStream().toList();
     return new ManagedListenerContainerLifecycle(
@@ -155,11 +164,12 @@ public final class NatsAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(NatsTemplate.Builder.class)
-  NatsTemplate.Builder natsTemplateBuilder(BeanFactory beanFactory, JsonMapper jsonMapper) {
+  NatsTemplate.Builder natsTemplateBuilder(
+      BeanFactory beanFactory, NatsMessageConverter natsMessageConverter) {
     NatsTemplate.Builder builder =
         NatsTemplate.builder()
             .withConnection(beanFactory.getBean(Connection.class))
-            .withJsonMapper(jsonMapper)
+            .withConverter(natsMessageConverter)
             .addInterceptors(
                 beanFactory.getBeanProvider(NatsPublishInterceptor.class).orderedStream().toList());
     for (NatsTemplateBuilderCustomizer customizer :

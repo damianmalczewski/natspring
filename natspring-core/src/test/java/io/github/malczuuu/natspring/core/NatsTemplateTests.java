@@ -23,6 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
@@ -37,28 +38,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import tools.jackson.databind.json.JsonMapper;
 
 class NatsTemplateTests {
 
   private Connection connection;
-  private JsonMapper jsonMapper;
+  private NatsMessageConverter converter;
 
   @BeforeEach
   void beforeEach() {
     connection = Mockito.mock(Connection.class);
-    jsonMapper = Mockito.mock(JsonMapper.class);
+    converter = Mockito.mock(NatsMessageConverter.class);
   }
 
   @Test
   void givenMissingConnection_whenBuild_thenThrowsIllegalArgumentException() {
-    assertThatThrownBy(() -> NatsTemplate.builder().withJsonMapper(jsonMapper).build())
+    assertThatThrownBy(() -> NatsTemplate.builder().withConverter(converter).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("connection is required");
   }
 
   @Test
-  void givenNoJsonMapper_whenBuild_thenSucceeds() {
+  void givenNoConverter_whenBuild_thenSucceeds() {
     NatsTemplate template = NatsTemplate.builder().withConnection(connection).build();
 
     template.publish("test.subject", new byte[0]);
@@ -70,7 +70,7 @@ class NatsTemplateTests {
   void givenNoInterceptors_whenPublishMessage_thenConnectionReceivesMessage() {
     Message message = NatsMessage.builder().subject("test").build();
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish(message);
 
@@ -81,7 +81,7 @@ class NatsTemplateTests {
   void givenNoInterceptors_whenPublishBytes_thenConnectionReceivesCorrectSubjectAndBody() {
     byte[] body = {1, 2, 3};
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish("test.subject", body);
 
@@ -94,7 +94,7 @@ class NatsTemplateTests {
   @Test
   void givenNoInterceptors_whenPublishString_thenConnectionReceivesUtf8Bytes() {
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish("test.subject", "hello");
 
@@ -106,9 +106,9 @@ class NatsTemplateTests {
   @Test
   void givenNoInterceptors_whenPublishObject_thenConnectionReceivesJsonBytes() {
     byte[] json = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
-    when(jsonMapper.writeValueAsBytes(any())).thenReturn(json);
+    when(converter.toBytes(any())).thenReturn(json);
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish("test.subject", new Object());
 
@@ -122,7 +122,7 @@ class NatsTemplateTests {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish("test.subject", headers, new byte[0]);
 
@@ -136,7 +136,7 @@ class NatsTemplateTests {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish("test.subject", headers, "hello");
 
@@ -149,11 +149,11 @@ class NatsTemplateTests {
   @Test
   void givenNoInterceptors_whenPublishObjectWithHeaders_thenConnectionReceivesHeadersAndJsonBody() {
     byte[] json = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
-    when(jsonMapper.writeValueAsBytes(any())).thenReturn(json);
+    when(converter.toBytes(any())).thenReturn(json);
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.publish("test.subject", headers, new Object());
 
@@ -174,7 +174,7 @@ class NatsTemplateTests {
     NatsTemplate template =
         NatsTemplate.builder()
             .withConnection(connection)
-            .withJsonMapper(jsonMapper)
+            .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
@@ -201,7 +201,7 @@ class NatsTemplateTests {
     NatsTemplate template =
         NatsTemplate.builder()
             .withConnection(connection)
-            .withJsonMapper(jsonMapper)
+            .withConverter(converter)
             .addInterceptors(List.of(first, second))
             .build();
 
@@ -217,7 +217,7 @@ class NatsTemplateTests {
     NatsTemplate template =
         NatsTemplate.builder()
             .withConnection(connection)
-            .withJsonMapper(jsonMapper)
+            .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
@@ -234,7 +234,7 @@ class NatsTemplateTests {
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.request("test.subject", payload, Duration.ofSeconds(1));
 
@@ -249,7 +249,7 @@ class NatsTemplateTests {
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.request("test.subject", "hello", Duration.ofSeconds(1));
 
@@ -261,11 +261,11 @@ class NatsTemplateTests {
   @Test
   void givenNoInterceptors_whenRequestObject_thenConnectionReceivesJsonPayload() {
     byte[] json = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
-    when(jsonMapper.writeValueAsBytes(any())).thenReturn(json);
+    when(converter.toBytes(any())).thenReturn(json);
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     template.request("test.subject", new Object(), Duration.ofSeconds(1));
 
@@ -280,7 +280,7 @@ class NatsTemplateTests {
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(CompletableFuture.completedFuture(reply));
     NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withJsonMapper(jsonMapper).build();
+        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
 
     CompletableFuture<NatsReply> future =
         template.request("test.subject", new byte[0], Duration.ofSeconds(1));
@@ -294,7 +294,7 @@ class NatsTemplateTests {
     NatsTemplate template =
         NatsTemplate.builder()
             .withConnection(connection)
-            .withJsonMapper(jsonMapper)
+            .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
@@ -315,7 +315,7 @@ class NatsTemplateTests {
     NatsTemplate template =
         NatsTemplate.builder()
             .withConnection(connection)
-            .withJsonMapper(jsonMapper)
+            .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 

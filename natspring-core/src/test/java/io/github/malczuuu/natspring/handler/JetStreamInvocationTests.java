@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import io.github.malczuuu.natspring.annotation.AckMode;
 import io.github.malczuuu.natspring.annotation.ConsumerType;
 import io.github.malczuuu.natspring.annotation.DeliverPolicyType;
+import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.instrument.JetStreamListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;
@@ -40,7 +41,8 @@ import tools.jackson.databind.json.JsonMapper;
 class JetStreamInvocationTests {
 
   private final MessageArgumentResolver argumentResolver =
-      new SimpleMessageArgumentResolver(JsonMapper.builder().findAndAddModules().build());
+      new SimpleMessageArgumentResolver(
+          new JacksonNatsMessageConverter(JsonMapper.builder().findAndAddModules().build()));
 
   private Message message;
   private Connection connection;

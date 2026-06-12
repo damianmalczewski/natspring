@@ -16,6 +16,8 @@
 
 package io.github.malczuuu.natspring.core;
 
+import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
@@ -27,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.Nullable;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Default {@link NatsOperations} implementation backed by a {@link Connection}.
@@ -37,13 +38,15 @@ import tools.jackson.databind.json.JsonMapper;
 public class NatsTemplate implements NatsOperations {
 
   private final Connection connection;
-  private final JsonMapper jsonMapper;
+  private final NatsMessageConverter converter;
   private final NatsPublishInterceptorChainExecution publishInterceptorChain;
 
   private NatsTemplate(
-      Connection connection, JsonMapper jsonMapper, List<NatsPublishInterceptor> interceptors) {
+      Connection connection,
+      NatsMessageConverter converter,
+      List<NatsPublishInterceptor> interceptors) {
     this.connection = connection;
-    this.jsonMapper = jsonMapper;
+    this.converter = converter;
     this.publishInterceptorChain = new NatsPublishInterceptorChainExecution(interceptors);
   }
 
@@ -101,11 +104,7 @@ public class NatsTemplate implements NatsOperations {
    */
   @Override
   public <T> void publish(String subject, T bodyAsObject) {
-    doPublish(
-        NatsMessage.builder()
-            .subject(subject)
-            .data(jsonMapper.writeValueAsBytes(bodyAsObject))
-            .build());
+    doPublish(NatsMessage.builder().subject(subject).data(converter.toBytes(bodyAsObject)).build());
   }
 
   /**
@@ -151,7 +150,7 @@ public class NatsTemplate implements NatsOperations {
         NatsMessage.builder()
             .subject(subject)
             .headers(headers)
-            .data(jsonMapper.writeValueAsBytes(bodyAsObject))
+            .data(converter.toBytes(bodyAsObject))
             .build());
   }
 
@@ -211,8 +210,7 @@ public class NatsTemplate implements NatsOperations {
   @Override
   public <T> CompletableFuture<NatsReply> request(String subject, T payload, Duration timeout) {
     return doRequest(
-        NatsMessage.builder().subject(subject).data(jsonMapper.writeValueAsBytes(payload)).build(),
-        timeout);
+        NatsMessage.builder().subject(subject).data(converter.toBytes(payload)).build(), timeout);
   }
 
   private CompletableFuture<NatsReply> doRequest(Message message, Duration timeout) {
@@ -221,7 +219,7 @@ public class NatsTemplate implements NatsOperations {
         message, m -> ref.set(connection.requestWithTimeout(m, timeout)));
     CompletableFuture<Message> result = ref.get();
     return result != null
-        ? result.thenApply(m -> new SimpleNatsReply(m, jsonMapper))
+        ? result.thenApply(m -> new SimpleNatsReply(m, converter))
         : CompletableFuture.failedFuture(
             new IllegalStateException("request suppressed by interceptor"));
   }
@@ -230,7 +228,7 @@ public class NatsTemplate implements NatsOperations {
   public static class Builder {
 
     private @Nullable Connection connection;
-    private @Nullable JsonMapper jsonMapper;
+    private @Nullable NatsMessageConverter converter;
     private final List<NatsPublishInterceptor> interceptors = new ArrayList<>();
 
     private Builder() {}
@@ -247,14 +245,14 @@ public class NatsTemplate implements NatsOperations {
     }
 
     /**
-     * Sets the JSON mapper used for object serialization. If not set, defaults to {@code
-     * JsonMapper.builder().findAndAddModules().build()}.
+     * Sets the converter used for object serialization. If not set, defaults to {@code new
+     * JacksonNatsConverter()}.
      *
-     * @param jsonMapper the JSON mapper
+     * @param converter the converter
      * @return this builder
      */
-    public Builder withJsonMapper(JsonMapper jsonMapper) {
-      this.jsonMapper = jsonMapper;
+    public Builder withConverter(NatsMessageConverter converter) {
+      this.converter = converter;
       return this;
     }
 
@@ -291,11 +289,9 @@ public class NatsTemplate implements NatsOperations {
       if (connection == null) {
         throw new IllegalArgumentException("connection is required");
       }
-      JsonMapper jsonMapper =
-          this.jsonMapper != null
-              ? this.jsonMapper
-              : JsonMapper.builder().findAndAddModules().build();
-      return new NatsTemplate(connection, jsonMapper, interceptors);
+      NatsMessageConverter converter =
+          this.converter != null ? this.converter : new JacksonNatsMessageConverter();
+      return new NatsTemplate(connection, converter, interceptors);
     }
   }
 }

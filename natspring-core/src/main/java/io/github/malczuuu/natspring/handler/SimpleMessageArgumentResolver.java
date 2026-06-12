@@ -21,6 +21,7 @@ import io.github.malczuuu.natspring.annotation.NatsHeaders;
 import io.github.malczuuu.natspring.annotation.NatsPayload;
 import io.github.malczuuu.natspring.annotation.NatsReplyTo;
 import io.github.malczuuu.natspring.annotation.NatsSubject;
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
@@ -30,30 +31,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
-import tools.jackson.databind.json.JsonMapper;
+import org.springframework.core.ParameterizedTypeReference;
 
 /**
- * Jackson-based {@link MessageArgumentResolver} that resolves listener method parameters from NATS
- * message data, headers, and metadata.
+ * {@link NatsMessageConverter}-based {@link MessageArgumentResolver} that resolves listener method
+ * parameters from NATS message data, headers, and metadata.
  *
  * <p>Supports parameters of type {@link Message}, {@link Headers} (with or without {@link
  * NatsHeaders @NatsHeaders}), individual header values via {@link NatsHeader @NatsHeader}, the
  * message subject via {@link NatsSubject @NatsSubject}, {@link NatsJetStreamMetaData}, {@code
- * byte[]}, {@link String}, and arbitrary JSON-deserializable types.
+ * byte[]}, {@link String}, and arbitrary converter-deserializable types.
  *
  * @since 0.1.0
  */
 public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
 
-  private final JsonMapper jsonMapper;
+  private final NatsMessageConverter converter;
 
   /**
    * Creates a new {@code SimpleMessageArgumentResolver}.
    *
-   * @param jsonMapper Jackson mapper used for JSON deserialization of payload parameters
+   * @param converter converter used for payload serialization and deserialization
    */
-  public SimpleMessageArgumentResolver(JsonMapper jsonMapper) {
-    this.jsonMapper = jsonMapper;
+  public SimpleMessageArgumentResolver(NatsMessageConverter converter) {
+    this.converter = converter;
   }
 
   /**
@@ -123,7 +124,8 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
       return data != null ? new String(data, StandardCharsets.UTF_8) : null;
     }
     return data != null
-        ? jsonMapper.readValue(data, jsonMapper.constructType(parameter.getParameterizedType()))
+        ? converter.fromBytes(
+            data, ParameterizedTypeReference.forType(parameter.getParameterizedType()))
         : null;
   }
 
@@ -149,7 +151,7 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
     } else if (result instanceof String str) {
       data = str.getBytes(StandardCharsets.UTF_8);
     } else {
-      data = jsonMapper.writeValueAsBytes(result);
+      data = converter.toBytes(result);
     }
     return NatsMessage.builder().subject(replyTo).data(data).build();
   }

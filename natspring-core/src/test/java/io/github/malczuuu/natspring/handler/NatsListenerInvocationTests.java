@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;
@@ -37,7 +38,8 @@ import tools.jackson.databind.json.JsonMapper;
 class NatsListenerInvocationTests {
 
   private final MessageArgumentResolver argumentResolver =
-      new SimpleMessageArgumentResolver(JsonMapper.builder().findAndAddModules().build());
+      new SimpleMessageArgumentResolver(
+          new JacksonNatsMessageConverter(JsonMapper.builder().findAndAddModules().build()));
 
   private Connection connection;
   private Listener listener;

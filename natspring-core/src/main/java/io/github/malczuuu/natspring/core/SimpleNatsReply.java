@@ -16,18 +16,18 @@
 
 package io.github.malczuuu.natspring.core;
 
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.nats.client.Message;
 import org.springframework.core.ParameterizedTypeReference;
-import tools.jackson.databind.json.JsonMapper;
 
 final class SimpleNatsReply implements NatsReply {
 
   private final Message message;
-  private final JsonMapper jsonMapper;
+  private final NatsMessageConverter converter;
 
-  SimpleNatsReply(Message message, JsonMapper jsonMapper) {
+  SimpleNatsReply(Message message, NatsMessageConverter converter) {
     this.message = message;
-    this.jsonMapper = jsonMapper;
+    this.converter = converter;
   }
 
   @Override
@@ -37,12 +37,11 @@ final class SimpleNatsReply implements NatsReply {
 
   @Override
   public <T> T bodyAs(Class<T> type) {
-    return jsonMapper.readValue(message.getData(), type);
+    return converter.fromBytes(message.getData(), type);
   }
 
   @Override
   public <T> T bodyAs(ParameterizedTypeReference<T> typeReference) {
-    return jsonMapper.readValue(
-        message.getData(), jsonMapper.constructType(typeReference.getType()));
+    return converter.fromBytes(message.getData(), typeReference);
   }
 }
