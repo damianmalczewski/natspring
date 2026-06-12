@@ -25,6 +25,7 @@ import io.github.malczuuu.natspring.annotation.NatsHeaders;
 import io.github.malczuuu.natspring.annotation.NatsPayload;
 import io.github.malczuuu.natspring.annotation.NatsSubject;
 import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
@@ -38,7 +39,6 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 class SimpleMessageArgumentResolverTests {
@@ -219,7 +219,7 @@ class SimpleMessageArgumentResolverTests {
             () ->
                 resolver.resolveArgument(
                     param("withDataAnnotatedHeaders", Headers.class), message(json)))
-        .isInstanceOf(JacksonException.class);
+        .isInstanceOf(NatsMessageConversionException.class);
   }
 
   @Test
@@ -299,7 +299,7 @@ class SimpleMessageArgumentResolverTests {
                 resolver.resolveArgument(
                     param("withNatsPayloadAnnotatedMetaData", NatsJetStreamMetaData.class),
                     message(json)))
-        .isInstanceOf(JacksonException.class);
+        .isInstanceOf(NatsMessageConversionException.class);
   }
 
   @Test
@@ -308,7 +308,7 @@ class SimpleMessageArgumentResolverTests {
 
     assertThatThrownBy(
             () -> resolver.resolveArgument(param("withObject", SampleMessage.class), message(bad)))
-        .isInstanceOf(JacksonException.class);
+        .isInstanceOf(NatsMessageConversionException.class);
   }
 
   private static Parameter param(String methodName, Class<?>... paramTypes) {

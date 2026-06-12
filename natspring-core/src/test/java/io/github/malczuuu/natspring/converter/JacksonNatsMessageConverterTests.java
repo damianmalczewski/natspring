@@ -19,12 +19,12 @@ package io.github.malczuuu.natspring.converter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 class JacksonNatsMessageConverterTests {
@@ -55,7 +55,7 @@ class JacksonNatsMessageConverterTests {
                         return this;
                       }
                     }))
-        .isInstanceOf(JacksonException.class);
+        .isInstanceOf(NatsMessageConversionException.class);
   }
 
   @Test
@@ -82,7 +82,7 @@ class JacksonNatsMessageConverterTests {
     byte[] data = "not-valid-json".getBytes(StandardCharsets.UTF_8);
 
     assertThatThrownBy(() -> converter.fromBytes(data, SamplePayload.class))
-        .isInstanceOf(JacksonException.class);
+        .isInstanceOf(NatsMessageConversionException.class);
   }
 
   @Test

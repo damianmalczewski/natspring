@@ -16,7 +16,9 @@
 
 package io.github.malczuuu.natspring.converter;
 
+import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import org.springframework.core.ParameterizedTypeReference;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -44,16 +46,28 @@ public class JacksonNatsMessageConverter implements NatsMessageConverter {
 
   @Override
   public byte[] toBytes(Object object) {
-    return jsonMapper.writeValueAsBytes(object);
+    try {
+      return jsonMapper.writeValueAsBytes(object);
+    } catch (JacksonException e) {
+      throw new NatsMessageConversionException(e);
+    }
   }
 
   @Override
   public <T> T fromBytes(byte[] data, Class<T> type) {
-    return jsonMapper.readValue(data, type);
+    try {
+      return jsonMapper.readValue(data, type);
+    } catch (JacksonException e) {
+      throw new NatsMessageConversionException(e);
+    }
   }
 
   @Override
   public <T> T fromBytes(byte[] data, ParameterizedTypeReference<T> typeReference) {
-    return jsonMapper.readValue(data, jsonMapper.constructType(typeReference.getType()));
+    try {
+      return jsonMapper.readValue(data, jsonMapper.constructType(typeReference.getType()));
+    } catch (JacksonException e) {
+      throw new NatsMessageConversionException(e);
+    }
   }
 }
