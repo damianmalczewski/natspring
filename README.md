@@ -137,7 +137,7 @@ after the built-in property-based configuration, so they take precedence over `n
 
 ### Connection hooks
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > This feature is experimental and most likely will change after more use cases are discovered.
 
 The native `io.nats.client.Connection` cannot be injected as a Spring bean. Current library manages it internally via
