@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-13
+
+### Breaking
+
+- Remove `@NatsHeader.name()` - use `@NatsHeader.value()` instead.
+- Remove `ConnectionException` - use `NatsConnectionException` instead.
+- Remove `ListenerConfigureException` - use `NatsListenerMethodException` instead.
+- Remove `NatsIntegrationException` - use `NatsMessagingException` instead.
+- Remove `StreamConfigureException` - use `JetStreamConfigureException` instead.
+
+### Added
+
+- Add `NatsMessageConverter` interface - abstraction for NATS message serialization and deserialization.
+- Hide away JSON serdes with `NatsMessageConverter` and `JacksonNatsMessageConverter` for Jackson.
+- Add `natspring-namastack-outbox` module - transactional outbox.
+
+### Changed
+
+- Jackson exceptions now wrapped in `NatsMessageConversionException` instead of propagating raw.
+
 ## [0.2.0] - 2026-06-02
 
 ### Added
