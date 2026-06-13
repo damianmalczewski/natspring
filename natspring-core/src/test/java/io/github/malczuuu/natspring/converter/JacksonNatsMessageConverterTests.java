@@ -19,6 +19,7 @@ package io.github.malczuuu.natspring.converter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

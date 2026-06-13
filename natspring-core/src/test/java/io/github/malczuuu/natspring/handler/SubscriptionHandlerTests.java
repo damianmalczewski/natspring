@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.github.malczuuu.natspring.core.ListenerConfigureException;
+import io.github.malczuuu.natspring.core.NatsListenerMethodException;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import java.lang.reflect.Method;
@@ -65,14 +65,14 @@ class SubscriptionHandlerTests {
     handler.start();
 
     assertThatThrownBy(handler::start)
-        .isInstanceOf(ListenerConfigureException.class)
+        .isInstanceOf(NatsListenerMethodException.class)
         .hasMessageContaining("on already started");
   }
 
   @Test
   void givenNotStarted_whenStopCalled_thenThrowsListenerConfigureException() {
     assertThatThrownBy(handler::stop)
-        .isInstanceOf(ListenerConfigureException.class)
+        .isInstanceOf(NatsListenerMethodException.class)
         .hasMessageContaining("on a not-running");
   }
 

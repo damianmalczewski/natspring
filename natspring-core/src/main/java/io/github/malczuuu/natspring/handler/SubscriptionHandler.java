@@ -16,7 +16,7 @@
 
 package io.github.malczuuu.natspring.handler;
 
-import io.github.malczuuu.natspring.core.ListenerConfigureException;
+import io.github.malczuuu.natspring.core.NatsListenerMethodException;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Message;
@@ -47,7 +47,7 @@ final class SubscriptionHandler implements NatsListenerHandler {
   @Override
   public synchronized void start() {
     if (running) {
-      throw new ListenerConfigureException(
+      throw new NatsListenerMethodException(
           "Attempted to call start() on already started "
               + SubscriptionHandler.class.getSimpleName());
     }
@@ -68,7 +68,7 @@ final class SubscriptionHandler implements NatsListenerHandler {
   @Override
   public synchronized void stop() {
     if (!running) {
-      throw new ListenerConfigureException(
+      throw new NatsListenerMethodException(
           "Attempted to call stop() on a not-running " + SubscriptionHandler.class.getSimpleName());
     }
     running = false;

@@ -16,7 +16,7 @@
 
 package io.github.malczuuu.natspring.handler;
 
-import io.github.malczuuu.natspring.core.ListenerConfigureException;
+import io.github.malczuuu.natspring.core.NatsListenerMethodException;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.JetStream;
@@ -62,7 +62,7 @@ final class JetStreamPushHandler implements JetStreamHandler {
   @Override
   public synchronized void start() throws IOException, JetStreamApiException {
     if (running) {
-      throw new ListenerConfigureException(
+      throw new NatsListenerMethodException(
           "Attempted to call start() on already started "
               + JetStreamPushHandler.class.getSimpleName());
     }
@@ -110,7 +110,7 @@ final class JetStreamPushHandler implements JetStreamHandler {
   @Override
   public synchronized void stop() {
     if (!running) {
-      throw new ListenerConfigureException(
+      throw new NatsListenerMethodException(
           "Attempted to call stop() on a not-running "
               + JetStreamPushHandler.class.getSimpleName());
     }

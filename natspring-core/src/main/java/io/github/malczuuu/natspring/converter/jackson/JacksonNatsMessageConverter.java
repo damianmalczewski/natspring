@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.converter;
+package io.github.malczuuu.natspring.converter.jackson;
 
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
 import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import org.springframework.core.ParameterizedTypeReference;
 import tools.jackson.core.JacksonException;
@@ -44,6 +45,13 @@ public class JacksonNatsMessageConverter implements NatsMessageConverter {
     this.jsonMapper = jsonMapper;
   }
 
+  /**
+   * Serializes the given object to a byte array.
+   *
+   * @param object the object to serialize
+   * @return serialized bytes
+   * @throws NatsMessageConversionException when unable to serialize object
+   */
   @Override
   public byte[] toBytes(Object object) {
     try {
@@ -53,6 +61,15 @@ public class JacksonNatsMessageConverter implements NatsMessageConverter {
     }
   }
 
+  /**
+   * Deserializes a byte array to an instance of the given class.
+   *
+   * @param data the bytes to deserialize
+   * @param type the target class
+   * @param <T> the target type
+   * @return deserialized instance
+   * @throws NatsMessageConversionException when unable to deserialize data
+   */
   @Override
   public <T> T fromBytes(byte[] data, Class<T> type) {
     try {
@@ -62,6 +79,15 @@ public class JacksonNatsMessageConverter implements NatsMessageConverter {
     }
   }
 
+  /**
+   * Deserializes a byte array to an instance of the given generic type.
+   *
+   * @param data the bytes to deserialize
+   * @param typeReference the target type reference (may be parameterized)
+   * @param <T> the target type
+   * @return deserialized instance
+   * @throws NatsMessageConversionException when unable to deserialize data
+   */
   @Override
   public <T> T fromBytes(byte[] data, ParameterizedTypeReference<T> typeReference) {
     try {

@@ -16,8 +16,8 @@
 
 package io.github.malczuuu.natspring.connection;
 
-import io.github.malczuuu.natspring.core.ListenerConfigureException;
 import io.github.malczuuu.natspring.core.NatsIntegrationException;
+import io.github.malczuuu.natspring.core.NatsListenerMethodException;
 import io.github.malczuuu.natspring.handler.MessageListenerContainer;
 import io.nats.client.Connection;
 import java.util.List;
@@ -82,7 +82,7 @@ public class ManagedListenerContainerLifecycle implements ListenerContainerLifec
       if (e instanceof NatsIntegrationException ex) {
         throw ex;
       }
-      throw new ListenerConfigureException("Failed to set up annotation-based NATS listeners", e);
+      throw new NatsListenerMethodException("Failed to set up annotation-based NATS listeners", e);
     }
     running = true;
   }

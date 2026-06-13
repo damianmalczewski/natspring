@@ -19,58 +19,56 @@ package io.github.malczuuu.natspring.core;
 import java.io.Serial;
 
 /**
- * Base class for exceptions thrown during NATS integration lifecycle operations.
+ * Thrown when JetStream streams fail to be created or configured on startup.
  *
  * @since 0.1.0
- * @deprecated It will be replaced with {@link NatsMessagingException}.
  */
-@Deprecated
-public class NatsIntegrationException extends RuntimeException {
+public class JetStreamConfigureException extends StreamConfigureException {
 
   @Serial private static final long serialVersionUID = 1L;
 
-  /** Creates a new {@link NatsIntegrationException}. */
-  public NatsIntegrationException() {
+  /** Creates a new {@link JetStreamConfigureException}. */
+  public JetStreamConfigureException() {
     super();
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link JetStreamConfigureException}.
    *
    * @param message the detail message
    */
-  public NatsIntegrationException(String message) {
+  public JetStreamConfigureException(String message) {
     super(message);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link JetStreamConfigureException}.
    *
    * @param message the detail message
    * @param cause the underlying cause
    */
-  public NatsIntegrationException(String message, Throwable cause) {
+  public JetStreamConfigureException(String message, Throwable cause) {
     super(message, cause);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link JetStreamConfigureException}.
    *
    * @param cause the underlying cause
    */
-  public NatsIntegrationException(Throwable cause) {
+  public JetStreamConfigureException(Throwable cause) {
     super(cause);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link JetStreamConfigureException}.
    *
    * @param message the detail message
    * @param cause the underlying cause
    * @param enableSuppression whether suppression is enabled or disabled
    * @param writableStackTrace whether the stack trace should be writable
    */
-  protected NatsIntegrationException(
+  protected JetStreamConfigureException(
       String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }

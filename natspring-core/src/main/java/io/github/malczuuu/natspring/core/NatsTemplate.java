@@ -16,8 +16,8 @@
 
 package io.github.malczuuu.natspring.core;
 
-import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.converter.NatsMessageConverter;
+import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;

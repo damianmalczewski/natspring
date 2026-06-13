@@ -16,6 +16,7 @@
 
 package io.github.malczuuu.natspring.converter;
 
+import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import org.springframework.core.ParameterizedTypeReference;
 
 /**
@@ -31,6 +32,7 @@ public interface NatsMessageConverter {
    *
    * @param object the object to serialize
    * @return serialized bytes
+   * @throws NatsMessageConversionException when unable to serialize object
    */
   byte[] toBytes(Object object);
 
@@ -41,6 +43,7 @@ public interface NatsMessageConverter {
    * @param type the target class
    * @param <T> the target type
    * @return deserialized instance
+   * @throws NatsMessageConversionException when unable to deserialize data
    */
   <T> T fromBytes(byte[] data, Class<T> type);
 
@@ -51,6 +54,7 @@ public interface NatsMessageConverter {
    * @param typeReference the target type reference (may be parameterized)
    * @param <T> the target type
    * @return deserialized instance
+   * @throws NatsMessageConversionException when unable to deserialize data
    */
   <T> T fromBytes(byte[] data, ParameterizedTypeReference<T> typeReference);
 }

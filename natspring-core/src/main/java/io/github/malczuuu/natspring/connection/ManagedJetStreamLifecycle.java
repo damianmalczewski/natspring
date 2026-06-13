@@ -16,8 +16,8 @@
 
 package io.github.malczuuu.natspring.connection;
 
+import io.github.malczuuu.natspring.core.JetStreamConfigureException;
 import io.github.malczuuu.natspring.core.NatsIntegrationException;
-import io.github.malczuuu.natspring.core.StreamConfigureException;
 import io.nats.client.Connection;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.JetStreamManagement;
@@ -106,7 +106,7 @@ public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
       if (e instanceof JetStreamApiException ex) {
         throw wrapJetStreamApiException(ex);
       }
-      throw new StreamConfigureException("Failed to configure JetStream streams", e);
+      throw new JetStreamConfigureException("Failed to configure JetStream streams", e);
     }
     running = true;
   }
@@ -131,8 +131,8 @@ public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
     return e.getErrorCode() == NOT_FOUND_CODE && e.getApiErrorCode() == STREAM_NOT_FOUND_ERROR;
   }
 
-  private StreamConfigureException wrapJetStreamApiException(JetStreamApiException ex) {
-    return new StreamConfigureException(
+  private JetStreamConfigureException wrapJetStreamApiException(JetStreamApiException ex) {
+    return new JetStreamConfigureException(
         "Unable to configure JetStream due to errorCode="
             + ex.getErrorCode()
             + ", errorDescription="

@@ -22,8 +22,10 @@ import java.io.Serial;
  * Thrown when a NATS connection cannot be established.
  *
  * @since 0.1.0
+ * @deprecated It will be replaced with {@link NatsConnectionException}.
  */
-public class ConnectionException extends NatsIntegrationException {
+@Deprecated
+public class ConnectionException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
 

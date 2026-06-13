@@ -22,8 +22,10 @@ import java.io.Serial;
  * Thrown when JetStream streams fail to be created or configured on startup.
  *
  * @since 0.1.0
+ * @deprecated It will be replaced with {@link JetStreamConfigureException}.
  */
-public class StreamConfigureException extends NatsIntegrationException {
+@Deprecated
+public class StreamConfigureException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
 

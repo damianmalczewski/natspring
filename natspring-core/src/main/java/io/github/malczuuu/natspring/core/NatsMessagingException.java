@@ -21,56 +21,54 @@ import java.io.Serial;
 /**
  * Base class for exceptions thrown during NATS integration lifecycle operations.
  *
- * @since 0.1.0
- * @deprecated It will be replaced with {@link NatsMessagingException}.
+ * @since 0.3.0
  */
-@Deprecated
-public class NatsIntegrationException extends RuntimeException {
+public class NatsMessagingException extends NatsIntegrationException {
 
   @Serial private static final long serialVersionUID = 1L;
 
-  /** Creates a new {@link NatsIntegrationException}. */
-  public NatsIntegrationException() {
+  /** Creates a new {@link NatsMessagingException}. */
+  public NatsMessagingException() {
     super();
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsMessagingException}.
    *
    * @param message the detail message
    */
-  public NatsIntegrationException(String message) {
+  public NatsMessagingException(String message) {
     super(message);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsMessagingException}.
    *
    * @param message the detail message
    * @param cause the underlying cause
    */
-  public NatsIntegrationException(String message, Throwable cause) {
+  public NatsMessagingException(String message, Throwable cause) {
     super(message, cause);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsMessagingException}.
    *
    * @param cause the underlying cause
    */
-  public NatsIntegrationException(Throwable cause) {
+  public NatsMessagingException(Throwable cause) {
     super(cause);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsMessagingException}.
    *
    * @param message the detail message
    * @param cause the underlying cause
    * @param enableSuppression whether suppression is enabled or disabled
    * @param writableStackTrace whether the stack trace should be writable
    */
-  protected NatsIntegrationException(
+  protected NatsMessagingException(
       String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }

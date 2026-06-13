@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import io.github.malczuuu.natspring.annotation.AckMode;
 import io.github.malczuuu.natspring.annotation.ConsumerType;
 import io.github.malczuuu.natspring.annotation.DeliverPolicyType;
-import io.github.malczuuu.natspring.core.ListenerConfigureException;
+import io.github.malczuuu.natspring.core.NatsListenerMethodException;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.JetStream;
@@ -79,14 +79,14 @@ class JetStreamPushHandlerTests {
     handler.start();
 
     assertThatThrownBy(handler::start)
-        .isInstanceOf(ListenerConfigureException.class)
+        .isInstanceOf(NatsListenerMethodException.class)
         .hasMessageContaining("on already started");
   }
 
   @Test
   void givenNotStarted_whenStopCalled_thenThrowsListenerConfigureException() {
     assertThatThrownBy(handler::stop)
-        .isInstanceOf(ListenerConfigureException.class)
+        .isInstanceOf(NatsListenerMethodException.class)
         .hasMessageContaining("on a not-running");
   }
 

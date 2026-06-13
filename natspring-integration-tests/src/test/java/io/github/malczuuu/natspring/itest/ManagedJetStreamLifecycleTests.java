@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
-import io.github.malczuuu.natspring.core.StreamConfigureException;
+import io.github.malczuuu.natspring.core.JetStreamConfigureException;
 import io.github.malczuuu.natspring.itest.generic.AbstractTestcontainersTests;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
@@ -76,7 +76,7 @@ class ManagedJetStreamLifecycleTests extends AbstractTestcontainersTests {
                     .build()),
             true);
 
-    assertThatThrownBy(configurer::start).isInstanceOf(StreamConfigureException.class);
+    assertThatThrownBy(configurer::start).isInstanceOf(JetStreamConfigureException.class);
   }
 
   @Test

@@ -22,8 +22,10 @@ import java.io.Serial;
  * Thrown when annotation-based NATS listeners fail to initialize or shut down.
  *
  * @since 0.1.0
+ * @deprecated It will be replaced with {@link NatsListenerMethodException}.
  */
-public class ListenerConfigureException extends NatsIntegrationException {
+@Deprecated
+public class ListenerConfigureException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
 

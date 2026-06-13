@@ -24,7 +24,7 @@ import io.github.malczuuu.natspring.annotation.NatsHeader;
 import io.github.malczuuu.natspring.annotation.NatsHeaders;
 import io.github.malczuuu.natspring.annotation.NatsPayload;
 import io.github.malczuuu.natspring.annotation.NatsSubject;
-import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.core.NatsMessageConversionException;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;

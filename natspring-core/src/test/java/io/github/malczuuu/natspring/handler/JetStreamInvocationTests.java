@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import io.github.malczuuu.natspring.annotation.AckMode;
 import io.github.malczuuu.natspring.annotation.ConsumerType;
 import io.github.malczuuu.natspring.annotation.DeliverPolicyType;
-import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.instrument.JetStreamListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;

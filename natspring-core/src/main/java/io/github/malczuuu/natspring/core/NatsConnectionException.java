@@ -19,58 +19,56 @@ package io.github.malczuuu.natspring.core;
 import java.io.Serial;
 
 /**
- * Base class for exceptions thrown during NATS integration lifecycle operations.
+ * Thrown when a NATS connection cannot be established.
  *
- * @since 0.1.0
- * @deprecated It will be replaced with {@link NatsMessagingException}.
+ * @since 0.3.0
  */
-@Deprecated
-public class NatsIntegrationException extends RuntimeException {
+public class NatsConnectionException extends ConnectionException {
 
   @Serial private static final long serialVersionUID = 1L;
 
-  /** Creates a new {@link NatsIntegrationException}. */
-  public NatsIntegrationException() {
+  /** Creates a new {@link NatsConnectionException}. */
+  public NatsConnectionException() {
     super();
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsConnectionException}.
    *
    * @param message the detail message
    */
-  public NatsIntegrationException(String message) {
+  public NatsConnectionException(String message) {
     super(message);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsConnectionException}.
    *
    * @param message the detail message
    * @param cause the underlying cause
    */
-  public NatsIntegrationException(String message, Throwable cause) {
+  public NatsConnectionException(String message, Throwable cause) {
     super(message, cause);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsConnectionException}.
    *
    * @param cause the underlying cause
    */
-  public NatsIntegrationException(Throwable cause) {
+  public NatsConnectionException(Throwable cause) {
     super(cause);
   }
 
   /**
-   * Creates a new {@link NatsIntegrationException}.
+   * Creates a new {@link NatsConnectionException}.
    *
    * @param message the detail message
    * @param cause the underlying cause
    * @param enableSuppression whether suppression is enabled or disabled
    * @param writableStackTrace whether the stack trace should be writable
    */
-  protected NatsIntegrationException(
+  protected NatsConnectionException(
       String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }

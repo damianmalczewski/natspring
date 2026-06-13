@@ -19,8 +19,8 @@ package io.github.malczuuu.natspring.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.converter.NatsMessageConverter;
+import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.nats.client.Message;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

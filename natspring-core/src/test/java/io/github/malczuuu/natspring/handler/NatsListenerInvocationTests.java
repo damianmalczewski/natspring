@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import io.github.malczuuu.natspring.converter.JacksonNatsMessageConverter;
+import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
 import io.nats.client.Message;

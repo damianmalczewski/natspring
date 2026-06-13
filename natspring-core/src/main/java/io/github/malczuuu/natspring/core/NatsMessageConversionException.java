@@ -23,7 +23,7 @@ import java.io.Serial;
  *
  * @since 0.3.0
  */
-public class NatsMessageConversionException extends NatsIntegrationException {
+public class NatsMessageConversionException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
 
