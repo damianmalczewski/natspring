@@ -24,7 +24,7 @@ import java.io.Serial;
  * @since 0.1.0
  * @deprecated It will be replaced with {@link NatsListenerMethodException}.
  */
-@Deprecated
+@Deprecated(since = "0.3.0", forRemoval = true)
 public class ListenerConfigureException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
