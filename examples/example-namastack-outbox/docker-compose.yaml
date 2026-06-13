@@ -1,0 +1,16 @@
+services:
+  nats:
+    image: nats:2.14
+    command: ["-js"]
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: outbox_example
+      POSTGRES_USER: outbox
+      POSTGRES_PASSWORD: outbox
+    ports:
+      - "127.0.0.1:5432:5432"

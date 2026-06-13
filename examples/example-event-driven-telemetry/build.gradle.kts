@@ -12,6 +12,8 @@ java {
 }
 
 dependencies {
+    implementation(platform(libs.spring.boot.dependencies))
+
     implementation(project(":natspring-starter"))
     implementation(libs.spring.boot.starter.data.mongodb)
     implementation(libs.spring.boot.starter.webmvc)

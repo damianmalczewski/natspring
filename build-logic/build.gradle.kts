@@ -8,7 +8,9 @@ plugins {
 dependencies {
     implementation(plugin(libs.plugins.errorprone))
     implementation(plugin(libs.plugins.idea.ext))
+    implementation(plugin(libs.plugins.kotlin.jpa))
     implementation(plugin(libs.plugins.kotlin.jvm))
+    implementation(plugin(libs.plugins.kotlin.spring))
     implementation(plugin(libs.plugins.spotless))
     implementation(plugin(libs.plugins.spring.boot))
 }

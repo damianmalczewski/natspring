@@ -37,7 +37,7 @@ class ManagedJetStreamLifecycleTests extends AbstractTestcontainersTests {
   private Connection connection;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void beforeEach() throws Exception {
     Options options =
         new Options.Builder()
             .server(nats.getConnectionUrl())

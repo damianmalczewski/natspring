@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: example-namastack-outbox
+  datasource:
+    url: jdbc:postgresql://localhost:5432/outbox_example
+    username: outbox
+    password: outbox
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+nats:
+  server: nats://localhost:4222
+  auto-stream-creation: true
+
+natspring:
+  namastack:
+    outbox:
+      default-subject: orders.events
