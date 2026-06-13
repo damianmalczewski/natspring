@@ -67,7 +67,7 @@ jobs:
 
       - name: Upload JaCoCo report to Codecov
         if: matrix.java == 25
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: ./build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
           disable_search: true
