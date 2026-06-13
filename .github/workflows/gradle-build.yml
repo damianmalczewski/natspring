@@ -72,4 +72,5 @@ jobs:
         uses: codecov/codecov-action@v6
         with:
           files: ./build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
+          disable_search: true
           token: ${{ secrets.CODECOV_TOKEN }}
