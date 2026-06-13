@@ -23,7 +23,7 @@ import java.io.Serial;
  *
  * @since 0.3.0
  */
-public class NatsListenerMethodException extends ListenerConfigureException {
+public class NatsListenerMethodException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
 

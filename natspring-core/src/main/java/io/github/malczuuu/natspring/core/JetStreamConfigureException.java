@@ -23,7 +23,7 @@ import java.io.Serial;
  *
  * @since 0.1.0
  */
-public class JetStreamConfigureException extends StreamConfigureException {
+public class JetStreamConfigureException extends NatsMessagingException {
 
   @Serial private static final long serialVersionUID = 1L;
 

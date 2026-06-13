@@ -37,6 +37,12 @@ public class ManagedConnectionHookLifecycle implements ConnectionHookLifecycle {
 
   private boolean running = false;
 
+  /**
+   * Creates new {@link ManagedConnectionHookLifecycle} instance.
+   *
+   * @param connection the NATS connection
+   * @param actions list of actions to execute on lifecycle events
+   */
   public ManagedConnectionHookLifecycle(Connection connection, List<ConnectionHook> actions) {
     this.connection = connection;
     this.actions = actions;

@@ -60,7 +60,7 @@ final class ListenerMethodValidation {
     }
     NatsHeader natsHeader = param.getAnnotation(NatsHeader.class);
     if (natsHeader != null) {
-      String name = natsHeader.value().isEmpty() ? natsHeader.name() : natsHeader.value();
+      String name = natsHeader.value();
       if (name.isEmpty()) {
         throw new IllegalArgumentException(natsHeaderRequiresName(method, index));
       }

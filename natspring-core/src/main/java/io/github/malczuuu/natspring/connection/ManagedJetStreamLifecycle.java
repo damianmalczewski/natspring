@@ -17,7 +17,7 @@
 package io.github.malczuuu.natspring.connection;
 
 import io.github.malczuuu.natspring.core.JetStreamConfigureException;
-import io.github.malczuuu.natspring.core.NatsIntegrationException;
+import io.github.malczuuu.natspring.core.NatsMessagingException;
 import io.nats.client.Connection;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.JetStreamManagement;
@@ -100,7 +100,7 @@ public class ManagedJetStreamLifecycle implements JetStreamLifecycle {
         }
       }
     } catch (Exception e) {
-      if (e instanceof NatsIntegrationException ex) {
+      if (e instanceof NatsMessagingException ex) {
         throw ex;
       }
       if (e instanceof JetStreamApiException ex) {

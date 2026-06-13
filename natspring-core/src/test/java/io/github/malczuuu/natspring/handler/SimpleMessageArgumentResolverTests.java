@@ -109,33 +109,21 @@ class SimpleMessageArgumentResolverTests {
   }
 
   @Test
-  void givenNatsHeaderValueAttribute_whenResolved_thenResolvesHeaderByName() {
+  void givenNatsHeaderAttribute_whenResolved_thenResolvesHeaderByName() {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
 
     Object result =
         resolver.resolveArgument(
-            param("withHeaderByValue", String.class), messageWithHeaders(new byte[0], headers));
+            param("withHeader", String.class), messageWithHeaders(new byte[0], headers));
 
     assertThat(result).isEqualTo("bar");
   }
 
   @Test
-  void givenNatsHeaderNameAttribute_whenResolved_thenResolvesHeaderByName() {
-    Headers headers = new Headers();
-    headers.add("X-Foo", "baz");
-
-    Object result =
-        resolver.resolveArgument(
-            param("withHeaderByName", String.class), messageWithHeaders(new byte[0], headers));
-
-    assertThat(result).isEqualTo("baz");
-  }
-
-  @Test
   void givenNatsHeaderWithNoMessageHeaders_whenResolved_thenReturnsNull() {
     Object result =
-        resolver.resolveArgument(param("withHeaderByValue", String.class), message(new byte[0]));
+        resolver.resolveArgument(param("withHeader", String.class), message(new byte[0]));
 
     assertThat(result).isNull();
   }
@@ -349,9 +337,7 @@ class SimpleMessageArgumentResolverTests {
 
     void withHeadersByType(Headers h) {}
 
-    void withHeaderByValue(@NatsHeader("X-Foo") String h) {}
-
-    void withHeaderByName(@NatsHeader(name = "X-Foo") String h) {}
+    void withHeader(@NatsHeader("X-Foo") String h) {}
 
     void withHeaderAsList(@NatsHeader("X-Foo") List<String> h) {}
 

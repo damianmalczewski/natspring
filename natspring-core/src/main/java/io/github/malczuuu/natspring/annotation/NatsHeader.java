@@ -38,13 +38,4 @@ public @interface NatsHeader {
    * @return the header name (alias for {@code name})
    */
   String value() default "";
-
-  /**
-   * Header name to look up.
-   *
-   * @return the header name
-   * @deprecated use {@link #value()} instead
-   */
-  @Deprecated(since = "0.2.0", forRemoval = true)
-  String name() default "";
 }
