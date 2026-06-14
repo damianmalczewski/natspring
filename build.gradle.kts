@@ -82,6 +82,7 @@ tasks.named<JacocoReport>("testCodeCoverageReport") {
                         "io/github/malczuuu/natspring/instrument/JetStreamListenerObserver.class",
                         "io/github/malczuuu/natspring/instrument/NatsConnectionObserver.class",
                         "io/github/malczuuu/natspring/instrument/NatsListenerObserver.class",
+                        "io/github/malczuuu/natspring/namastack/outbox/NatsOutboxProperties.class",
                         "**/*Exception.class",
                     )
                 }
