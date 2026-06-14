@@ -1,6 +1,7 @@
 [versions]
 errorprone = "2.50.0"
 errorprone-plugin = "5.1.0"
+gson = "2.14.0"
 idea-ext = "1.4.1"
 jackson = "3.2.0"
 jnats = "2.25.3"
@@ -50,6 +51,7 @@ spring-context = { module = "org.springframework:spring-context", version.ref = 
 
 # other modules
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 jnats = { module = "io.nats:jnats", version.ref = "jnats" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }

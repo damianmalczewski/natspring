@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
   `@JetStreamListener`-annotated methods.
 - Allow `@NatsHeader`-annotated parameter without `value` attribute (fallback to method argument name).
 - Add `NatsClient` interface with package-private implementation.
+- Add `GsonNatsMessageConverter` for `com.google.code.gson` support.
 
 ### Changed
 

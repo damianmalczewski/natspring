@@ -11,11 +11,13 @@ dependencies {
     api(libs.jspecify)
     api(libs.spring.context)
 
+    compileOnly(libs.gson)
     compileOnly(libs.jackson.databind)
     compileOnly(libs.micrometer.core)
     compileOnly(libs.slf4j.api)
 
     testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.gson)
     testImplementation(libs.jackson.databind)
     testImplementation(libs.micrometer.core)
 
