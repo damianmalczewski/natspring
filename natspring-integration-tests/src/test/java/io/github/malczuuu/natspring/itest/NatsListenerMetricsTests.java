@@ -19,7 +19,7 @@ package io.github.malczuuu.natspring.itest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import io.github.malczuuu.natspring.itest.entrypoint.NatsListenerComponent;
 import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
 import io.micrometer.core.instrument.Counter;
@@ -35,7 +35,7 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
 
   @Autowired private MeterRegistry meterRegistry;
   @Autowired private NatsListenerComponent handler;
-  @Autowired private NatsOperations natsOperations;
+  @Autowired private NatsClient natsClient;
 
   @AfterEach
   void afterEach() {
@@ -53,7 +53,7 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsOperations.publish("combo.string", "metrics-received-test");
+    natsClient.publish("combo.string", "metrics-received-test");
     assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
 
     await()
@@ -82,7 +82,7 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsOperations.publish("combo.string", "metrics-success-test");
+    natsClient.publish("combo.string", "metrics-success-test");
     assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
 
     await()
@@ -110,7 +110,7 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsOperations.publish("combo.object", "not-valid-json");
+    natsClient.publish("combo.object", "not-valid-json");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -137,7 +137,7 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             .timer();
     long countBefore = before != null ? before.count() : 0L;
 
-    natsOperations.publish("combo.string", "metrics-duration-test");
+    natsClient.publish("combo.string", "metrics-duration-test");
     assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
 
     await()

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ class TelemetryExampleTests {
   @Container @ServiceConnection
   static final MongoDBContainer mongo = new MongoDBContainer("mongo:8.3");
 
-  @Autowired NatsOperations natsOperations;
+  @Autowired NatsClient natsClient;
   @Autowired RestTestClient restClient;
   @Autowired DeviceEventRepository deviceEventRepository;
   @Autowired DeviceInfoRepository deviceInfoRepository;
@@ -61,7 +61,7 @@ class TelemetryExampleTests {
 
   @Test
   void givenValidMessage_whenPublishedToRaw_thenEventPersistedInDatabase() {
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage(
             deviceId, "temperature", Map.of("value", 23.5, "unit", "Celsius"), Instant.now()));
@@ -79,7 +79,7 @@ class TelemetryExampleTests {
 
   @Test
   void givenValidMessage_whenPublishedToRaw_thenDeviceMetadataUpdated() {
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage(deviceId, "humidity", Map.of("value", 65.0), Instant.now()));
 
@@ -100,10 +100,10 @@ class TelemetryExampleTests {
 
   @Test
   void givenMultipleValidMessages_whenPublished_thenTotalEventsAccumulates() {
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage(deviceId, "temperature", Map.of("value", 22.0), Instant.now()));
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage(deviceId, "pressure", Map.of("value", 1013.0), Instant.now()));
 
@@ -120,7 +120,7 @@ class TelemetryExampleTests {
 
   @Test
   void givenValidMessage_whenPublished_thenDeviceEndpointReturnsMetadata() {
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage(deviceId, "temperature", Map.of("value", 20.0), Instant.now()));
 
@@ -149,7 +149,7 @@ class TelemetryExampleTests {
 
   @Test
   void givenValidMessage_whenPublished_thenHistoryEndpointReturnsEvent() {
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage(deviceId, "temperature", Map.of("value", 21.5), Instant.now()));
 
@@ -197,7 +197,7 @@ class TelemetryExampleTests {
 
   @Test
   void givenInvalidMessage_whenPublishedToRaw_thenDeadLettered() {
-    natsOperations.publish(
+    natsClient.publish(
         "iot.events.raw",
         new DeviceEventMessage("", "temperature", Map.of("value", 25.0), Instant.now()));
 
@@ -213,7 +213,7 @@ class TelemetryExampleTests {
   @Test
   void givenDeadLetteredMessage_whenListRequested_thenPayloadTruncatedTo32Chars() {
     String longPayload = "x".repeat(100);
-    natsOperations.publish("iot.events.deadletter", longPayload);
+    natsClient.publish("iot.events.deadletter", longPayload);
 
     await().atMost(10, TimeUnit.SECONDS).until(() -> !deadLetterRepository.findAll().isEmpty());
 
@@ -236,7 +236,7 @@ class TelemetryExampleTests {
   @Test
   void givenDeadLetteredMessage_whenDetailRequested_thenFullPayloadReturned() {
     String longPayload = "x".repeat(100);
-    natsOperations.publish("iot.events.deadletter", longPayload);
+    natsClient.publish("iot.events.deadletter", longPayload);
 
     await().atMost(10, TimeUnit.SECONDS).until(() -> !deadLetterRepository.findAll().isEmpty());
 

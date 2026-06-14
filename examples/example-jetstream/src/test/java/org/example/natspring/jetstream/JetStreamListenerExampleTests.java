@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +25,7 @@ class JetStreamListenerExampleTests {
   public static final NatsContainer nats = new NatsContainer("nats:2.14").withJetStream();
 
   @Autowired JetStreamListenerExample application;
-  @Autowired NatsOperations natsOperations;
+  @Autowired NatsClient natsClient;
   @Autowired RestTestClient restClient;
 
   @BeforeEach
@@ -35,7 +35,7 @@ class JetStreamListenerExampleTests {
 
   @Test
   void orderedConsumerReceivesMeasurementAndEndpointExposesIt() {
-    natsOperations.publish(
+    natsClient.publish(
         "telemetry.temperature",
         new SenmlRecord("sensor-single", 1700000000.0, "temperature", 23.5, "Cel"));
 
@@ -60,10 +60,10 @@ class JetStreamListenerExampleTests {
 
   @Test
   void multipleSubjectsWithinStreamAreAllReceived() {
-    natsOperations.publish(
+    natsClient.publish(
         "telemetry.humidity",
         new SenmlRecord("sensor-multi", 1700000001.0, "humidity", 65.0, "%RH"));
-    natsOperations.publish(
+    natsClient.publish(
         "telemetry.pressure",
         new SenmlRecord("sensor-multi", 1700000002.0, "pressure", 1013.25, "hPa"));
 

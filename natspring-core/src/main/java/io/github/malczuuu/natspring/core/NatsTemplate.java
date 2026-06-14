@@ -17,7 +17,6 @@
 package io.github.malczuuu.natspring.core;
 
 import io.github.malczuuu.natspring.converter.NatsMessageConverter;
-import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
@@ -34,7 +33,9 @@ import org.jspecify.annotations.Nullable;
  * Default {@link NatsOperations} implementation backed by a {@link Connection}.
  *
  * @since 0.1.0
+ * @deprecated use {@link NatsClient} instead
  */
+@Deprecated(since = "0.4.0", forRemoval = true)
 public class NatsTemplate implements NatsOperations {
 
   private final Connection connection;
@@ -224,7 +225,12 @@ public class NatsTemplate implements NatsOperations {
             new IllegalStateException("request suppressed by interceptor"));
   }
 
-  /** Builder for {@link NatsTemplate}. */
+  /**
+   * Builder for {@link NatsTemplate}.
+   *
+   * @deprecated use {@link NatsClient} instead
+   */
+  @Deprecated(since = "0.4.0", forRemoval = true)
   public static class Builder {
 
     private @Nullable Connection connection;
@@ -245,8 +251,7 @@ public class NatsTemplate implements NatsOperations {
     }
 
     /**
-     * Sets the converter used for object serialization. If not set, defaults to {@code new
-     * JacksonNatsConverter()}.
+     * Sets the converter used for object serialization.
      *
      * @param converter the converter
      * @return this builder
@@ -279,18 +284,19 @@ public class NatsTemplate implements NatsOperations {
     }
 
     /**
-     * Builds a {@link NatsTemplate} from the current state of this builder. Requires {@link
-     * #withConnection(Connection)} to have been set.
+     * Builds a {@link NatsTemplate} from the current state of this builder. Validates if required
+     * values have been set.
      *
      * @return a new {@link NatsTemplate}
-     * @throws IllegalArgumentException if {@code connection} has not been set
+     * @throws IllegalArgumentException if any required field has not been set
      */
     public NatsTemplate build() {
       if (connection == null) {
         throw new IllegalArgumentException("connection is required");
       }
-      NatsMessageConverter converter =
-          this.converter != null ? this.converter : new JacksonNatsMessageConverter();
+      if (converter == null) {
+        throw new IllegalArgumentException("converter is required");
+      }
       return new NatsTemplate(connection, converter, interceptors);
     }
   }

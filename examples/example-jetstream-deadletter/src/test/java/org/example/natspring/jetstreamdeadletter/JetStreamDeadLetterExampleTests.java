@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ class JetStreamDeadLetterExampleTests {
   public static final NatsContainer nats = new NatsContainer("nats:2.14").withJetStream();
 
   @Autowired JetStreamDeadLetterExample application;
-  @Autowired NatsOperations natsOperations;
+  @Autowired NatsClient natsClient;
   @Autowired RestTestClient restClient;
 
   @BeforeEach
@@ -34,7 +34,7 @@ class JetStreamDeadLetterExampleTests {
 
   @Test
   void whenHandlerThrows_thenMessageIsDeadLettered() {
-    natsOperations.publish(
+    natsClient.publish(
         "telemetry.temperature",
         new SenmlRecord("sensor-dlq", 1700000000.0, "temperature", 23.5, "Cel"));
 
@@ -80,10 +80,10 @@ class JetStreamDeadLetterExampleTests {
 
   @Test
   void whenMultipleMessagesPublished_thenAllAreDeadLettered() {
-    natsOperations.publish(
+    natsClient.publish(
         "telemetry.temperature",
         new SenmlRecord("sensor-multi", 1700000001.0, "temperature", 21.0, "Cel"));
-    natsOperations.publish(
+    natsClient.publish(
         "telemetry.humidity",
         new SenmlRecord("sensor-multi", 1700000002.0, "humidity", 60.0, "%RH"));
 

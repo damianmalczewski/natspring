@@ -19,7 +19,7 @@ package io.github.malczuuu.natspring.itest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import io.github.malczuuu.natspring.itest.entrypoint.JetStreamListenerComponent;
 import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
 import io.micrometer.core.instrument.Counter;
@@ -35,7 +35,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
 
   @Autowired private MeterRegistry meterRegistry;
   @Autowired private JetStreamListenerComponent handler;
-  @Autowired private NatsOperations natsOperations;
+  @Autowired private NatsClient natsClient;
 
   @AfterEach
   void afterEach() {
@@ -52,7 +52,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsOperations.publish("js.string", "jetstream-metrics-received-test");
+    natsClient.publish("js.string", "jetstream-metrics-received-test");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -79,7 +79,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsOperations.publish("js.string", "jetstream-metrics-acked-test");
+    natsClient.publish("js.string", "jetstream-metrics-acked-test");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -108,7 +108,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
             .mapToDouble(Counter::count)
             .sum();
 
-    natsOperations.publish("js.object", "not-valid-json");
+    natsClient.publish("js.object", "not-valid-json");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -137,7 +137,7 @@ class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
             .timer();
     long countBefore = before != null ? before.count() : 0L;
 
-    natsOperations.publish("js.string", "jetstream-metrics-duration-test");
+    natsClient.publish("js.string", "jetstream-metrics-duration-test");
 
     await()
         .atMost(10, TimeUnit.SECONDS)

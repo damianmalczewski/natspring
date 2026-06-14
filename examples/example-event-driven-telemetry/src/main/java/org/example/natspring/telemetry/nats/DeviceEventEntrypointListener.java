@@ -1,7 +1,7 @@
 package org.example.natspring.telemetry.nats;
 
 import io.github.malczuuu.natspring.annotation.JetStreamListener;
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
 import org.example.natspring.telemetry.nats.model.DeviceEventMessage;
@@ -15,16 +15,16 @@ public class DeviceEventEntrypointListener {
 
   private static final Logger log = LoggerFactory.getLogger(DeviceEventEntrypointListener.class);
 
-  private final NatsOperations natsOperations;
+  private final NatsClient natsClient;
   private final StreamSequenceSupport streamSequence;
   private final String processedSubject;
 
   public DeviceEventEntrypointListener(
-      NatsOperations natsOperations,
+      NatsClient natsClient,
       StreamSequenceSupport streamSequence,
       @Value("${app.nats.listeners.device-event-entrypoint.publish-subject}")
           String processedSubject) {
-    this.natsOperations = natsOperations;
+    this.natsClient = natsClient;
     this.streamSequence = streamSequence;
     this.processedSubject = processedSubject;
   }
@@ -39,7 +39,7 @@ public class DeviceEventEntrypointListener {
     validate(message);
     Headers headers = new Headers();
     headers.add("X-Event-Id", streamSequence.build(meta.getStream(), meta.streamSequence()));
-    natsOperations.publish(processedSubject, headers, message);
+    natsClient.publish(processedSubject, headers, message);
     log.info("Processed IoT event id={}, type={}", message.deviceId(), message.type());
   }
 

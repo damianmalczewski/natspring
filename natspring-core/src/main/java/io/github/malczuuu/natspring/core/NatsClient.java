@@ -16,19 +16,30 @@
 
 package io.github.malczuuu.natspring.core;
 
+import io.github.malczuuu.natspring.converter.NatsMessageConverter;
+import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Contract for publishing messages to NATS subjects.
+ * Contract for publishing messages to and sending requests over NATS subjects.
  *
- * @since 0.1.0
- * @deprecated Use {@link NatsClient} instead.
+ * <p>Use {@link #builder()} to create an instance, or {@link #mutate()} on an existing instance to
+ * create a copy-builder pre-populated with its state.
  */
-@Deprecated(since = "0.4.0", forRemoval = true)
-public interface NatsOperations {
+public interface NatsClient {
+
+  /**
+   * Returns a new builder for constructing a {@link NatsClient} instance.
+   *
+   * @return a new builder
+   */
+  static Builder builder() {
+    return new DefaultNatsClient.DefaultBuilder();
+  }
 
   /**
    * Publishes a pre-built {@link Message} as-is.
@@ -93,7 +104,8 @@ public interface NatsOperations {
   /**
    * Sends a request to the given subject and returns a future that completes with the reply.
    * Completes exceptionally with {@link java.util.concurrent.TimeoutException} if no reply arrives
-   * within the given timeout.
+   * within the given timeout, or with {@link IllegalStateException} if the request was suppressed
+   * by a {@link NatsPublishInterceptor}.
    *
    * @param subject the NATS subject
    * @param payload the request body
@@ -105,7 +117,8 @@ public interface NatsOperations {
   /**
    * Sends a request to the given subject and returns a future that completes with the reply.
    * Completes exceptionally with {@link java.util.concurrent.TimeoutException} if no reply arrives
-   * within the given timeout.
+   * within the given timeout, or with {@link IllegalStateException} if the request was suppressed
+   * by a {@link NatsPublishInterceptor}.
    *
    * @param subject the NATS subject
    * @param payload the request body, encoded as UTF-8
@@ -117,7 +130,8 @@ public interface NatsOperations {
   /**
    * Sends a request to the given subject and returns a future that completes with the reply.
    * Completes exceptionally with {@link java.util.concurrent.TimeoutException} if no reply arrives
-   * within the given timeout.
+   * within the given timeout, or with {@link IllegalStateException} if the request was suppressed
+   * by a {@link NatsPublishInterceptor}.
    *
    * @param subject the NATS subject
    * @param payload the request body, serialized to JSON
@@ -126,4 +140,61 @@ public interface NatsOperations {
    * @return future that completes with the reply message
    */
   <T> CompletableFuture<NatsReply> request(String subject, T payload, Duration timeout);
+
+  /**
+   * Returns a builder pre-populated with the state of this {@link NatsClient}, allowing
+   * modifications without changing the original.
+   *
+   * @return a new builder pre-populated with this instance's state
+   */
+  Builder mutate();
+
+  /**
+   * Builder for {@link NatsClient}.
+   *
+   * @since 0.4.0
+   */
+  interface Builder {
+
+    /**
+     * Sets the NATS connection.
+     *
+     * @param connection the NATS connection; must not be {@code null}
+     * @return this builder
+     */
+    Builder withConnection(Connection connection);
+
+    /**
+     * Sets the converter used for object serialization.
+     *
+     * @param converter the converter
+     * @return this builder
+     */
+    Builder withConverter(NatsMessageConverter converter);
+
+    /**
+     * Adds all given interceptors to the publish interceptor chain.
+     *
+     * @param interceptors interceptors to add
+     * @return this builder
+     */
+    Builder addInterceptors(List<NatsPublishInterceptor> interceptors);
+
+    /**
+     * Adds a single interceptor to the publish interceptor chain.
+     *
+     * @param interceptor the interceptor to add
+     * @return this builder
+     */
+    Builder addInterceptor(NatsPublishInterceptor interceptor);
+
+    /**
+     * Builds a {@link NatsClient} from the current state of this builder. Validates if required
+     * values have been set.
+     *
+     * @return a new {@link NatsClient}
+     * @throws IllegalArgumentException if any required field has not been set
+     */
+    NatsClient build();
+  }
 }

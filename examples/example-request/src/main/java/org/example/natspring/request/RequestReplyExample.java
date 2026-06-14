@@ -1,7 +1,7 @@
 package org.example.natspring.request;
 
 import io.github.malczuuu.natspring.annotation.NatsListener;
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import io.github.malczuuu.natspring.core.NatsReply;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -19,22 +19,22 @@ public class RequestReplyExample {
 
   private static final Logger log = LoggerFactory.getLogger(RequestReplyExample.class);
 
-  private final NatsOperations natsOperations;
+  private final NatsClient natsClient;
 
-  public RequestReplyExample(NatsOperations natsOperations) {
-    this.natsOperations = natsOperations;
+  public RequestReplyExample(NatsClient natsClient) {
+    this.natsClient = natsClient;
   }
 
   @GetMapping("/add")
   public MathResult add(@RequestParam int a, @RequestParam int b) throws Exception {
     NatsReply reply =
-        natsOperations.request("calc.add", new MathRequest(a, b), Duration.ofSeconds(5)).get();
+        natsClient.request("calc.add", new MathRequest(a, b), Duration.ofSeconds(5)).get();
     return reply.bodyAs(MathResult.class);
   }
 
   @GetMapping("/echo")
   public String echo(@RequestParam String text) throws Exception {
-    NatsReply reply = natsOperations.request("calc.echo", text, Duration.ofSeconds(5)).get();
+    NatsReply reply = natsClient.request("calc.echo", text, Duration.ofSeconds(5)).get();
     return new String(reply.getMessage().getData(), StandardCharsets.UTF_8);
   }
 

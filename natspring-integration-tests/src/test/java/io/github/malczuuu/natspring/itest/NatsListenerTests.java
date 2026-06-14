@@ -18,7 +18,7 @@ package io.github.malczuuu.natspring.itest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsClient;
 import io.github.malczuuu.natspring.itest.entrypoint.NatsListenerComponent;
 import io.github.malczuuu.natspring.itest.entrypoint.SampleMessage;
 import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class NatsListenerTests extends AbstractSpringBootTests {
 
   @Autowired private NatsListenerComponent handler;
-  @Autowired private NatsOperations natsOperations;
+  @Autowired private NatsClient natsClient;
 
   @AfterEach
   void afterEach() {
@@ -44,14 +44,14 @@ class NatsListenerTests extends AbstractSpringBootTests {
 
   @Test
   void givenNoArgsSubject_whenMessagePublished_thenHandlerInvoked() throws Exception {
-    natsOperations.publish("combo.no-args", new byte[0]);
+    natsClient.publish("combo.no-args", new byte[0]);
 
     assertThat(handler.noArgsLatch.await(10, TimeUnit.SECONDS)).isTrue();
   }
 
   @Test
   void givenMessageParamSubject_whenMessagePublished_thenHandlerReceivesMessage() throws Exception {
-    natsOperations.publish("combo.message", "hello".getBytes(StandardCharsets.UTF_8));
+    natsClient.publish("combo.message", "hello".getBytes(StandardCharsets.UTF_8));
 
     Message received = handler.messages.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
@@ -62,7 +62,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
   void givenBytesParamSubject_whenMessagePublished_thenHandlerReceivesBytes() throws Exception {
     byte[] body = "raw bytes".getBytes(StandardCharsets.UTF_8);
 
-    natsOperations.publish("combo.bytes", body);
+    natsClient.publish("combo.bytes", body);
 
     byte[] received = handler.bytesPayloads.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo(body);
@@ -70,7 +70,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
 
   @Test
   void givenStringParamSubject_whenMessagePublished_thenHandlerReceivesString() throws Exception {
-    natsOperations.publish("combo.string", "hello string");
+    natsClient.publish("combo.string", "hello string");
 
     String received = handler.stringPayloads.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("hello string");
@@ -81,7 +81,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
       throws Exception {
     byte[] body = "payload bytes".getBytes(StandardCharsets.UTF_8);
 
-    natsOperations.publish("combo.bytes-payload", body);
+    natsClient.publish("combo.bytes-payload", body);
 
     byte[] received = handler.bytesWithPayloadAnnotation.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo(body);
@@ -90,7 +90,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
   @Test
   void givenStringPayloadAnnotationSubject_whenMessagePublished_thenHandlerReceivesString()
       throws Exception {
-    natsOperations.publish("combo.string-payload", "payload string");
+    natsClient.publish("combo.string-payload", "payload string");
 
     String received = handler.stringsWithPayloadAnnotation.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("payload string");
@@ -99,7 +99,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
   @Test
   void givenObjectSubject_whenJsonMessagePublished_thenHandlerDeserializesObject()
       throws Exception {
-    natsOperations.publish("combo.object", new SampleMessage("test", 42));
+    natsClient.publish("combo.object", new SampleMessage("test", 42));
 
     SampleMessage received = handler.objects.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
@@ -115,7 +115,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
     Message message =
         NatsMessage.builder().subject("combo.header").headers(headers).data(new byte[0]).build();
 
-    natsOperations.publish(message);
+    natsClient.publish(message);
 
     String received = handler.headerValues.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("header-value");
@@ -130,7 +130,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
     Message message =
         NatsMessage.builder().subject("combo.headers").headers(headers).data(new byte[0]).build();
 
-    natsOperations.publish(message);
+    natsClient.publish(message);
 
     Headers received = handler.headersValues.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
@@ -140,7 +140,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
 
   @Test
   void givenQueueGroupSubject_whenMessagePublished_thenHandlerReceivesMessage() throws Exception {
-    natsOperations.publish("combo.queue-queue", "queued");
+    natsClient.publish("combo.queue-queue", "queued");
 
     String received = handler.queueGroupMessages.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("queued");
@@ -149,7 +149,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
   @Test
   void givenPropertyResolvedSubjectAndQueue_whenMessagePublished_thenHandlerReceivesMessage()
       throws Exception {
-    natsOperations.publish("combo.from-property", "from property");
+    natsClient.publish("combo.from-property", "from property");
 
     String received = handler.propertySubjectMessages.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("from property");
@@ -158,7 +158,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
   @Test
   void givenGenericListSubject_whenJsonMessagePublished_thenHandlerDeserializesList()
       throws Exception {
-    natsOperations.publish(
+    natsClient.publish(
         "combo.generic-list", List.of(new SampleMessage("a", 1), new SampleMessage("b", 2)));
 
     List<SampleMessage> received = handler.genericLists.poll(10, TimeUnit.SECONDS);
@@ -170,7 +170,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
 
   @Test
   void givenArraySubject_whenJsonMessagePublished_thenHandlerDeserializesArray() throws Exception {
-    natsOperations.publish(
+    natsClient.publish(
         "combo.array", List.of(new SampleMessage("c", 3), new SampleMessage("d", 4)));
 
     SampleMessage[] received = handler.arrays.poll(10, TimeUnit.SECONDS);
@@ -192,7 +192,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
             .data(new byte[0])
             .build();
 
-    natsOperations.publish(message);
+    natsClient.publish(message);
 
     Headers received = handler.headersValuesByType.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
@@ -205,7 +205,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
     Headers headers = new Headers();
     headers.add("X-Key", "bytes-header-value");
 
-    natsOperations.publish("combo.header", headers, new byte[0]);
+    natsClient.publish("combo.header", headers, new byte[0]);
 
     String received = handler.headerValues.poll(10, TimeUnit.SECONDS);
     assertThat(received).isEqualTo("bytes-header-value");
@@ -218,7 +218,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
     headers.add("X-Foo", "string-foo");
     headers.add("X-Bar", "string-bar");
 
-    natsOperations.publish("combo.headers", headers, "");
+    natsClient.publish("combo.headers", headers, "");
 
     Headers received = handler.headersValues.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
@@ -232,7 +232,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
     Headers headers = new Headers();
     headers.add("X-Type", "object-header-value");
 
-    natsOperations.publish("combo.headers-by-type", headers, new SampleMessage("obj", 1));
+    natsClient.publish("combo.headers-by-type", headers, new SampleMessage("obj", 1));
 
     Headers received = handler.headersValuesByType.poll(10, TimeUnit.SECONDS);
     assertThat(received).isNotNull();
@@ -245,7 +245,7 @@ class NatsListenerTests extends AbstractSpringBootTests {
     sourceHeaders.add("X-Trace-Id", "trace-abc-123");
     sourceHeaders.add("X-Source-System", "order-service");
 
-    natsOperations.publish("combo.dlq-source", sourceHeaders, "dlq test payload");
+    natsClient.publish("combo.dlq-source", sourceHeaders, "dlq test payload");
 
     Message dlqMessage = handler.deadLetterMessages.poll(10, TimeUnit.SECONDS);
     assertThat(dlqMessage).isNotNull();

@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-class NatsTemplateTests {
+class NatsClientTests {
 
   private Connection connection;
   private NatsMessageConverter converter;
@@ -52,14 +52,14 @@ class NatsTemplateTests {
 
   @Test
   void givenMissingConnection_whenBuild_thenThrowsIllegalArgumentException() {
-    assertThatThrownBy(() -> NatsTemplate.builder().withConverter(converter).build())
+    assertThatThrownBy(() -> NatsClient.builder().withConverter(converter).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("connection is required");
   }
 
   @Test
   void givenNoConverter_whenBuild_thenSucceeds() {
-    assertThatThrownBy(() -> NatsTemplate.builder().withConnection(connection).build())
+    assertThatThrownBy(() -> NatsClient.builder().withConnection(connection).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("converter is required");
   }
@@ -67,10 +67,10 @@ class NatsTemplateTests {
   @Test
   void givenNoInterceptors_whenPublishMessage_thenConnectionReceivesMessage() {
     Message message = NatsMessage.builder().subject("test").build();
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish(message);
+    client.publish(message);
 
     verify(connection).publish(message);
   }
@@ -78,10 +78,10 @@ class NatsTemplateTests {
   @Test
   void givenNoInterceptors_whenPublishBytes_thenConnectionReceivesCorrectSubjectAndBody() {
     byte[] body = {1, 2, 3};
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish("test.subject", body);
+    client.publish("test.subject", body);
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -91,10 +91,10 @@ class NatsTemplateTests {
 
   @Test
   void givenNoInterceptors_whenPublishString_thenConnectionReceivesUtf8Bytes() {
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish("test.subject", "hello");
+    client.publish("test.subject", "hello");
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -105,10 +105,10 @@ class NatsTemplateTests {
   void givenNoInterceptors_whenPublishObject_thenConnectionReceivesJsonBytes() {
     byte[] json = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
     when(converter.toBytes(any())).thenReturn(json);
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish("test.subject", new Object());
+    client.publish("test.subject", new Object());
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -119,10 +119,10 @@ class NatsTemplateTests {
   void givenNoInterceptors_whenPublishBytesWithHeaders_thenConnectionReceivesHeaders() {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish("test.subject", headers, new byte[0]);
+    client.publish("test.subject", headers, new byte[0]);
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -133,10 +133,10 @@ class NatsTemplateTests {
   void givenNoInterceptors_whenPublishStringWithHeaders_thenConnectionReceivesHeadersAndUtf8Body() {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish("test.subject", headers, "hello");
+    client.publish("test.subject", headers, "hello");
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -150,10 +150,10 @@ class NatsTemplateTests {
     when(converter.toBytes(any())).thenReturn(json);
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.publish("test.subject", headers, new Object());
+    client.publish("test.subject", headers, new Object());
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -169,14 +169,14 @@ class NatsTemplateTests {
           calls.add("interceptor");
           chain.proceed(msg);
         };
-    NatsTemplate template =
-        NatsTemplate.builder()
+    NatsClient client =
+        NatsClient.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
-    template.publish("test.subject", new byte[0]);
+    client.publish("test.subject", new byte[0]);
 
     calls.add("verified");
     verify(connection).publish(any(Message.class));
@@ -196,14 +196,14 @@ class NatsTemplateTests {
           calls.add("second");
           chain.proceed(message);
         };
-    NatsTemplate template =
-        NatsTemplate.builder()
+    NatsClient client =
+        NatsClient.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptors(List.of(first, second))
             .build();
 
-    template.publish("test.subject", new byte[0]);
+    client.publish("test.subject", new byte[0]);
 
     assertThat(calls).containsExactly("first", "second");
   }
@@ -212,14 +212,14 @@ class NatsTemplateTests {
   void givenInterceptorThatReplacesMessage_whenPublish_thenConnectionReceivesReplacedMessage() {
     Message replacement = NatsMessage.builder().subject("replaced.subject").build();
     NatsPublishInterceptor interceptor = (msg, chain) -> chain.proceed(replacement);
-    NatsTemplate template =
-        NatsTemplate.builder()
+    NatsClient client =
+        NatsClient.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
-    template.publish("original.subject", new byte[0]);
+    client.publish("original.subject", new byte[0]);
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).publish(captor.capture());
@@ -231,10 +231,10 @@ class NatsTemplateTests {
     byte[] payload = {1, 2, 3};
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.request("test.subject", payload, Duration.ofSeconds(1));
+    client.request("test.subject", payload, Duration.ofSeconds(1));
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).requestWithTimeout(captor.capture(), any(Duration.class));
@@ -246,10 +246,10 @@ class NatsTemplateTests {
   void givenNoInterceptors_whenRequestString_thenConnectionReceivesUtf8Payload() {
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.request("test.subject", "hello", Duration.ofSeconds(1));
+    client.request("test.subject", "hello", Duration.ofSeconds(1));
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).requestWithTimeout(captor.capture(), any(Duration.class));
@@ -262,10 +262,10 @@ class NatsTemplateTests {
     when(converter.toBytes(any())).thenReturn(json);
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
-    template.request("test.subject", new Object(), Duration.ofSeconds(1));
+    client.request("test.subject", new Object(), Duration.ofSeconds(1));
 
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     verify(connection).requestWithTimeout(captor.capture(), any(Duration.class));
@@ -277,11 +277,11 @@ class NatsTemplateTests {
     Message reply = Mockito.mock(Message.class);
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(CompletableFuture.completedFuture(reply));
-    NatsTemplate template =
-        NatsTemplate.builder().withConnection(connection).withConverter(converter).build();
+    NatsClient client =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
 
     CompletableFuture<NatsReply> future =
-        template.request("test.subject", new byte[0], Duration.ofSeconds(1));
+        client.request("test.subject", new byte[0], Duration.ofSeconds(1));
 
     assertThat(future.join().getMessage()).isSameAs(reply);
   }
@@ -289,15 +289,15 @@ class NatsTemplateTests {
   @Test
   void givenAbortingInterceptor_whenRequest_thenFutureFailsWithIllegalStateException() {
     NatsPublishInterceptor interceptor = (msg, chain) -> {};
-    NatsTemplate template =
-        NatsTemplate.builder()
+    NatsClient client =
+        NatsClient.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
     CompletableFuture<NatsReply> future =
-        template.request("test.subject", new byte[0], Duration.ofSeconds(1));
+        client.request("test.subject", new byte[0], Duration.ofSeconds(1));
 
     assertThatThrownBy(future::join)
         .isInstanceOf(CompletionException.class)
@@ -308,16 +308,29 @@ class NatsTemplateTests {
   }
 
   @Test
+  void givenExistingClient_whenMutate_thenNewClientInheritsConnection() {
+    NatsClient original =
+        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    Connection newConnection = Mockito.mock(Connection.class);
+
+    NatsClient mutated = original.mutate().withConnection(newConnection).build();
+    mutated.publish("test.subject", new byte[0]);
+
+    verify(connection, never()).publish(any(Message.class));
+    verify(newConnection).publish(any(Message.class));
+  }
+
+  @Test
   void givenInterceptorThatAborts_whenPublish_thenConnectionNeverCalled() {
     NatsPublishInterceptor interceptor = (msg, chain) -> {};
-    NatsTemplate template =
-        NatsTemplate.builder()
+    NatsClient client =
+        NatsClient.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
             .build();
 
-    template.publish("test.subject", new byte[0]);
+    client.publish("test.subject", new byte[0]);
 
     verify(connection, never()).publish(any(Message.class));
   }
