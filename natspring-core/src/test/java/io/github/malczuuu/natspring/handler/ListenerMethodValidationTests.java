@@ -51,7 +51,7 @@ class ListenerMethodValidationTests {
   static void validNatsHeadersType(@NatsHeaders Headers headers) {}
 
   @SuppressWarnings("unused")
-  static void invalidNatsHeaderEmptyName(@NatsHeader String h) {}
+  static void validNatsHeaderEmptyName(@NatsHeader String h) {}
 
   @SuppressWarnings("unused")
   static void invalidNatsHeaderWrongType(@NatsHeader("X-Type") int h) {}
@@ -143,12 +143,10 @@ class ListenerMethodValidationTests {
   }
 
   @Test
-  void givenNatsHeaderWithEmptyName_whenValidate_thenThrowsIllegalArgumentException() {
-    assertThatThrownBy(
-            () ->
-                validateJetStreamListenerMethod(method("invalidNatsHeaderEmptyName", String.class)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("@NatsHeader requires a non-empty name");
+  void givenNatsHeaderWithEmptyName_whenValidate_thenNoException() {
+    assertThatCode(
+            () -> validateJetStreamListenerMethod(method("validNatsHeaderEmptyName", String.class)))
+        .doesNotThrowAnyException();
   }
 
   @Test
@@ -192,6 +190,7 @@ class ListenerMethodValidationTests {
                 validateJetStreamListenerMethod(
                     method("invalidNatsHeadersWrongType", String.class)))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("@NatsHeaders parameter must be assignable from Headers");
+        .hasMessageContaining(
+            "@NatsHeaders parameter must be assignable from io.nats.client.impl.Headers");
   }
 }

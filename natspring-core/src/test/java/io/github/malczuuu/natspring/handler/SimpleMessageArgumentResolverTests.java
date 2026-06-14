@@ -121,6 +121,19 @@ class SimpleMessageArgumentResolverTests {
   }
 
   @Test
+  void givenNatsHeaderWithEmptyValue_whenResolved_thenResolvesHeaderByParameterName() {
+    Headers headers = new Headers();
+    headers.add("xFoo", "baz");
+
+    Object result =
+        resolver.resolveArgument(
+            param("withHeaderFromParamName", String.class),
+            messageWithHeaders(new byte[0], headers));
+
+    assertThat(result).isEqualTo("baz");
+  }
+
+  @Test
   void givenNatsHeaderWithNoMessageHeaders_whenResolved_thenReturnsNull() {
     Object result =
         resolver.resolveArgument(param("withHeader", String.class), message(new byte[0]));
@@ -338,6 +351,8 @@ class SimpleMessageArgumentResolverTests {
     void withHeadersByType(Headers h) {}
 
     void withHeader(@NatsHeader("X-Foo") String h) {}
+
+    void withHeaderFromParamName(@NatsHeader String xFoo) {}
 
     void withHeaderAsList(@NatsHeader("X-Foo") List<String> h) {}
 

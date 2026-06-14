@@ -60,8 +60,7 @@ final class ListenerMethodValidation {
     }
     NatsHeader natsHeader = param.getAnnotation(NatsHeader.class);
     if (natsHeader != null) {
-      String name = natsHeader.value();
-      if (name.isEmpty()) {
+      if (natsHeader.value().isEmpty() && !param.isNamePresent()) {
         throw new IllegalArgumentException(natsHeaderRequiresName(method, index));
       }
       Class<?> type = param.getType();
@@ -102,7 +101,7 @@ final class ListenerMethodValidation {
         + index
         + " of "
         + method.toGenericString()
-        + ": @NatsHeader requires a non-empty name";
+        + ": @NatsHeader requires a non-empty value or compilation with -parameters";
   }
 
   private static String natsHeaderListMustBeStringList(Method method, int index) {
@@ -134,7 +133,8 @@ final class ListenerMethodValidation {
         + index
         + " of "
         + method.toGenericString()
-        + ": @NatsHeaders parameter must be assignable from Headers";
+        + ": @NatsHeaders parameter must be assignable from "
+        + Headers.class.getName();
   }
 
   private static String natsReplyToNotAllowedOnJetStream(Method method, int index) {

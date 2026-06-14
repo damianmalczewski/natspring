@@ -87,7 +87,7 @@ public class SimpleMessageArgumentResolver implements MessageArgumentResolver {
     }
     NatsHeader natsHeader = parameter.getAnnotation(NatsHeader.class);
     if (natsHeader != null) {
-      String name = natsHeader.value();
+      String name = natsHeader.value().isEmpty() ? parameter.getName() : natsHeader.value();
       Headers messageHeaders = message.getHeaders();
       if (messageHeaders == null) {
         return null;
