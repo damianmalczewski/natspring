@@ -12,6 +12,7 @@ dependencies {
     runtimeOnly(libs.micrometer.registry.prometheus)
 
     testImplementation(project(":natspring-starter-test"))
+    testImplementation(libs.gson)
     testImplementation(libs.spring.boot.health)
     testImplementation(libs.spring.boot.testcontainers)
     testImplementation(libs.testcontainers.junit.jupiter)

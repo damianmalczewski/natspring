@@ -29,7 +29,6 @@ import io.github.malczuuu.natspring.connection.ManagedConnectionLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedListenerContainerLifecycle;
 import io.github.malczuuu.natspring.converter.NatsMessageConverter;
-import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.core.NatsClient;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
 import io.github.malczuuu.natspring.core.NatsOperations;
@@ -61,7 +60,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.env.Environment;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Spring Boot auto-configuration for core NATS infrastructure.
@@ -70,18 +68,12 @@ import tools.jackson.databind.json.JsonMapper;
  */
 @AutoConfiguration
 @ConditionalOnBooleanProperty(name = "nats.enabled", matchIfMissing = true)
-@ConditionalOnClass({Connection.class, JsonMapper.class})
+@ConditionalOnClass(Connection.class)
 @EnableConfigurationProperties(NatsProperties.class)
 public final class NatsAutoConfiguration {
 
   /** Creates a new {@link NatsAutoConfiguration}. */
   public NatsAutoConfiguration() {}
-
-  @Bean
-  @ConditionalOnMissingBean(NatsMessageConverter.class)
-  JacksonNatsMessageConverter natsMessageConverter(JsonMapper jsonMapper) {
-    return new JacksonNatsMessageConverter(jsonMapper);
-  }
 
   @Bean
   @ConditionalOnMissingBean(NatsConnectionDetails.class)

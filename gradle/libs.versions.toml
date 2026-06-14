@@ -41,6 +41,7 @@ spring-boot-starter-jackson-test = { module = "org.springframework.boot:spring-b
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot" }
 spring-boot-autoconfigure-processor = { module = "org.springframework.boot:spring-boot-autoconfigure-processor", version.ref = "spring-boot" }
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "spring-boot" }
+spring-boot-gson = { module = "org.springframework.boot:spring-boot-gson", version.ref = "spring-boot" }
 spring-boot-health = { module = "org.springframework.boot:spring-boot-health", version.ref = "spring-boot" }
 spring-boot-jackson = { module = "org.springframework.boot:spring-boot-jackson", version.ref = "spring-boot" }
 spring-boot-micrometer-metrics = { module = "org.springframework.boot:spring-boot-micrometer-metrics", version.ref = "spring-boot" }
