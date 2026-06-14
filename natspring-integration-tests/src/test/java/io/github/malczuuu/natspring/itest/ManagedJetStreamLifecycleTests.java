@@ -22,7 +22,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
 import io.github.malczuuu.natspring.core.JetStreamConfigureException;
-import io.github.malczuuu.natspring.itest.generic.AbstractTestcontainersTests;
+import io.github.malczuuu.natspring.itest.fixture.AbstractTestcontainersTests;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
 import io.nats.client.Options;

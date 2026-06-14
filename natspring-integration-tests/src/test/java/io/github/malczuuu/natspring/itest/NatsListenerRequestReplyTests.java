@@ -21,7 +21,9 @@ import static org.awaitility.Awaitility.await;
 
 import io.github.malczuuu.natspring.core.NatsOperations;
 import io.github.malczuuu.natspring.core.NatsReply;
-import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
+import io.github.malczuuu.natspring.itest.entrypoint.NatsListenerComponent;
+import io.github.malczuuu.natspring.itest.entrypoint.SampleMessage;
+import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.itest;
+package io.github.malczuuu.natspring.itest.entrypoint;
 
 public record SampleMessage(String name, int value) {}

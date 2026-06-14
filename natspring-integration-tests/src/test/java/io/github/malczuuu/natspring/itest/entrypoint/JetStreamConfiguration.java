@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.itest;
+package io.github.malczuuu.natspring.itest.entrypoint;
 
 import io.nats.client.api.StreamConfiguration;
 import org.springframework.context.annotation.Bean;

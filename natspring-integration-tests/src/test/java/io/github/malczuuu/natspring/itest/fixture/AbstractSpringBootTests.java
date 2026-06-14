@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.itest.generic;
+package io.github.malczuuu.natspring.itest.fixture;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
+import io.github.malczuuu.natspring.itest.entrypoint.Entrypoint;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers
-public abstract class AbstractTestcontainersTests {
+@SpringBootTest(classes = Entrypoint.class)
+public abstract class AbstractSpringBootTests {
 
-  @Container
+  @Container @ServiceConnection
   public static final NatsContainer nats =
       new NatsContainer("nats:2.14").withAuth("nats", "nats").withJetStream();
 }

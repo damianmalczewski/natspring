@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.itest;
+package io.github.malczuuu.natspring.itest.entrypoint;
 
 import io.github.malczuuu.natspring.annotation.AckMode;
 import io.github.malczuuu.natspring.annotation.ConsumerType;

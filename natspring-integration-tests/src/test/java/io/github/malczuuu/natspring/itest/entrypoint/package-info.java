@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package io.github.malczuuu.natspring.itest;
+/** An entrypoint ({@code @SpringBootConfiguration} for integration test purposes. */
+@NullMarked
+package io.github.malczuuu.natspring.itest.entrypoint;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class Entrypoint {}
+import org.jspecify.annotations.NullMarked;

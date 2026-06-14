@@ -19,7 +19,9 @@ package io.github.malczuuu.natspring.itest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.malczuuu.natspring.core.NatsOperations;
-import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
+import io.github.malczuuu.natspring.itest.entrypoint.NatsListenerComponent;
+import io.github.malczuuu.natspring.itest.entrypoint.SampleMessage;
+import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
 import io.nats.client.Message;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsMessage;

@@ -20,7 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.github.malczuuu.natspring.core.NatsOperations;
-import io.github.malczuuu.natspring.itest.generic.AbstractSpringBootTests;
+import io.github.malczuuu.natspring.itest.entrypoint.JetStreamListenerComponent;
+import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
