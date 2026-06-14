@@ -70,7 +70,11 @@ public abstract class NatsOutboxRouting extends OutboxRouting {
    */
   public abstract String resolveSubject(Object payload, OutboxRecordMetadata metadata);
 
-  /** Creates a new builder for routing configuration. */
+  /**
+   * Creates a new builder for routing configuration.
+   *
+   * @return new {@link Builder} instance
+   */
   public static Builder builder() {
     return new DefaultNatsOutboxRouting.Builder();
   }

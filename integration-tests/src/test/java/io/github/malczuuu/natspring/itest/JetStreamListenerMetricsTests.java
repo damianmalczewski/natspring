@@ -19,8 +19,8 @@ package io.github.malczuuu.natspring.itest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import io.github.malczuuu.natspring.core.NatsClient;
-import io.github.malczuuu.natspring.itest.entrypoint.NatsListenerComponent;
+import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.itest.entrypoint.JetStreamListenerComponent;
 import io.github.malczuuu.natspring.itest.fixture.AbstractSpringBootTests;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -31,11 +31,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class NatsListenerMetricsTests extends AbstractSpringBootTests {
+class JetStreamListenerMetricsTests extends AbstractSpringBootTests {
 
   @Autowired private MeterRegistry meterRegistry;
-  @Autowired private NatsListenerComponent handler;
-  @Autowired private NatsClient natsClient;
+  @Autowired private JetStreamListenerComponent handler;
+  @Autowired private NatsOperations natsClient;
 
   @AfterEach
   void afterEach() {
@@ -43,18 +43,16 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
   }
 
   @Test
-  void givenNatsListener_whenMessageReceived_thenReceivedCounterIncrementedByOne()
-      throws Exception {
+  void givenJetStreamListener_whenMessageReceived_thenReceivedCounterIncrementedByOne() {
     Counter before =
         meterRegistry
-            .find("nats.listener.messages.received")
-            .tag("subject", "combo.string")
-            .tag("queue", "")
+            .find("nats.jetstream.messages.received")
+            .tag("subject", "js.string")
+            .tag("stream", "TEST")
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsClient.publish("combo.string", "metrics-received-test");
-    assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
+    natsClient.publish("js.string", "jetstream-metrics-received-test");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -62,9 +60,9 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             () -> {
               Counter counter =
                   meterRegistry
-                      .find("nats.listener.messages.received")
-                      .tag("subject", "combo.string")
-                      .tag("queue", "")
+                      .find("nats.jetstream.messages.received")
+                      .tag("subject", "js.string")
+                      .tag("stream", "TEST")
                       .counter();
               assertThat(counter).isNotNull();
               assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
@@ -72,18 +70,16 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
   }
 
   @Test
-  void givenNatsListener_whenMessageProcessedSuccessfully_thenSuccessCounterIncrementedByOne()
-      throws Exception {
+  void givenJetStreamListener_whenMessageProcessedSuccessfully_thenAckedCounterIncrementedByOne() {
     Counter before =
         meterRegistry
-            .find("nats.listener.messages.success")
-            .tag("subject", "combo.string")
-            .tag("queue", "")
+            .find("nats.jetstream.messages.acked")
+            .tag("subject", "js.string")
+            .tag("stream", "TEST")
             .counter();
     double countBefore = before != null ? before.count() : 0.0;
 
-    natsClient.publish("combo.string", "metrics-success-test");
-    assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
+    natsClient.publish("js.string", "jetstream-metrics-acked-test");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -91,9 +87,9 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             () -> {
               Counter counter =
                   meterRegistry
-                      .find("nats.listener.messages.success")
-                      .tag("subject", "combo.string")
-                      .tag("queue", "")
+                      .find("nats.jetstream.messages.acked")
+                      .tag("subject", "js.string")
+                      .tag("stream", "TEST")
                       .counter();
               assertThat(counter).isNotNull();
               assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
@@ -101,44 +97,47 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
   }
 
   @Test
-  void givenNatsListener_whenInvalidMessageReceived_thenErrorCounterIncrementedByOne() {
-    Counter before =
+  void givenJetStreamListener_whenInvalidMessageReceived_thenTerminatedCounterIncrementedByOne() {
+    double countBefore =
         meterRegistry
-            .find("nats.listener.messages.error")
-            .tag("subject", "combo.object")
-            .tag("queue", "")
-            .counter();
-    double countBefore = before != null ? before.count() : 0.0;
+            .find("nats.jetstream.messages.terminated")
+            .tag("subject", "js.object")
+            .tag("stream", "TEST")
+            .counters()
+            .stream()
+            .mapToDouble(Counter::count)
+            .sum();
 
-    natsClient.publish("combo.object", "not-valid-json");
+    natsClient.publish("js.object", "not-valid-json");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
         .untilAsserted(
             () -> {
-              Counter counter =
+              double count =
                   meterRegistry
-                      .find("nats.listener.messages.error")
-                      .tag("subject", "combo.object")
-                      .tag("queue", "")
-                      .counter();
-              assertThat(counter).isNotNull();
-              assertThat(Objects.requireNonNull(counter).count()).isEqualTo(countBefore + 1.0);
+                      .find("nats.jetstream.messages.terminated")
+                      .tag("subject", "js.object")
+                      .tag("stream", "TEST")
+                      .counters()
+                      .stream()
+                      .mapToDouble(Counter::count)
+                      .sum();
+              assertThat(count).isEqualTo(countBefore + 1.0);
             });
   }
 
   @Test
-  void givenNatsListener_whenMessageProcessed_thenDurationTimerIncrementedByOne() throws Exception {
+  void givenJetStreamListener_whenMessageProcessed_thenDurationTimerIncrementedByOne() {
     Timer before =
         meterRegistry
-            .find("nats.listener.messages.duration")
-            .tag("subject", "combo.string")
-            .tag("queue", "")
+            .find("nats.jetstream.messages.duration")
+            .tag("subject", "js.string")
+            .tag("stream", "TEST")
             .timer();
     long countBefore = before != null ? before.count() : 0L;
 
-    natsClient.publish("combo.string", "metrics-duration-test");
-    assertThat(handler.stringPayloads.poll(10, TimeUnit.SECONDS)).isNotNull();
+    natsClient.publish("js.string", "jetstream-metrics-duration-test");
 
     await()
         .atMost(10, TimeUnit.SECONDS)
@@ -146,9 +145,9 @@ class NatsListenerMetricsTests extends AbstractSpringBootTests {
             () -> {
               Timer timer =
                   meterRegistry
-                      .find("nats.listener.messages.duration")
-                      .tag("subject", "combo.string")
-                      .tag("queue", "")
+                      .find("nats.jetstream.messages.duration")
+                      .tag("subject", "js.string")
+                      .tag("stream", "TEST")
                       .timer();
               assertThat(timer).isNotNull();
               assertThat(Objects.requireNonNull(timer).count()).isEqualTo(countBefore + 1L);

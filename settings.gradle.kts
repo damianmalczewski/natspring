@@ -7,7 +7,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         mavenCentral()
     }
@@ -22,10 +22,10 @@ rootProject.name = "natspring"
 include(":natspring-autoconfigure")
 include(":natspring-bom")
 include(":natspring-core")
-include(":natspring-integration-tests")
 include(":natspring-namastack-outbox")
 include(":natspring-starter")
 include(":natspring-starter-test")
+include(":integration-tests")
 include(":examples:example-event-driven-telemetry")
 include(":examples:example-namastack-outbox")
 include(":examples:example-jetstream")

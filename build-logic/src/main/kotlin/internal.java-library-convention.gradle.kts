@@ -19,7 +19,9 @@ plugins {
 // Tests are NOT compiled with --release XYZ, so they may use newer Java APIs.
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
     withSourcesJar()
     withJavadocJar()
 }

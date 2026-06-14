@@ -29,64 +29,33 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Default {@link NatsOperations} implementation backed by a {@link Connection}.
- *
- * @since 0.1.0
- * @deprecated use {@link NatsClient} instead
- */
-@Deprecated(since = "0.4.0", forRemoval = true)
-public class NatsTemplate implements NatsOperations {
+final class NatsTemplate implements NatsOperations {
 
-  private final Connection connection;
-  private final NatsMessageConverter converter;
+  final Connection connection;
+  final NatsMessageConverter converter;
+  final List<NatsPublishInterceptor> interceptors;
   private final NatsPublishInterceptorChainExecution publishInterceptorChain;
 
-  private NatsTemplate(
+  NatsTemplate(
       Connection connection,
       NatsMessageConverter converter,
       List<NatsPublishInterceptor> interceptors) {
     this.connection = connection;
     this.converter = converter;
+    this.interceptors = List.copyOf(interceptors);
     this.publishInterceptorChain = new NatsPublishInterceptorChainExecution(interceptors);
   }
 
-  /**
-   * Returns a builder for {@link NatsTemplate}.
-   *
-   * @return a new {@link NatsTemplate.Builder}
-   */
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * Publishes a pre-built {@link Message} as-is.
-   *
-   * @param message the message to publish
-   */
   @Override
   public void publish(Message message) {
     doPublish(message);
   }
 
-  /**
-   * Publishes raw bytes to the given subject.
-   *
-   * @param subject the NATS subject
-   * @param body the message body
-   */
   @Override
   public void publish(String subject, byte[] body) {
     doPublish(NatsMessage.builder().subject(subject).data(body).build());
   }
 
-  /**
-   * Publishes a string to the given subject, encoded as UTF-8.
-   *
-   * @param subject the NATS subject
-   * @param bodyAsString the message body
-   */
   @Override
   public void publish(String subject, String bodyAsString) {
     doPublish(
@@ -96,37 +65,16 @@ public class NatsTemplate implements NatsOperations {
             .build());
   }
 
-  /**
-   * Publishes an object to the given subject, serialized to JSON.
-   *
-   * @param subject the NATS subject
-   * @param bodyAsObject the object to serialize and publish
-   * @param <T> the object type
-   */
   @Override
   public <T> void publish(String subject, T bodyAsObject) {
     doPublish(NatsMessage.builder().subject(subject).data(converter.toBytes(bodyAsObject)).build());
   }
 
-  /**
-   * Publishes raw bytes to the given subject with custom headers.
-   *
-   * @param subject the NATS subject
-   * @param headers the message headers
-   * @param body the message body
-   */
   @Override
   public void publish(String subject, Headers headers, byte[] body) {
     doPublish(NatsMessage.builder().subject(subject).headers(headers).data(body).build());
   }
 
-  /**
-   * Publishes a string to the given subject with custom headers, encoded as UTF-8.
-   *
-   * @param subject the NATS subject
-   * @param headers the message headers
-   * @param bodyAsString the message body
-   */
   @Override
   public void publish(String subject, Headers headers, String bodyAsString) {
     doPublish(
@@ -137,14 +85,6 @@ public class NatsTemplate implements NatsOperations {
             .build());
   }
 
-  /**
-   * Publishes an object to the given subject with custom headers, serialized to JSON.
-   *
-   * @param subject the NATS subject
-   * @param headers the message headers
-   * @param bodyAsObject the object to serialize and publish
-   * @param <T> the object type
-   */
   @Override
   public <T> void publish(String subject, Headers headers, T bodyAsObject) {
     doPublish(
@@ -159,33 +99,11 @@ public class NatsTemplate implements NatsOperations {
     publishInterceptorChain.execute(message, connection::publish);
   }
 
-  /**
-   * Sends a request to the given subject and returns a future that completes with the reply.
-   * Completes exceptionally with {@link java.util.concurrent.TimeoutException} if no reply arrives
-   * within the given timeout, or with {@link IllegalStateException} if the request was suppressed
-   * by a {@link NatsPublishInterceptor}.
-   *
-   * @param subject the NATS subject
-   * @param payload the request body
-   * @param timeout how long to wait for a reply
-   * @return future that completes with the reply message
-   */
   @Override
   public CompletableFuture<NatsReply> request(String subject, byte[] payload, Duration timeout) {
     return doRequest(NatsMessage.builder().subject(subject).data(payload).build(), timeout);
   }
 
-  /**
-   * Sends a request to the given subject and returns a future that completes with the reply.
-   * Completes exceptionally with {@link java.util.concurrent.TimeoutException} if no reply arrives
-   * within the given timeout, or with {@link IllegalStateException} if the request was suppressed
-   * by a {@link NatsPublishInterceptor}.
-   *
-   * @param subject the NATS subject
-   * @param payload the request body, encoded as UTF-8
-   * @param timeout how long to wait for a reply
-   * @return future that completes with the reply message
-   */
   @Override
   public CompletableFuture<NatsReply> request(String subject, String payload, Duration timeout) {
     return doRequest(
@@ -196,22 +114,15 @@ public class NatsTemplate implements NatsOperations {
         timeout);
   }
 
-  /**
-   * Sends a request to the given subject and returns a future that completes with the reply.
-   * Completes exceptionally with {@link java.util.concurrent.TimeoutException} if no reply arrives
-   * within the given timeout, or with {@link IllegalStateException} if the request was suppressed
-   * by a {@link NatsPublishInterceptor}.
-   *
-   * @param subject the NATS subject
-   * @param payload the request body, serialized to JSON
-   * @param timeout how long to wait for a reply
-   * @param <T> the payload object type
-   * @return future that completes with the reply message
-   */
   @Override
   public <T> CompletableFuture<NatsReply> request(String subject, T payload, Duration timeout) {
     return doRequest(
         NatsMessage.builder().subject(subject).data(converter.toBytes(payload)).build(), timeout);
+  }
+
+  @Override
+  public NatsOperations.Builder mutate() {
+    return new DefaultBuilder(this);
   }
 
   private CompletableFuture<NatsReply> doRequest(Message message, Duration timeout) {
@@ -225,72 +136,46 @@ public class NatsTemplate implements NatsOperations {
             new IllegalStateException("request suppressed by interceptor"));
   }
 
-  /**
-   * Builder for {@link NatsTemplate}.
-   *
-   * @deprecated use {@link NatsClient} instead
-   */
-  @Deprecated(since = "0.4.0", forRemoval = true)
-  public static class Builder {
+  static final class DefaultBuilder implements NatsOperations.Builder {
 
     private @Nullable Connection connection;
     private @Nullable NatsMessageConverter converter;
     private final List<NatsPublishInterceptor> interceptors = new ArrayList<>();
 
-    private Builder() {}
+    DefaultBuilder() {}
 
-    /**
-     * Sets the NATS connection.
-     *
-     * @param connection the NATS connection; must not be {@code null}
-     * @return this builder
-     */
-    public Builder withConnection(Connection connection) {
+    DefaultBuilder(NatsTemplate client) {
+      this.connection = client.connection;
+      this.converter = client.converter;
+      this.interceptors.addAll(client.interceptors);
+    }
+
+    @Override
+    public NatsOperations.Builder withConnection(Connection connection) {
       this.connection = connection;
       return this;
     }
 
-    /**
-     * Sets the converter used for object serialization.
-     *
-     * @param converter the converter
-     * @return this builder
-     */
-    public Builder withConverter(NatsMessageConverter converter) {
+    @Override
+    public NatsOperations.Builder withConverter(NatsMessageConverter converter) {
       this.converter = converter;
       return this;
     }
 
-    /**
-     * Adds all given interceptors to the publish interceptor chain.
-     *
-     * @param interceptors interceptors to add
-     * @return this builder
-     */
-    public Builder addInterceptors(List<NatsPublishInterceptor> interceptors) {
+    @Override
+    public NatsOperations.Builder addInterceptors(List<NatsPublishInterceptor> interceptors) {
       this.interceptors.addAll(interceptors);
       return this;
     }
 
-    /**
-     * Adds a single interceptor to the publish interceptor chain.
-     *
-     * @param interceptor the interceptor to add
-     * @return this builder
-     */
-    public Builder addInterceptor(NatsPublishInterceptor interceptor) {
+    @Override
+    public NatsOperations.Builder addInterceptor(NatsPublishInterceptor interceptor) {
       this.interceptors.add(interceptor);
       return this;
     }
 
-    /**
-     * Builds a {@link NatsTemplate} from the current state of this builder. Validates if required
-     * values have been set.
-     *
-     * @return a new {@link NatsTemplate}
-     * @throws IllegalArgumentException if any required field has not been set
-     */
-    public NatsTemplate build() {
+    @Override
+    public NatsOperations build() {
       if (connection == null) {
         throw new IllegalArgumentException("connection is required");
       }

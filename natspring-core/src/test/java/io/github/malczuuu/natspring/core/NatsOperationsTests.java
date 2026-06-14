@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-class NatsClientTests {
+class NatsOperationsTests {
 
   private Connection connection;
   private NatsMessageConverter converter;
@@ -52,14 +52,14 @@ class NatsClientTests {
 
   @Test
   void givenMissingConnection_whenBuild_thenThrowsIllegalArgumentException() {
-    assertThatThrownBy(() -> NatsClient.builder().withConverter(converter).build())
+    assertThatThrownBy(() -> NatsOperations.builder().withConverter(converter).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("connection is required");
   }
 
   @Test
   void givenNoConverter_whenBuild_thenSucceeds() {
-    assertThatThrownBy(() -> NatsClient.builder().withConnection(connection).build())
+    assertThatThrownBy(() -> NatsOperations.builder().withConnection(connection).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("converter is required");
   }
@@ -67,8 +67,8 @@ class NatsClientTests {
   @Test
   void givenNoInterceptors_whenPublishMessage_thenConnectionReceivesMessage() {
     Message message = NatsMessage.builder().subject("test").build();
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish(message);
 
@@ -78,8 +78,8 @@ class NatsClientTests {
   @Test
   void givenNoInterceptors_whenPublishBytes_thenConnectionReceivesCorrectSubjectAndBody() {
     byte[] body = {1, 2, 3};
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish("test.subject", body);
 
@@ -91,8 +91,8 @@ class NatsClientTests {
 
   @Test
   void givenNoInterceptors_whenPublishString_thenConnectionReceivesUtf8Bytes() {
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish("test.subject", "hello");
 
@@ -105,8 +105,8 @@ class NatsClientTests {
   void givenNoInterceptors_whenPublishObject_thenConnectionReceivesJsonBytes() {
     byte[] json = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
     when(converter.toBytes(any())).thenReturn(json);
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish("test.subject", new Object());
 
@@ -119,8 +119,8 @@ class NatsClientTests {
   void givenNoInterceptors_whenPublishBytesWithHeaders_thenConnectionReceivesHeaders() {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish("test.subject", headers, new byte[0]);
 
@@ -133,8 +133,8 @@ class NatsClientTests {
   void givenNoInterceptors_whenPublishStringWithHeaders_thenConnectionReceivesHeadersAndUtf8Body() {
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish("test.subject", headers, "hello");
 
@@ -150,8 +150,8 @@ class NatsClientTests {
     when(converter.toBytes(any())).thenReturn(json);
     Headers headers = new Headers();
     headers.add("X-Foo", "bar");
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.publish("test.subject", headers, new Object());
 
@@ -169,8 +169,8 @@ class NatsClientTests {
           calls.add("interceptor");
           chain.proceed(msg);
         };
-    NatsClient client =
-        NatsClient.builder()
+    NatsOperations client =
+        NatsOperations.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
@@ -196,8 +196,8 @@ class NatsClientTests {
           calls.add("second");
           chain.proceed(message);
         };
-    NatsClient client =
-        NatsClient.builder()
+    NatsOperations client =
+        NatsOperations.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptors(List.of(first, second))
@@ -212,8 +212,8 @@ class NatsClientTests {
   void givenInterceptorThatReplacesMessage_whenPublish_thenConnectionReceivesReplacedMessage() {
     Message replacement = NatsMessage.builder().subject("replaced.subject").build();
     NatsPublishInterceptor interceptor = (msg, chain) -> chain.proceed(replacement);
-    NatsClient client =
-        NatsClient.builder()
+    NatsOperations client =
+        NatsOperations.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
@@ -231,8 +231,8 @@ class NatsClientTests {
     byte[] payload = {1, 2, 3};
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.request("test.subject", payload, Duration.ofSeconds(1));
 
@@ -246,8 +246,8 @@ class NatsClientTests {
   void givenNoInterceptors_whenRequestString_thenConnectionReceivesUtf8Payload() {
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.request("test.subject", "hello", Duration.ofSeconds(1));
 
@@ -262,8 +262,8 @@ class NatsClientTests {
     when(converter.toBytes(any())).thenReturn(json);
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(new CompletableFuture<>());
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     client.request("test.subject", new Object(), Duration.ofSeconds(1));
 
@@ -277,8 +277,8 @@ class NatsClientTests {
     Message reply = Mockito.mock(Message.class);
     when(connection.requestWithTimeout(any(Message.class), any(Duration.class)))
         .thenReturn(CompletableFuture.completedFuture(reply));
-    NatsClient client =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations client =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
 
     CompletableFuture<NatsReply> future =
         client.request("test.subject", new byte[0], Duration.ofSeconds(1));
@@ -289,8 +289,8 @@ class NatsClientTests {
   @Test
   void givenAbortingInterceptor_whenRequest_thenFutureFailsWithIllegalStateException() {
     NatsPublishInterceptor interceptor = (msg, chain) -> {};
-    NatsClient client =
-        NatsClient.builder()
+    NatsOperations client =
+        NatsOperations.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)
@@ -309,11 +309,11 @@ class NatsClientTests {
 
   @Test
   void givenExistingClient_whenMutate_thenNewClientInheritsConnection() {
-    NatsClient original =
-        NatsClient.builder().withConnection(connection).withConverter(converter).build();
+    NatsOperations original =
+        NatsOperations.builder().withConnection(connection).withConverter(converter).build();
     Connection newConnection = Mockito.mock(Connection.class);
 
-    NatsClient mutated = original.mutate().withConnection(newConnection).build();
+    NatsOperations mutated = original.mutate().withConnection(newConnection).build();
     mutated.publish("test.subject", new byte[0]);
 
     verify(connection, never()).publish(any(Message.class));
@@ -323,8 +323,8 @@ class NatsClientTests {
   @Test
   void givenInterceptorThatAborts_whenPublish_thenConnectionNeverCalled() {
     NatsPublishInterceptor interceptor = (msg, chain) -> {};
-    NatsClient client =
-        NatsClient.builder()
+    NatsOperations client =
+        NatsOperations.builder()
             .withConnection(connection)
             .withConverter(converter)
             .addInterceptor(interceptor)

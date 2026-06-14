@@ -19,7 +19,7 @@ package io.github.malczuuu.natspring.itest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import io.github.malczuuu.natspring.core.NatsClient;
+import io.github.malczuuu.natspring.core.NatsOperations;
 import io.github.malczuuu.natspring.core.NatsReply;
 import io.github.malczuuu.natspring.itest.entrypoint.NatsListenerComponent;
 import io.github.malczuuu.natspring.itest.entrypoint.SampleMessage;
@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class NatsListenerRequestReplyTests extends AbstractSpringBootTests {
 
   @Autowired private NatsListenerComponent handler;
-  @Autowired private NatsClient natsClient;
+  @Autowired private NatsOperations natsClient;
 
   @AfterEach
   void afterEach() {

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
-import io.github.malczuuu.natspring.core.NatsClient;
+import io.github.malczuuu.natspring.core.NatsOperations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +25,7 @@ class JetStreamListenerExampleTests {
   public static final NatsContainer nats = new NatsContainer("nats:2.14").withJetStream();
 
   @Autowired JetStreamListenerExample application;
-  @Autowired NatsClient natsClient;
+  @Autowired NatsOperations natsClient;
   @Autowired RestTestClient restClient;
 
   @BeforeEach

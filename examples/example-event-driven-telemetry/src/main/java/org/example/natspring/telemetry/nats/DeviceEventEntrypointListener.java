@@ -1,7 +1,7 @@
 package org.example.natspring.telemetry.nats;
 
 import io.github.malczuuu.natspring.annotation.JetStreamListener;
-import io.github.malczuuu.natspring.core.NatsClient;
+import io.github.malczuuu.natspring.core.NatsOperations;
 import io.nats.client.impl.Headers;
 import io.nats.client.impl.NatsJetStreamMetaData;
 import org.example.natspring.telemetry.nats.model.DeviceEventMessage;
@@ -15,12 +15,12 @@ public class DeviceEventEntrypointListener {
 
   private static final Logger log = LoggerFactory.getLogger(DeviceEventEntrypointListener.class);
 
-  private final NatsClient natsClient;
+  private final NatsOperations natsClient;
   private final StreamSequenceSupport streamSequence;
   private final String processedSubject;
 
   public DeviceEventEntrypointListener(
-      NatsClient natsClient,
+      NatsOperations natsClient,
       StreamSequenceSupport streamSequence,
       @Value("${app.nats.listeners.device-event-entrypoint.publish-subject}")
           String processedSubject) {

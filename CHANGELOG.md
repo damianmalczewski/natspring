@@ -11,12 +11,11 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 - Allow configuring the behavior for failures in method argument resolution (mostly deserialization) for
   `@JetStreamListener`-annotated methods.
 - Allow `@NatsHeader`-annotated parameter without `value` attribute (fallback to method argument name).
-- Add `NatsClient` interface with package-private implementation.
 - Add `GsonNatsMessageConverter` for `com.google.code.gson` support.
 
 ### Changed
 
-- Deprecate `NatsOperations` and `NatsTemplate` in favor of `NatsClient`.
+- Hide `NatsTemplate` as `package-private`.
 
 ## [0.3.0] - 2026-06-13
 

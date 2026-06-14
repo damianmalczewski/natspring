@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.github.amadeusitgroup.testcontainers.nats.NatsContainer;
-import io.github.malczuuu.natspring.core.NatsClient;
+import io.github.malczuuu.natspring.core.NatsOperations;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ class TelemetryExampleTests {
   @Container @ServiceConnection
   static final MongoDBContainer mongo = new MongoDBContainer("mongo:8.3");
 
-  @Autowired NatsClient natsClient;
+  @Autowired NatsOperations natsClient;
   @Autowired RestTestClient restClient;
   @Autowired DeviceEventRepository deviceEventRepository;
   @Autowired DeviceInfoRepository deviceInfoRepository;

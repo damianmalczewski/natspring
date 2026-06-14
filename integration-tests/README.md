@@ -1,4 +1,4 @@
-# Integration Tests of Natspring
+# Integration Tests
 
 End-to-end integration tests for Natspring running against a real NATS server. Uses Testcontainers to start a NATS
 instance automatically, then exercises core and autoconfigure via a full Spring Boot application context. Tests here

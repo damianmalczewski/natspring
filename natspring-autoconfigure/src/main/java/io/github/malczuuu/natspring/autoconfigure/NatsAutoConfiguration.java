@@ -29,12 +29,10 @@ import io.github.malczuuu.natspring.connection.ManagedConnectionLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedJetStreamLifecycle;
 import io.github.malczuuu.natspring.connection.ManagedListenerContainerLifecycle;
 import io.github.malczuuu.natspring.converter.NatsMessageConverter;
-import io.github.malczuuu.natspring.core.NatsClient;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
 import io.github.malczuuu.natspring.core.NatsOperations;
+import io.github.malczuuu.natspring.core.NatsOperationsBuilderCustomizer;
 import io.github.malczuuu.natspring.core.NatsPublishInterceptor;
-import io.github.malczuuu.natspring.core.NatsTemplate;
-import io.github.malczuuu.natspring.core.NatsTemplateBuilderCustomizer;
 import io.github.malczuuu.natspring.handler.JetStreamListenerAnnotationBeanPostProcessor;
 import io.github.malczuuu.natspring.handler.JetStreamListenerEndpointRegistry;
 import io.github.malczuuu.natspring.handler.JetStreamMessageListenerContainer;
@@ -156,35 +154,20 @@ public final class NatsAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnMissingBean(NatsClient.Builder.class)
-  NatsClient.Builder natsClientBuilder(
+  @ConditionalOnMissingBean(NatsOperations.Builder.class)
+  NatsOperations.Builder natsOperationsBuilder(
       BeanFactory beanFactory, NatsMessageConverter natsMessageConverter) {
-    return NatsClient.builder()
-        .withConnection(beanFactory.getBean(Connection.class))
-        .withConverter(natsMessageConverter)
-        .addInterceptors(
-            beanFactory.getBeanProvider(NatsPublishInterceptor.class).orderedStream().toList());
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(NatsClient.class)
-  NatsClient natsClient(NatsClient.Builder builder) {
-    return builder.build();
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(NatsTemplate.Builder.class)
-  @Deprecated(since = "0.4.0", forRemoval = true)
-  NatsTemplate.Builder natsTemplateBuilder(
-      BeanFactory beanFactory, NatsMessageConverter natsMessageConverter) {
-    NatsTemplate.Builder builder =
-        NatsTemplate.builder()
+    NatsOperations.Builder builder =
+        NatsOperations.builder()
             .withConnection(beanFactory.getBean(Connection.class))
             .withConverter(natsMessageConverter)
             .addInterceptors(
                 beanFactory.getBeanProvider(NatsPublishInterceptor.class).orderedStream().toList());
-    for (NatsTemplateBuilderCustomizer customizer :
-        beanFactory.getBeanProvider(NatsTemplateBuilderCustomizer.class).orderedStream().toList()) {
+    for (NatsOperationsBuilderCustomizer customizer :
+        beanFactory
+            .getBeanProvider(NatsOperationsBuilderCustomizer.class)
+            .orderedStream()
+            .toList()) {
       builder = customizer.customize(builder);
     }
     return builder;
@@ -192,8 +175,7 @@ public final class NatsAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(NatsOperations.class)
-  @Deprecated(since = "0.4.0", forRemoval = true)
-  NatsTemplate natsTemplate(NatsTemplate.Builder builder) {
+  NatsOperations natsOperations(NatsOperations.Builder builder) {
     return builder.build();
   }
 

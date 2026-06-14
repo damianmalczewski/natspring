@@ -17,7 +17,6 @@
 package io.github.malczuuu.natspring.namastack.outbox.autoconfigure;
 
 import io.github.malczuuu.natspring.core.NatsOperations;
-import io.github.malczuuu.natspring.core.NatsTemplate;
 import io.github.malczuuu.natspring.namastack.outbox.DefaultNatsOutboxHandler;
 import io.github.malczuuu.natspring.namastack.outbox.NatsOutboxHandler;
 import io.github.malczuuu.natspring.namastack.outbox.NatsOutboxProperties;
@@ -36,7 +35,7 @@ import org.springframework.context.annotation.Bean;
  * <p>Automatically configures {@link NatsOutboxHandler} when:
  *
  * <ul>
- *   <li>Natspring ({@link NatsTemplate}) is on the classpath
+ *   <li>Natspring ({@link NatsOperations}) is on the classpath
  *   <li>A {@link NatsOperations} bean is available
  *   <li>Property {@code natspring.namastack.outbox.enabled} is {@code true} (default)
  * </ul>

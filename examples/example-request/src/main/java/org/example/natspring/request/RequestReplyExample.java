@@ -1,7 +1,7 @@
 package org.example.natspring.request;
 
 import io.github.malczuuu.natspring.annotation.NatsListener;
-import io.github.malczuuu.natspring.core.NatsClient;
+import io.github.malczuuu.natspring.core.NatsOperations;
 import io.github.malczuuu.natspring.core.NatsReply;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -19,9 +19,9 @@ public class RequestReplyExample {
 
   private static final Logger log = LoggerFactory.getLogger(RequestReplyExample.class);
 
-  private final NatsClient natsClient;
+  private final NatsOperations natsClient;
 
-  public RequestReplyExample(NatsClient natsClient) {
+  public RequestReplyExample(NatsOperations natsClient) {
     this.natsClient = natsClient;
   }
 

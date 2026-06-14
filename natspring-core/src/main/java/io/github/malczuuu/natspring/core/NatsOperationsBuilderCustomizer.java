@@ -17,14 +17,14 @@
 package io.github.malczuuu.natspring.core;
 
 /**
- * Callback for customizing a {@link NatsTemplate.Builder} before the template is built. Register
+ * Callback for customizing a {@link NatsOperations.Builder} before the instance is built. Register
  * implementations as Spring beans to apply cross-cutting configuration (e.g. interceptors, JSON
- * mapper overrides) without replacing the entire auto-configured template.
+ * mapper overrides) without replacing the entire auto-configured instance.
  *
- * @since 0.1.0
+ * @since 0.4.0
  */
 @FunctionalInterface
-public interface NatsTemplateBuilderCustomizer {
+public interface NatsOperationsBuilderCustomizer {
 
   /**
    * Applies customizations to the given builder.
@@ -32,5 +32,5 @@ public interface NatsTemplateBuilderCustomizer {
    * @param builder the builder to customize
    * @return the customized builder
    */
-  NatsTemplate.Builder customize(NatsTemplate.Builder builder);
+  NatsOperations.Builder customize(NatsOperations.Builder builder);
 }

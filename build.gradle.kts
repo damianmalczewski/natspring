@@ -20,16 +20,16 @@ dependencies {
     jacocoAggregation(project(":natspring-autoconfigure"))
     jacocoAggregation(project(":natspring-core"))
     jacocoAggregation(project(":natspring-namastack-outbox"))
-    jacocoAggregation(project(":natspring-integration-tests"))
     jacocoAggregation(project(":natspring-starter"))
     jacocoAggregation(project(":natspring-starter-test"))
+    jacocoAggregation(project(":integration-tests"))
 
     testReportAggregation(project(":natspring-autoconfigure"))
     testReportAggregation(project(":natspring-core"))
     testReportAggregation(project(":natspring-namastack-outbox"))
-    testReportAggregation(project(":natspring-integration-tests"))
     testReportAggregation(project(":natspring-starter"))
     testReportAggregation(project(":natspring-starter-test"))
+    testReportAggregation(project(":integration-tests"))
 }
 
 nmcpAggregation {
