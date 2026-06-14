@@ -15,6 +15,7 @@ dependencies {
     
     implementation("io.github.malczuuu.natspring:natspring-autoconfigure")
     implementation("io.github.malczuuu.natspring:natspring-core")
+    implementation("io.github.malczuuu.natspring:natspring-namastack-outbox")
     implementation("io.github.malczuuu.natspring:natspring-starter")
 
     implementation("io.github.amadeusitgroup.testcontainers:nats")
@@ -50,6 +51,10 @@ Maven:
     <dependency>
         <groupId>io.github.malczuuu.natspring</groupId>
         <artifactId>natspring-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>io.github.malczuuu.natspring</groupId>
+        <artifactId>natspring-namastack-outbox</artifactId>
     </dependency>
     <dependency>
         <groupId>io.github.malczuuu.natspring</groupId>

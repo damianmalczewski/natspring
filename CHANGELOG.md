@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 
 ### Added
 
-- Add `natsify-bom` module for version management.
+- Add `natspring-bom` module for version management.
 - Add `ConnectionHook` to allow users to hook into the NATS connection lifecycle.
 
 ### Changed

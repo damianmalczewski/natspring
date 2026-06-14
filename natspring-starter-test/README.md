@@ -2,9 +2,9 @@
 
 [![Sonatype](https://img.shields.io/maven-central/v/io.github.malczuuu.natspring/natspring-starter-test)][maven-central]
 
-Test utilities starter for Natspring-based applications. Extends `natspring-starter` with Spring Boot Test and Jackson test
-support so integration tests have everything they need in one dependency. Intended for use in the `testImplementation`
-configuration only.
+Test utilities starter for Natspring-based applications. Extends `natspring-starter` with Spring Boot Test and Jackson
+test support so integration tests have everything they need in one dependency. Intended for use in the 
+`testImplementation` configuration only.
 
 ## Dependency
 
