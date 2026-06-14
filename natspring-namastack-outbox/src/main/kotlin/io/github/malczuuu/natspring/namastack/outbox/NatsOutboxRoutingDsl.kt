@@ -44,8 +44,8 @@ import io.namastack.outbox.routing.selector.OutboxPayloadSelector
  * @return a [NatsOutboxRouting] instance
  * @since 0.3.0
  */
-fun natsOutboxRouting(configurer: NatsOutboxRoutingBuilder.() -> Unit): NatsOutboxRouting {
-    val builder = NatsOutboxRoutingBuilder()
+fun natsOutboxRouting(configurer: NatsOutboxRoutingDsl.() -> Unit): NatsOutboxRouting {
+    val builder = NatsOutboxRoutingDsl()
     builder.configurer()
     return builder.build()
 }
@@ -58,7 +58,7 @@ fun natsOutboxRouting(configurer: NatsOutboxRoutingBuilder.() -> Unit): NatsOutb
  *
  * @since 0.3.0
  */
-class NatsOutboxRoutingBuilder {
+class NatsOutboxRoutingDsl {
     private val delegate = NatsOutboxRouting.builder()
 
     /**
