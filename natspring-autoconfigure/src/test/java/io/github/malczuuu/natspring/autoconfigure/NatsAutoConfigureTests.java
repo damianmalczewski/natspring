@@ -29,7 +29,7 @@ import org.testcontainers.junit.jupiter.Container;
       NatsAutoConfiguration.class,
       NatsHealthAutoConfigurationTests.class,
       NatsJacksonAutoConfiguration.class,
-      NatsMetricsAutoConfiguration.class
+      NatsObservationAutoConfiguration.class
     })
 class NatsAutoConfigureTests {
 

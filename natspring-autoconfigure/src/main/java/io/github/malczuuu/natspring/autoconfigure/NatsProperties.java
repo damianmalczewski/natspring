@@ -99,6 +99,9 @@ public class NatsProperties {
   /** Whether to disable randomization of the server list on connect and reconnect. */
   private boolean noRandomize = false;
 
+  /** Creates a new {@link NatsProperties}. */
+  public NatsProperties() {}
+
   /**
    * Returns whether NATS auto-configuration is enabled.
    *

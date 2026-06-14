@@ -31,76 +31,44 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProp
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 
 /**
- * Spring Boot auto-configuration for NATS metrics instrumentation.
+ * Spring Boot auto-configuration for NATS Micrometer instrumentation.
  *
  * <p>When Micrometer ({@code io.micrometer.core.instrument.MeterRegistry}) is on the classpath,
- * registers Micrometer-backed observer beans. Otherwise, falls back to no-op implementations. Any
- * observer bean declared in the application context takes precedence over these defaults.
+ * registers Micrometer-backed observer beans.
  *
  * @since 0.1.0
  */
-@AutoConfiguration
+@AutoConfiguration(before = NatsObservationAutoConfiguration.class)
 @ConditionalOnBooleanProperty(name = "nats.enabled", matchIfMissing = true)
-@ConditionalOnClass(Connection.class)
+@ConditionalOnClass({Connection.class, MeterRegistry.class})
 public final class NatsMetricsAutoConfiguration {
 
   /** Creates a new {@link NatsMetricsAutoConfiguration}. */
   public NatsMetricsAutoConfiguration() {}
 
-  @ConditionalOnClass(MeterRegistry.class)
-  @Configuration(proxyBeanMethods = false)
-  @Order(0)
-  static final class MicrometerConfiguration {
-
-    @Bean
-    @ConditionalOnMissingBean(JetStreamListenerObserver.class)
-    MicrometerJetStreamListenerObserver jetStreamListenerObserver() {
-      return new MicrometerJetStreamListenerObserver();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(NatsConnectionObserver.class)
-    MicrometerNatsConnectionObserver natsConnectionObserver() {
-      return new MicrometerNatsConnectionObserver();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(NatsListenerObserver.class)
-    MicrometerNatsListenerObserver natsListenerObserver() {
-      return new MicrometerNatsListenerObserver();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(MicrometerNatsStatisticsObserver.class)
-    MicrometerNatsStatisticsObserver natsStatisticsObserver(BeanFactory beanFactory) {
-      return new MicrometerNatsStatisticsObserver(beanFactory.getBean(Connection.class));
-    }
+  @Bean
+  @ConditionalOnMissingBean(JetStreamListenerObserver.class)
+  MicrometerJetStreamListenerObserver jetStreamListenerObserver() {
+    return new MicrometerJetStreamListenerObserver();
   }
 
-  @Configuration(proxyBeanMethods = false)
-  @Order(1)
-  static final class NoopConfiguration {
+  @Bean
+  @ConditionalOnMissingBean(NatsConnectionObserver.class)
+  MicrometerNatsConnectionObserver natsConnectionObserver() {
+    return new MicrometerNatsConnectionObserver();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(JetStreamListenerObserver.class)
-    JetStreamListenerObserver jetStreamListenerObserver() {
-      return JetStreamListenerObserver.noop();
-    }
+  @Bean
+  @ConditionalOnMissingBean(NatsListenerObserver.class)
+  MicrometerNatsListenerObserver natsListenerObserver() {
+    return new MicrometerNatsListenerObserver();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(NatsConnectionObserver.class)
-    NatsConnectionObserver natsConnectionObserver() {
-      return NatsConnectionObserver.noop();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(NatsListenerObserver.class)
-    NatsListenerObserver natsListenerObserver() {
-      return NatsListenerObserver.noop();
-    }
+  @Bean
+  @ConditionalOnMissingBean(MicrometerNatsStatisticsObserver.class)
+  MicrometerNatsStatisticsObserver natsStatisticsObserver(BeanFactory beanFactory) {
+    return new MicrometerNatsStatisticsObserver(beanFactory.getBean(Connection.class));
   }
 }

@@ -16,35 +16,44 @@
 
 package io.github.malczuuu.natspring.autoconfigure;
 
-import io.github.malczuuu.natspring.health.NatsHealthIndicator;
+import io.github.malczuuu.natspring.instrument.JetStreamListenerObserver;
+import io.github.malczuuu.natspring.instrument.NatsConnectionObserver;
+import io.github.malczuuu.natspring.instrument.NatsListenerObserver;
 import io.nats.client.Connection;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Spring Boot auto-configuration for NATS health indicators.
+ * Spring Boot auto-configuration for NATS no-op metrics observer instrumentation.
  *
- * <p>When {@code spring-boot-health} is on the classpath, registers a {@link NatsHealthIndicator}
- * bean unless one is already defined.
- *
- * @since 0.1.0
+ * @since 0.4.0
  */
-@AutoConfiguration(after = NatsAutoConfiguration.class)
+@AutoConfiguration(before = NatsAutoConfiguration.class)
 @ConditionalOnBooleanProperty(name = "nats.enabled", matchIfMissing = true)
-@ConditionalOnClass({Connection.class, HealthIndicator.class})
-public final class NatsHealthAutoConfiguration {
+@ConditionalOnClass(Connection.class)
+public final class NatsObservationAutoConfiguration {
 
-  /** Creates a new {@link NatsAutoConfiguration}. */
-  public NatsHealthAutoConfiguration() {}
+  /** Creates a new {@link NatsObservationAutoConfiguration}. */
+  public NatsObservationAutoConfiguration() {}
 
   @Bean
-  @ConditionalOnMissingBean(NatsHealthIndicator.class)
-  NatsHealthIndicator natsHealthIndicator(BeanFactory beanFactory) {
-    return new NatsHealthIndicator(beanFactory.getBean(Connection.class));
+  @ConditionalOnMissingBean(JetStreamListenerObserver.class)
+  JetStreamListenerObserver jetStreamListenerObserver() {
+    return JetStreamListenerObserver.noop();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(NatsConnectionObserver.class)
+  NatsConnectionObserver natsConnectionObserver() {
+    return NatsConnectionObserver.noop();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(NatsListenerObserver.class)
+  NatsListenerObserver natsListenerObserver() {
+    return NatsListenerObserver.noop();
   }
 }

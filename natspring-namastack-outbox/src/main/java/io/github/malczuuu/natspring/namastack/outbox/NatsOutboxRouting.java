@@ -63,6 +63,9 @@ public abstract class NatsOutboxRouting extends OutboxRouting {
   /**
    * Resolves the NATS subject for a given payload and metadata.
    *
+   * @param payload the outbox event payload
+   * @param metadata the outbox record metadata
+   * @return the resolved NATS subject
    * @throws IllegalStateException if no matching route is found
    */
   public abstract String resolveSubject(Object payload, OutboxRecordMetadata metadata);
