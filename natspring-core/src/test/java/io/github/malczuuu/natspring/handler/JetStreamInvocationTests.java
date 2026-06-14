@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import io.github.malczuuu.natspring.annotation.AckMode;
 import io.github.malczuuu.natspring.annotation.ConsumerType;
 import io.github.malczuuu.natspring.annotation.DeliverPolicyType;
+import io.github.malczuuu.natspring.annotation.ResolutionFailureAction;
 import io.github.malczuuu.natspring.converter.jackson.JacksonNatsMessageConverter;
 import io.github.malczuuu.natspring.instrument.JetStreamListenerObserver;
 import io.nats.client.Connection;
@@ -32,6 +33,7 @@ import io.nats.client.Message;
 import io.nats.client.impl.NatsJetStreamMetaData;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -98,6 +100,62 @@ class JetStreamInvocationTests {
 
     verify(message).term();
     verify(message, never()).ack();
+    assertThat(listener.called).isFalse();
+  }
+
+  @Test
+  void givenNakOnDeserializationFailure_whenResolverThrows_thenNaks() {
+    when(message.getData()).thenReturn("not-valid-json".getBytes(StandardCharsets.UTF_8));
+
+    invocation(
+            endpointWithResolveFailure(
+                "handleWithPayload", ResolutionFailureAction.NAK, Listener.SamplePayload.class))
+        .accept(message);
+
+    verify(message).nak();
+    verify(message, never()).term();
+    verify(message, never()).ack();
+    assertThat(listener.called).isFalse();
+  }
+
+  @Test
+  void
+      givenNakOnDeserializationFailure_whenResolverThrowsOnLastDelivery_thenTermsAndPublishesToDlq() {
+    when(message.getData()).thenReturn("not-valid-json".getBytes(StandardCharsets.UTF_8));
+    NatsJetStreamMetaData meta = Mockito.mock(NatsJetStreamMetaData.class);
+    when(meta.deliveredCount()).thenReturn(3L);
+    when(meta.timestamp()).thenReturn(ZonedDateTime.now());
+    when(message.metaData()).thenReturn(meta);
+
+    JetStreamListenerObserver observer = Mockito.mock(JetStreamListenerObserver.class);
+    invocation(
+            endpointWithResolveFailureAndDlq(
+                "handleWithPayload",
+                ResolutionFailureAction.NAK,
+                "dlq.subject",
+                3,
+                Listener.SamplePayload.class),
+            observer)
+        .accept(message);
+
+    verify(message).term();
+    verify(message, never()).nak();
+    verify(connection).publish(any(Message.class));
+    verify(observer).onDeadLettered("test-subject", "");
+  }
+
+  @Test
+  void givenDiscardOnDeserializationFailure_whenResolverThrows_thenAcks() {
+    when(message.getData()).thenReturn("not-valid-json".getBytes(StandardCharsets.UTF_8));
+
+    invocation(
+            endpointWithResolveFailure(
+                "handleWithPayload", ResolutionFailureAction.DISCARD, Listener.SamplePayload.class))
+        .accept(message);
+
+    verify(message).ack();
+    verify(message, never()).term();
+    verify(message, never()).nak();
     assertThat(listener.called).isFalse();
   }
 
@@ -188,6 +246,56 @@ class JetStreamInvocationTests {
   private JetStreamListenerEndpoint endpointWithDlq(
       String methodName, String dlqSubject, int deadLetterDeliveries) {
     return endpointWithDlq(methodName, dlqSubject, deadLetterDeliveries, new Class<?>[0]);
+  }
+
+  private JetStreamListenerEndpoint endpointWithResolveFailure(
+      String methodName, ResolutionFailureAction action, Class<?>... paramTypes) {
+    try {
+      Method method = Listener.class.getDeclaredMethod(methodName, paramTypes);
+      method.setAccessible(true);
+      return JetStreamListenerEndpoint.builder()
+          .withBean(listener)
+          .withMethod(method)
+          .withSubject("test-subject")
+          .withStream("")
+          .withDurable("")
+          .withQueue("")
+          .withConsumerType(ConsumerType.PUSH)
+          .withAckMode(AckMode.AUTO)
+          .withDeliverPolicy(DeliverPolicyType.NEW)
+          .withResolveFailure(action)
+          .build();
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private JetStreamListenerEndpoint endpointWithResolveFailureAndDlq(
+      String methodName,
+      ResolutionFailureAction action,
+      String dlqSubject,
+      int deadLetterDeliveries,
+      Class<?>... paramTypes) {
+    try {
+      Method method = Listener.class.getDeclaredMethod(methodName, paramTypes);
+      method.setAccessible(true);
+      return JetStreamListenerEndpoint.builder()
+          .withBean(listener)
+          .withMethod(method)
+          .withSubject("test-subject")
+          .withStream("")
+          .withDurable("")
+          .withQueue("")
+          .withConsumerType(ConsumerType.PUSH)
+          .withAckMode(AckMode.AUTO)
+          .withDeliverPolicy(DeliverPolicyType.NEW)
+          .withResolveFailure(action)
+          .withDeadLetterSubject(dlqSubject)
+          .withDeadLetterDeliveries(deadLetterDeliveries)
+          .build();
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private JetStreamListenerEndpoint endpointWithDlq(

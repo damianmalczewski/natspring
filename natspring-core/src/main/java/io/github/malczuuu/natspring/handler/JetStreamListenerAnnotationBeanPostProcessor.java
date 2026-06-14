@@ -104,6 +104,7 @@ public class JetStreamListenerAnnotationBeanPostProcessor
               .withDeliverPolicy(annotation.deliverPolicy())
               .withDeadLetterSubject(deadLetterSubject)
               .withDeadLetterDeliveries(annotation.deadLetterDeliveries())
+              .withResolveFailure(annotation.onResolveFailure())
               .build();
 
       registry.register(endpoint);

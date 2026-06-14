@@ -21,6 +21,7 @@ import static io.github.malczuuu.natspring.handler.ListenerMethodValidation.vali
 import io.github.malczuuu.natspring.annotation.AckMode;
 import io.github.malczuuu.natspring.annotation.ConsumerType;
 import io.github.malczuuu.natspring.annotation.DeliverPolicyType;
+import io.github.malczuuu.natspring.annotation.ResolutionFailureAction;
 import java.lang.reflect.Method;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aop.support.AopUtils;
@@ -47,6 +48,7 @@ public final class JetStreamListenerEndpoint {
   private final DeliverPolicyType deliverPolicy;
   private final String deadLetterSubject;
   private final int deadLetterDeliveries;
+  private final ResolutionFailureAction resolveFailure;
 
   private JetStreamListenerEndpoint(
       Object bean,
@@ -59,7 +61,8 @@ public final class JetStreamListenerEndpoint {
       AckMode ackMode,
       DeliverPolicyType deliverPolicy,
       String deadLetterSubject,
-      int deadLetterDeliveries) {
+      int deadLetterDeliveries,
+      ResolutionFailureAction resolveFailure) {
     this.bean = bean;
     this.method = method;
     this.subject = subject;
@@ -71,6 +74,7 @@ public final class JetStreamListenerEndpoint {
     this.deliverPolicy = deliverPolicy;
     this.deadLetterSubject = deadLetterSubject;
     this.deadLetterDeliveries = deadLetterDeliveries;
+    this.resolveFailure = resolveFailure;
   }
 
   /**
@@ -176,6 +180,16 @@ public final class JetStreamListenerEndpoint {
   }
 
   /**
+   * Returns the action to take when argument resolution (deserialization) fails.
+   *
+   * @return the resolve failure action
+   * @since 0.4.0
+   */
+  public ResolutionFailureAction getResolveFailure() {
+    return resolveFailure;
+  }
+
+  /**
    * Returns a string representation of this listener endpoint.
    *
    * @return string representation
@@ -192,7 +206,8 @@ public final class JetStreamListenerEndpoint {
         + (", ackMode=" + ackMode)
         + (", deliverPolicy=" + deliverPolicy)
         + (", deadLetterSubject=" + deadLetterSubject)
-        + (", deadLetterDeliveries=" + deadLetterDeliveries + "]");
+        + (", deadLetterDeliveries=" + deadLetterDeliveries)
+        + (", resolveFailure=" + resolveFailure + "]");
   }
 
   /**
@@ -218,6 +233,7 @@ public final class JetStreamListenerEndpoint {
     private @Nullable DeliverPolicyType deliverPolicy;
     private String deadLetterSubject = "";
     private int deadLetterDeliveries = -1;
+    private ResolutionFailureAction resolveFailure = ResolutionFailureAction.TERM;
 
     private Builder() {}
 
@@ -345,6 +361,18 @@ public final class JetStreamListenerEndpoint {
     }
 
     /**
+     * Sets the action to take when argument resolution (deserialization) fails.
+     *
+     * @param resolveFailure the resolve failure action
+     * @return this builder
+     * @since 0.4.0
+     */
+    public Builder withResolveFailure(ResolutionFailureAction resolveFailure) {
+      this.resolveFailure = resolveFailure;
+      return this;
+    }
+
+    /**
      * Builds the {@link JetStreamListenerEndpoint} instance.
      *
      * @return a new {@link JetStreamListenerEndpoint}
@@ -405,7 +433,8 @@ public final class JetStreamListenerEndpoint {
           ackMode,
           deliverPolicy,
           deadLetterSubject,
-          deadLetterDeliveries);
+          deadLetterDeliveries,
+          resolveFailure);
     }
   }
 }

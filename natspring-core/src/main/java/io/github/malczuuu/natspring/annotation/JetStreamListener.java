@@ -113,4 +113,15 @@ public @interface JetStreamListener {
    * @since 0.1.1
    */
   int deadLetterDeliveries() default -1;
+
+  /**
+   * Action to take when argument resolution (deserialization) fails before the handler is invoked.
+   * Defaults to {@link ResolutionFailureAction#TERM}, which terminates the message immediately.
+   * When a dead-letter subject is configured, the message is also forwarded there before
+   * termination.
+   *
+   * @return the resolve failure action
+   * @since 0.4.0
+   */
+  ResolutionFailureAction onResolveFailure() default ResolutionFailureAction.TERM;
 }

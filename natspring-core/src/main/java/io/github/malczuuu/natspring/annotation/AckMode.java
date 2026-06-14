@@ -19,8 +19,8 @@ package io.github.malczuuu.natspring.annotation;
 /**
  * Acknowledgment mode for JetStream message handlers.
  *
- * <p>Regardless of the chosen mode, the framework always terminates ({@code term()}) a message when
- * argument resolution fails before the handler is invoked.
+ * <p>When argument resolution (deserialization) fails before the handler is invoked, the action
+ * taken is controlled by {@link JetStreamListener#onResolveFailure()}.
  *
  * @since 0.1.0
  */

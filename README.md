@@ -208,7 +208,8 @@ public void onOrderQueued(Order order) {}
 ### `@JetStreamListener`
 
 Subscribes to a JetStream subject using a durable push consumer with explicit ack. On successful return the message is
-acked; on handler exception it is nacked; on deserialization failure it is terminated.
+acked; on handler exception it is nacked; on argument resolution failure the action is controlled by `onResolveFailure`
+(default: `TERM`).
 
 ```java
 @JetStreamListener(subject = "orders.>", stream = "ORDERS", durable = "order-processor")
@@ -233,6 +234,7 @@ public void onOrderQueued(Order order) {}
 | `ackMode`              | `AUTO` (default) acks on success and nacks on failure; `MANUAL` leaves ack to the handler. |
 | `deliverPolicy`        | Which messages to receive on first connect: `NEW` (default), `ALL`, or `LAST`.             |
 | `consumerType`         | `PULL` (default) or `PUSH`.                                                                |
+| `onResolveFailure`     | Action on argument resolution failure: `TERM` (default), `NAK`, or `DISCARD`.              |
 
 ## Dead-lettering
 
@@ -267,10 +269,10 @@ JetStream has persistence and delivery tracking, so dead-lettering integrates wi
 public void onOrder(Order order) { /* ... */ }
 ```
 
-| Failure type                | Behaviour                                                                                                 |
-|-----------------------------|-----------------------------------------------------------------------------------------------------------|
-| Argument resolution failure | Message published to DLQ immediately, then `term()`-ed. Retrying a malformed payload would never succeed. |
-| Handler invocation failure  | Message is `nak()`-ed and redelivered up to `maxDeliveries` times, then published to DLQ and `term()`-ed. |
+| Failure type                | Behaviour                                                                                                                                                                                          |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Argument resolution failure | Controlled by `onResolveFailure`. Default (`TERM`): published to DLQ immediately, then `term()`-ed. `NAK`: nacked and redelivered; dead-lettered and `term()`-ed once `deadLetterDeliveries` is exhausted. `DISCARD`: silently `ack()`-ed, no DLQ. |
+| Handler invocation failure  | Message is `nak()`-ed and redelivered up to `deadLetterDeliveries` times, then published to DLQ and `term()`-ed.                                                                                   |
 
 If the DLQ publish itself fails, the exception propagates: the message is **not** terminated and will be redelivered.
 This may push the delivery count above `maxDeliveries`, which is intentional - the message is retried until the DLQ

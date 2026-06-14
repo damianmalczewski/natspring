@@ -20,6 +20,7 @@ import static io.github.malczuuu.natspring.handler.DeadLetterSupport.buildAndPub
 import static io.github.malczuuu.natspring.handler.DeadLetterSupport.buildDeadLetterHeaders;
 
 import io.github.malczuuu.natspring.annotation.AckMode;
+import io.github.malczuuu.natspring.annotation.ResolutionFailureAction;
 import io.github.malczuuu.natspring.core.NatsMessageInterceptor;
 import io.github.malczuuu.natspring.instrument.JetStreamListenerObserver;
 import io.nats.client.Connection;
@@ -78,14 +79,29 @@ final class JetStreamInvocation implements Consumer<Message> {
           messageArgumentResolver.resolveArguments(endpoint.getMethod().getParameters(), message);
     } catch (Exception e) {
       logResolutionException(message, e);
-      if (!endpoint.getDeadLetterSubject().isEmpty()) {
-        publishDeadLetter(message, e);
+      ResolutionFailureAction action = endpoint.getResolveFailure();
+      if (action == ResolutionFailureAction.TERM) {
+        if (!endpoint.getDeadLetterSubject().isEmpty()) {
+          publishDeadLetter(message, e);
+        }
+        message.term();
+        if (!endpoint.getDeadLetterSubject().isEmpty()) {
+          observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
+        }
+        observer.onTerminated(endpoint.getSubject(), endpoint.getStream(), e);
+      } else if (action == ResolutionFailureAction.NAK) {
+        if (!endpoint.getDeadLetterSubject().isEmpty() && isLastDelivery(message)) {
+          publishDeadLetter(message, e);
+          message.term();
+          observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
+        } else {
+          message.nak();
+          observer.onNacked(endpoint.getSubject(), endpoint.getStream());
+        }
+      } else {
+        message.ack();
+        observer.onAcked(endpoint.getSubject(), endpoint.getStream());
       }
-      message.term();
-      if (!endpoint.getDeadLetterSubject().isEmpty()) {
-        observer.onDeadLettered(endpoint.getSubject(), endpoint.getStream());
-      }
-      observer.onTerminated(endpoint.getSubject(), endpoint.getStream(), e);
       return;
     }
 
