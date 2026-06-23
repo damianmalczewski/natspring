@@ -24,7 +24,7 @@ dependencies {
     errorprone(libs.nullaway)
 }
 
-// see buildSrc/src/main/kotlin/internal.publishing-convention.gradle.kts
+// see build-logic/src/main/kotlin/internal.publishing-convention.gradle.kts
 internalPublishing {
     displayName = "Natspring Namastack Outbox"
     description = "Namastack Outbox Integration Module of Natspring Project"
