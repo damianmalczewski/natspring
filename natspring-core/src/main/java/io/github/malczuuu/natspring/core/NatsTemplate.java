@@ -122,7 +122,7 @@ final class NatsTemplate implements NatsOperations {
 
   @Override
   public NatsOperations.Builder mutate() {
-    return new DefaultBuilder(this);
+    return new Builder(this);
   }
 
   private CompletableFuture<NatsReply> doRequest(Message message, Duration timeout) {
@@ -136,15 +136,15 @@ final class NatsTemplate implements NatsOperations {
             new IllegalStateException("request suppressed by interceptor"));
   }
 
-  static final class DefaultBuilder implements NatsOperations.Builder {
+  static final class Builder implements NatsOperations.Builder {
 
     private @Nullable Connection connection;
     private @Nullable NatsMessageConverter converter;
     private final List<NatsPublishInterceptor> interceptors = new ArrayList<>();
 
-    DefaultBuilder() {}
+    Builder() {}
 
-    DefaultBuilder(NatsTemplate client) {
+    Builder(NatsTemplate client) {
       this.connection = client.connection;
       this.converter = client.converter;
       this.interceptors.addAll(client.interceptors);

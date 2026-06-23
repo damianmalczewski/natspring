@@ -40,7 +40,7 @@ public interface NatsOperations {
    * @return a new builder
    */
   static Builder builder() {
-    return new NatsTemplate.DefaultBuilder();
+    return new NatsTemplate.Builder();
   }
 
   /**
